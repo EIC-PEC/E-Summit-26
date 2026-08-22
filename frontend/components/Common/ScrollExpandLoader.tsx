@@ -36,6 +36,30 @@ export default function ScrollExpandLoader() {
     updateDims()
     window.addEventListener('resize', updateDims, { passive: true })
 
+    const preventDefault = (e: Event) => {
+      e.preventDefault()
+    }
+
+    const preventKeys = (e: KeyboardEvent) => {
+      if (['Space', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.code)) {
+        e.preventDefault()
+      }
+    }
+
+    window.addEventListener('wheel', preventDefault, { passive: false })
+    window.addEventListener('touchmove', preventDefault, { passive: false })
+    window.addEventListener('keydown', preventKeys, { passive: false })
+
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.top = '0px'
+    document.body.style.width = '100%'
+
+    if (typeof window !== 'undefined') {
+      window.scrollTo(0, 0)
+    }
+
     const unlock = () => {
       setStage('done')
       if (typeof window !== 'undefined') {
@@ -48,12 +72,15 @@ export default function ScrollExpandLoader() {
       document.body.style.position = ''
       document.body.style.top = ''
       document.body.style.width = ''
+      window.removeEventListener('wheel', preventDefault)
+      window.removeEventListener('touchmove', preventDefault)
+      window.removeEventListener('keydown', preventKeys)
     }
 
-    // Stage 1: Wait for 1.6s progress bar, then expand smoothly
+    // Stage 1: Progress bar runs for 1.8s, then initiates expansion
     const timer1 = setTimeout(() => {
       setStage('expanding')
-    }, 1600)
+    }, 1800)
 
     // Stage 1.5: Fade navbar in during expansion
     const timer1_5 = setTimeout(() => {
@@ -62,14 +89,14 @@ export default function ScrollExpandLoader() {
         document.body.classList.remove('loader-active')
         window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
       }
-    }, 2400)
+    }, 2700)
 
-    // Stage 2: Complete expansion and unlock scroll cleanly
+    // Stage 2: Complete expansion and unlock scroll
     const timer2 = setTimeout(() => {
       unlock()
-    }, 3000)
+    }, 3200)
 
-    // Tab Switch / Blur safety
+    // Tab Switch / Window Switch Safety: unlock immediately if user leaves/returns
     const handleVisibilityChange = () => {
       if (document.hidden || document.visibilityState === 'hidden') {
         unlock()
@@ -98,7 +125,7 @@ export default function ScrollExpandLoader() {
         key="loader-portal-overlay"
         initial={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
         className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none overflow-hidden"
       >
         {/* Vantage Style Portal Aperture Window — Cutout revealing live site behind it */}
@@ -114,15 +141,15 @@ export default function ScrollExpandLoader() {
             borderRadius: stage === 'expanding' ? '0px' : '24px',
           }}
           transition={{
-            duration: 1.4,
-            ease: [0.76, 0, 0.24, 1], // Smooth organic cinematic curve
+            duration: 1.3,
+            ease: [0.76, 0, 0.24, 1], // Silky smooth cinematic deceleration
           }}
           className="relative flex items-end justify-center border-2 border-black/30 bg-transparent transition-all"
           style={{
             boxShadow: '0 0 0 9999px #7ED321',
           }}
         >
-          {/* Ambient Grid Lines on Lime Mask */}
+          {/* Subtle Ambient Grid Lines on Lime Mask */}
           <div
             className="absolute -inset-[9999px] opacity-15 pointer-events-none z-0"
             style={{
@@ -138,7 +165,7 @@ export default function ScrollExpandLoader() {
             className="absolute inset-0 rounded-[inherit] pointer-events-none shadow-[inset_0_0_50px_rgba(0,0,0,0.6)]"
           />
 
-          {/* Bottom Progress Bar — Live E-SUMMIT '26 shines through cutout naturally */}
+          {/* Bottom Progress Bar — Live E-SUMMIT '26 text shines naturally from NewHero behind it */}
           <motion.div
             initial={{ opacity: 1, y: 0 }}
             animate={{
@@ -152,7 +179,7 @@ export default function ScrollExpandLoader() {
               <motion.div
                 initial={{ width: '0%' }}
                 animate={{ width: '100%' }}
-                transition={{ duration: 1.6, ease: 'easeInOut' }}
+                transition={{ duration: 1.8, ease: 'easeInOut' }}
                 className="h-full bg-mint rounded-full shadow-[0_0_12px_#7ED321]"
               />
             </div>
