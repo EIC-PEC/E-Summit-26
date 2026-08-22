@@ -36,16 +36,16 @@ if (typeof window !== 'undefined' || isFirebaseConfigured) {
 
       if (typeof window !== 'undefined') {
         isSupported()
-          .then((supported) => {
+          .then((supported: boolean) => {
             if (supported && app) {
               try {
                 analytics = getAnalytics(app)
-              } catch (e) {
+              } catch (e: unknown) {
                 console.warn('Firebase Analytics not supported in this storage context:', e)
               }
             }
           })
-          .catch((err) => {
+          .catch((err: unknown) => {
             console.warn('Firebase Analytics isSupported check bypassed:', err)
           })
       }

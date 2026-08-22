@@ -655,44 +655,46 @@ export default function RegisterClient() {
 
       {/* ── TOP HEADER / MINIMALIST NAVIGATION ── */}
       <header className="w-full border-b border-white/[0.08] bg-[#0B1410]/90 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 h-14 flex items-center justify-between gap-2">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-xs font-medium text-neutral-400 hover:text-white transition-colors group"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-white transition-colors group shrink-0 whitespace-nowrap"
           >
-            <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform text-neutral-400" />
-            <span>Back to E-Summit &apos;26</span>
+            <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform text-neutral-400 shrink-0" />
+            <span className="hidden sm:inline">Back to E-Summit &apos;26</span>
+            <span className="sm:hidden text-xs">Back</span>
           </Link>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {!mounted ? (
-              <div className="w-20 h-7" />
+              <div className="w-16 h-7" />
             ) : user ? (
-              <div className="flex items-center gap-2 bg-[#13221C] border border-white/10 rounded-md px-2.5 py-1 text-xs text-neutral-300">
-                <span className="font-medium max-w-[120px] truncate text-neutral-200 text-xs">
+              <div className="flex items-center gap-1.5 bg-[#13221C] border border-white/10 rounded-md px-2 py-1 text-xs text-neutral-300">
+                <span className="font-medium max-w-[80px] sm:max-w-[120px] truncate text-neutral-200 text-[11px] sm:text-xs">
                   {user.displayName || user.email?.split('@')[0]}
                 </span>
 
                 <button
                   type="button"
                   onClick={() => setView(view === 'passes' ? 'catalog' : 'passes')}
-                  className={`px-2.5 py-0.5 rounded text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                  className={`px-2 py-0.5 rounded text-[11px] sm:text-xs font-semibold transition-all flex items-center gap-1 shrink-0 ${
                     view === 'passes'
                       ? 'bg-mint text-void font-bold'
                       : 'bg-white/10 text-white hover:bg-white/15'
                   }`}
                 >
-                  <Ticket size={12} />
-                  <span>My Passes ({myRegistrations.length})</span>
+                  <Ticket size={11} className="shrink-0" />
+                  <span className="hidden sm:inline">My Passes</span>
+                  <span>({myRegistrations.length})</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => logout()}
                   title="Sign Out"
-                  className="p-1 rounded hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors"
+                  className="p-0.5 rounded hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors shrink-0"
                 >
-                  <LogOut size={13} />
+                  <LogOut size={12} />
                 </button>
               </div>
             ) : (
@@ -702,9 +704,9 @@ export default function RegisterClient() {
                   setAuthMode('login')
                   setView('auth')
                 }}
-                className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 px-3 py-1 text-xs font-medium text-white transition-all"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 px-2.5 py-1 text-xs font-medium text-white transition-all shrink-0 whitespace-nowrap"
               >
-                <LogIn size={13} className="text-mint" />
+                <LogIn size={13} className="text-mint shrink-0" />
                 <span>Sign In</span>
               </button>
             )}
