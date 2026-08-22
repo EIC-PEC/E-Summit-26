@@ -1,3 +1,6 @@
-[submodule "E_Summit_Backend"]
-	path = E_Summit_Backend
-	url = https://github.com/EIC-PEC-all/E_Summit_Backend.git
+[submodule "admin"]
+	path = admin
+	url = https://github.com/EIC-PEC/admin.git
+[submodule "backend"]
+	path = backend
+	url = https://github.com/EIC-PEC/backend.git
