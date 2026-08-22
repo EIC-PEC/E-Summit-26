@@ -90,7 +90,7 @@ export default function ScrollExpandLoader() {
     }
   }, [])
 
-  if (!isMounted || stage === 'done') return null
+  if (stage === 'done') return null
 
   return (
     <AnimatePresence>
