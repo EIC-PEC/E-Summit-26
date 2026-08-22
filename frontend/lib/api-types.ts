@@ -2,7 +2,7 @@
 // Hand-mirrored response shapes from E_Summit_Backend (/api/v1).
 // Keep in sync with the NestJS DTOs/services.
 
-export type Role = 'SUPER_ADMIN' | 'ORGANIZER' | 'VOLUNTEER_CHECKIN' | 'INVESTOR' | 'DELEGATE'
+export type Role = 'ADMIN' | 'GATE' | 'USER' | 'SUPER_ADMIN' | 'DELEGATE'
 
 export type PassType =
   | 'STUDENT_GENERAL'
