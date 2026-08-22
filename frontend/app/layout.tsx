@@ -35,6 +35,9 @@ export const metadata: Metadata = {
     statusBarStyle: 'black-translucent',
     title: 'E-SUMMIT',
   },
+  other: {
+    'mobile-web-app-capable': 'yes',
+  },
   alternates: {
     canonical: '/',
   },

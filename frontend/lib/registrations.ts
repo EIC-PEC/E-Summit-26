@@ -99,9 +99,16 @@ export const createRegistrationRecord = async (
           qrCodeData: serverData.qrDataUrl || qrData,
         }
       }
+    } else if (res.status === 409) {
+      const errData = await res.json().catch(() => null)
+      const message = errData?.message || 'You are already registered for this pass category.'
+      throw new Error(message)
     }
-  } catch (err) {
-    // Graceful offline fallback
+  } catch (err: any) {
+    if (err.message && err.message.includes('already registered')) {
+      throw err
+    }
+    // Graceful offline fallback for network issues
     console.warn('MongoDB API unreachable, saving to local cache:', err)
   }
 

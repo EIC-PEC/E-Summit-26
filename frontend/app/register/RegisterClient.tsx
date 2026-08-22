@@ -433,9 +433,9 @@ export default function RegisterClient() {
       await fetchRegistrations()
       setView('success')
       toast.success('Your pass is confirmed!', TOAST_STYLE)
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      toast.error('Failed to save booking.', TOAST_STYLE)
+      toast.error(err?.message || 'Failed to save booking.', TOAST_STYLE)
     } finally {
       setIsSubmitting(false)
     }
