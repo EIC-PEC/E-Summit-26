@@ -59,7 +59,24 @@ export default function ScrollExpandLoader() {
       window.scrollTo(0, 0)
     }
 
-    // Stage 1: Wait for 2.0s progress bar, then expand
+    const unlock = () => {
+      setStage('done')
+      if (typeof window !== 'undefined') {
+        window.__SCROLL_LOADER_ACTIVE__ = false
+        document.body.classList.remove('loader-active')
+        window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
+      }
+      document.documentElement.style.overflow = ''
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      window.removeEventListener('wheel', preventDefault)
+      window.removeEventListener('touchmove', preventDefault)
+      window.removeEventListener('keydown', preventKeys)
+    }
+
+    // Stage 1: Wait for 1.8s progress bar, then expand
     const timer1 = setTimeout(() => {
       setStage('expanding')
     }, 1800)
@@ -71,39 +88,35 @@ export default function ScrollExpandLoader() {
         document.body.classList.remove('loader-active')
         window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
       }
-    }, 3000)
+    }, 2800)
 
     // Stage 2: Complete expansion and unlock scroll
     const timer2 = setTimeout(() => {
-      setStage('done')
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
-      window.removeEventListener('wheel', preventDefault)
-      window.removeEventListener('touchmove', preventDefault)
-      window.removeEventListener('keydown', preventKeys)
-    }, 3600)
+      unlock()
+    }, 3400)
+
+    // Tab Switch / Window Switch Safety: If tab loses focus or returns after backgrounding, unlock immediately
+    const handleVisibilityChange = () => {
+      if (document.hidden || document.visibilityState === 'hidden') {
+        unlock()
+      }
+    }
+
+    const handleWindowBlur = () => {
+      unlock()
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('blur', handleWindowBlur)
 
     return () => {
       clearTimeout(timer1)
       clearTimeout(timer1_5)
       clearTimeout(timer2)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('blur', handleWindowBlur)
       window.removeEventListener('resize', updateDims)
-      if (typeof window !== 'undefined') {
-        window.__SCROLL_LOADER_ACTIVE__ = false
-        document.body.classList.remove('loader-active')
-        window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
-      }
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
-      window.removeEventListener('wheel', preventDefault)
-      window.removeEventListener('touchmove', preventDefault)
-      window.removeEventListener('keydown', preventKeys)
+      unlock()
     }
   }, [])
 

@@ -169,8 +169,17 @@ export default function NewHero() {
     }
 
     handleResize()
+    const handleReactivate = () => {
+      renderFrame(currentFrameRef.current)
+    }
     window.addEventListener('resize', handleResize, { passive: true })
-    return () => window.removeEventListener('resize', handleResize)
+    window.addEventListener('focus', handleReactivate, { passive: true })
+    document.addEventListener('visibilitychange', handleReactivate, { passive: true })
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('focus', handleReactivate)
+      document.removeEventListener('visibilitychange', handleReactivate)
+    }
   }, [])
 
   // Scrub canvas video frames on scroll with RAF deduplication
