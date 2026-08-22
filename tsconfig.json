@@ -16,5 +16,5 @@
     "paths": { "@/*": ["./*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "backend", "admin", "E_Summit_Backend", "admin_dashboard"]
+  "exclude": ["node_modules", "backend", "admin", "frontend"]
 }
