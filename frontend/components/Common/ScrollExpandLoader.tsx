@@ -61,10 +61,9 @@ export default function ScrollExpandLoader() {
       window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
     }, 2200)
 
-    // Kill the overlay after expansion completes + a tiny buffer
+    // Kill overlay after expansion animation finishes
     const t3 = setTimeout(unlock, 2700)
 
-    // Failsafe: switching tabs/windows unlocks instantly
     const onHide = () => { if (document.hidden) unlock() }
     document.addEventListener('visibilitychange', onHide)
     window.addEventListener('blur', unlock)
@@ -83,29 +82,43 @@ export default function ScrollExpandLoader() {
 
   return (
     <AnimatePresence>
-      {/* Full-screen lime overlay — aperture window punches a hole through it via box-shadow */}
+      {/*
+        Two-layer fix for the "black flash" bug:
+
+        The flash happened because the aperture box-shadow only works as a lime mask
+        while the dark div is SMALLER than the viewport. The moment scaleX passes 1.0
+        during expansion, the box-shadow falls outside the viewport and the lime
+        disappears — briefly revealing the full hero.
+
+        Fix: the outer wrapper (lime mask layer) fades out at exactly the same time
+        as the scale crosses 1.0, so the transition is always covered by opacity.
+        The aperture scale + outer opacity fade together = seamless reveal.
+      */}
       <motion.div
         key="loader-overlay"
         initial={{ opacity: 1 }}
+        animate={{ opacity: stage === 'expanding' ? 0 : 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.35, ease: 'easeOut' }}
+        transition={{
+          opacity: {
+            // Starts fading right as expansion begins, covers the scale-1.0 flash point
+            duration: 0.9,
+            delay: stage === 'expanding' ? 0.25 : 0,
+            ease: 'easeIn',
+          },
+        }}
         className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden pointer-events-none"
       >
-        {/*
-          The aperture punch-out:
-          - scaleX + scaleY animates on the GPU compositor thread (no layout, no paint)
-          - box-shadow of 9999px creates the lime green mask around it
-          - transformOrigin: center keeps it expanding from the middle
-        */}
+        {/* Aperture punch-out via box-shadow lime mask — scaleX/scaleY runs on GPU compositor */}
         <motion.div
           initial={{ scaleX: 0.68, scaleY: 0.62, borderRadius: '24px' }}
           animate={
             stage === 'expanding'
-              ? { scaleX: 2.0, scaleY: 2.0, borderRadius: '0px' }
+              ? { scaleX: 2.2, scaleY: 2.2, borderRadius: '0px' }
               : { scaleX: 0.68, scaleY: 0.62, borderRadius: '24px' }
           }
           transition={{
-            duration: 1.1,
+            duration: 1.0,
             ease: [0.76, 0, 0.24, 1],
           }}
           className="relative flex items-end justify-center border-2 border-black/30"
@@ -117,7 +130,7 @@ export default function ScrollExpandLoader() {
             boxShadow: '0 0 0 9999px #7ED321',
           }}
         >
-          {/* Ambient grid on the lime mask — positioned relative to viewport not aperture */}
+          {/* Ambient grid lines on lime mask */}
           <div
             className="absolute pointer-events-none"
             style={{
@@ -128,21 +141,21 @@ export default function ScrollExpandLoader() {
             }}
           />
 
-          {/* Inset vignette on the aperture frame — fades out before expansion */}
+          {/* Inset vignette on the aperture frame */}
           <motion.div
             animate={{ opacity: stage === 'expanding' ? 0 : 1 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.25 }}
             className="absolute inset-0 rounded-[inherit] pointer-events-none shadow-[inset_0_0_50px_rgba(0,0,0,0.6)]"
           />
 
-          {/* Progress bar — uses scaleX so no layout is triggered per frame */}
+          {/* Progress bar — scaleX origin-left, zero layout cost */}
           <motion.div
             initial={{ opacity: 1, y: 0 }}
             animate={{
               opacity: stage === 'expanding' ? 0 : 1,
               y: stage === 'expanding' ? 16 : 0,
             }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
             className="relative z-10 mb-8"
           >
             <div className="w-48 h-1.5 bg-black/70 rounded-full overflow-hidden border border-white/20 shadow-lg">
