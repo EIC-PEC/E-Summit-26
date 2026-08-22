@@ -35,11 +35,19 @@ if (typeof window !== 'undefined' || isFirebaseConfigured) {
       googleProvider.setCustomParameters({ prompt: 'select_account' })
 
       if (typeof window !== 'undefined') {
-        isSupported().then((supported) => {
-          if (supported && app) {
-            analytics = getAnalytics(app)
-          }
-        })
+        isSupported()
+          .then((supported) => {
+            if (supported && app) {
+              try {
+                analytics = getAnalytics(app)
+              } catch (e) {
+                console.warn('Firebase Analytics not supported in this storage context:', e)
+              }
+            }
+          })
+          .catch((err) => {
+            console.warn('Firebase Analytics isSupported check bypassed:', err)
+          })
       }
     }
   } catch (error) {

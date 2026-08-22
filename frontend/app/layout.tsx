@@ -96,6 +96,8 @@ import GlobalScrollProgress from '@/components/Common/GlobalScrollProgress'
 import Concierge from '@/components/Concierge'
 import { AuthProvider } from '@/context/AuthContext'
 
+import ServiceWorkerCleanup from '@/components/Common/ServiceWorkerCleanup'
+
 const AnnouncementBanner = dynamic(
   () => import('@/components/Common/AnnouncementBanner'),
   { ssr: false }
@@ -112,6 +114,7 @@ export default function RootLayout({
         className={`noise ${kanit.variable} ${inter.variable} font-body text-primary bg-void`}
         suppressHydrationWarning
       >
+        <ServiceWorkerCleanup />
         <AuthProvider>
           <SessionProviderWrapper>
             <AnnouncementBanner />
