@@ -143,6 +143,13 @@ export default function RegisterClient() {
     setMounted(true)
   }, [])
 
+  // Enforce Step 1: Google Auth Gate if not logged in
+  useEffect(() => {
+    if (mounted && !user && (view === 'catalog' || view === 'checkout')) {
+      setView('auth')
+    }
+  }, [mounted, user, view])
+
   // Fetch real events dynamically from MongoDB CMS API with MASTER_EVENTS fallback
   useEffect(() => {
     const loadCmsEvents = async () => {
@@ -305,6 +312,11 @@ export default function RegisterClient() {
   // Handle proceed to checkout
   const handleProceedToCheckout = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!user) {
+      toast.error('Please sign in with Google to continue.', TOAST_STYLE)
+      setView('auth')
+      return
+    }
     if (!formData.name.trim()) {
       toast.error('Please enter your full name.', TOAST_STYLE)
       return
@@ -715,18 +727,19 @@ export default function RegisterClient() {
               transition={{ duration: 0.15 }}
               className="max-w-sm mx-auto space-y-5 pt-6"
             >
-              <div className="text-center space-y-1">
-                <div className="w-10 h-10 rounded-lg bg-mint/10 border border-mint/20 flex items-center justify-center mx-auto text-mint">
-                  <KeyRound size={18} />
+              <div className="text-center space-y-2">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mint/10 border border-mint/20 text-mint text-[10px] font-bold tracking-wider uppercase font-mono">
+                  <span className="h-1.5 w-1.5 rounded-full bg-mint animate-pulse" />
+                  Step 1 of 2: Sign In
                 </div>
                 <h1 className="text-xl font-bold text-white tracking-tight">
-                  {authMode === 'login' && 'Sign in to account'}
-                  {authMode === 'signup' && 'Create account'}
-                  {authMode === 'forgot' && 'Reset password'}
+                  {authMode === 'login' && 'Sign in to PEC E-Summit'}
+                  {authMode === 'signup' && 'Create Attendee Account'}
+                  {authMode === 'forgot' && 'Reset Password'}
                 </h1>
-                <p className="text-xs text-neutral-400">
-                  {authMode === 'login' && 'Access your passes, booking history, and entry QR code.'}
-                  {authMode === 'signup' && 'Register in seconds to book passes and event tracks.'}
+                <p className="text-xs text-neutral-400 max-w-xs mx-auto">
+                  {authMode === 'login' && 'Sign in with Google to claim, personalize, and link your official summit pass.'}
+                  {authMode === 'signup' && 'Register your account to book passes and unlock hackathon tracks.'}
                   {authMode === 'forgot' && 'Enter your email to receive a password reset link.'}
                 </p>
               </div>
