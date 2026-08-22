@@ -4,7 +4,7 @@
 // Falls back to static data from summitData.ts if the backend is unreachable,
 // so the site always renders even without a running backend.
 
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 import { api } from '@/lib/api'
 import type {
   CmsBundle,
@@ -13,6 +13,7 @@ import type {
   CmsSponsor,
   CmsAlumni,
   CmsFaq,
+  CmsScheduleItem,
 } from '@/lib/api-types'
 import {
   MASTER_EVENTS,
@@ -21,6 +22,10 @@ import {
   MASTER_ALUMNI,
   MASTER_FAQS,
 } from '@/data/summitData'
+
+export function refreshSummitData() {
+  return mutate('cms-bundle')
+}
 
 // ─── Static fallbacks (shapes are compatible with CMS types) ─────────────────
 
