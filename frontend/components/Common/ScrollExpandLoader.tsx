@@ -8,48 +8,6 @@ declare global {
   interface Window { __SCROLL_LOADER_ACTIVE__?: boolean }
 }
 
-// Lime frame dimensions — aperture is 68vw × 62vh centered
-const BAND_Y = 19   // top + bottom band height in vh
-const BAND_X = 16   // left + right band width in vw
-
-const EASE: [number, number, number, number] = [0.76, 0, 0.24, 1]
-const DURATION = 0.85
-
-// Reusable lime band with the ambient grid baked in
-function Band({
-  style,
-  axis,
-  expanding,
-}: {
-  style: React.CSSProperties
-  axis: 'x' | 'y'
-  expanding: boolean
-}) {
-  const GRID = {
-    backgroundImage: `
-      linear-gradient(to right, rgba(0,0,0,0.25) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0,0,0,0.25) 1px, transparent 1px)
-    `,
-    backgroundSize: '60px 60px',
-  }
-
-  return (
-    <motion.div
-      className="absolute bg-[#7ED321]"
-      style={{ ...style, willChange: 'transform' }}
-      initial={{ x: 0, y: 0 }}
-      animate={
-        axis === 'y'
-          ? { y: expanding ? (style.top !== undefined ? '-101%' : '101%') : '0%' }
-          : { x: expanding ? (style.left !== undefined ? '-101%' : '101%') : '0%' }
-      }
-      transition={{ duration: DURATION, ease: EASE }}
-    >
-      <div className="absolute inset-0 opacity-[0.12]" style={GRID} />
-    </motion.div>
-  )
-}
-
 export default function ScrollExpandLoader() {
   const [stage, setStage] = useState<'loading' | 'expanding' | 'done'>('loading')
 
@@ -90,17 +48,14 @@ export default function ScrollExpandLoader() {
       window.removeEventListener('keydown', noKeys)
     }
 
-    // Progress fills for 1.6s then the bands slide off
     const t1 = setTimeout(() => setStage('expanding'), 1600)
 
-    // Notify navbar mid-expansion
     const t2 = setTimeout(() => {
       window.__SCROLL_LOADER_ACTIVE__ = false
       document.body.classList.remove('loader-active')
       window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
-    }, 2100)
+    }, 2000)
 
-    // Full unlock after bands clear the screen
     const t3 = setTimeout(unlock, 2600)
 
     const onHide = () => { if (document.hidden) unlock() }
@@ -117,97 +72,67 @@ export default function ScrollExpandLoader() {
 
   if (stage === 'done') return null
 
-  const expanding = stage === 'expanding'
-
   return (
     <AnimatePresence>
-      <div
-        key="loader-bands"
-        className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden"
+      {/*
+        The expansion works by fading the ENTIRE overlay to opacity:0.
+        We never animate width/height/scale — so box-shadow never hits
+        the viewport boundary and there is NO flash possible.
+        The aperture stays at its rounded shape and gently zooms in as it fades.
+      */}
+      <motion.div
+        key="loader-overlay"
+        className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden pointer-events-none"
+        initial={{ opacity: 1 }}
+        animate={{
+          opacity: stage === 'expanding' ? 0 : 1,
+          scale: stage === 'expanding' ? 1.06 : 1,
+        }}
+        transition={{
+          opacity: { duration: 0.75, ease: [0.4, 0, 1, 1] },
+          scale: { duration: 0.85, ease: [0.4, 0, 0.2, 1] },
+        }}
+        style={{ willChange: 'opacity, transform' }}
       >
-        {/*
-          4-band iris approach:
-          - TOP band covers top BAND_Y vh (full width — owns both top corners)
-          - BOTTOM band covers bottom BAND_Y vh (full width — owns both bottom corners)
-          - LEFT/RIGHT bands cover ONLY the middle strip (between the two horizontal bands)
-          Each band slides off its own edge independently using GPU transform: translate only.
-          Zero box-shadow math = zero flash possible.
-        */}
-
-        {/* TOP — slides up, full width so it owns the top-left + top-right corners */}
-        <Band
-          style={{ top: 0, left: 0, right: 0, height: `${BAND_Y}vh` }}
-          axis="y"
-          expanding={expanding}
-        />
-
-        {/* BOTTOM — slides down */}
-        <Band
-          style={{ bottom: 0, left: 0, right: 0, height: `${BAND_Y}vh` }}
-          axis="y"
-          expanding={expanding}
-        />
-
-        {/* LEFT — middle strip only (corners handled by top/bottom bands) */}
-        <Band
+        {/* Lime aperture frame via box-shadow — this stays static, no scale animation */}
+        <div
+          className="relative flex items-end justify-center border-2 border-black/25"
           style={{
-            top: `${BAND_Y}vh`,
-            bottom: `${BAND_Y}vh`,
-            left: 0,
-            width: `${BAND_X}vw`,
+            width: 'clamp(320px, 68vw, 920px)',
+            height: 'clamp(280px, 60vh, 640px)',
+            borderRadius: '24px',
+            boxShadow: '0 0 0 9999px #7ED321',
+            willChange: 'auto',
           }}
-          axis="x"
-          expanding={expanding}
-        />
-
-        {/* RIGHT — middle strip only */}
-        <Band
-          style={{
-            top: `${BAND_Y}vh`,
-            bottom: `${BAND_Y}vh`,
-            right: 0,
-            width: `${BAND_X}vw`,
-          }}
-          axis="x"
-          expanding={expanding}
-        />
-
-        {/* Cosmetic aperture border + inner vignette around the hero viewport */}
-        <motion.div
-          className="absolute rounded-3xl border-2 border-black/20 pointer-events-none"
-          style={{
-            top: `${BAND_Y}vh`,
-            bottom: `${BAND_Y}vh`,
-            left: `${BAND_X}vw`,
-            right: `${BAND_X}vw`,
-            boxShadow: 'inset 0 0 60px rgba(0,0,0,0.65)',
-          }}
-          animate={{ opacity: expanding ? 0 : 1 }}
-          transition={{ duration: 0.25 }}
-        />
-
-        {/* Progress bar — centered at bottom of aperture opening */}
-        <motion.div
-          className="absolute flex justify-center"
-          style={{
-            bottom: `calc(${BAND_Y}vh + 2rem)`,
-            left: `${BAND_X}vw`,
-            right: `${BAND_X}vw`,
-          }}
-          animate={{ opacity: expanding ? 0 : 1, y: expanding ? 14 : 0 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
         >
-          <div className="w-44 h-[5px] bg-black/60 rounded-full overflow-hidden border border-white/20 shadow-md">
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ duration: 1.6, ease: [0.4, 0, 0.2, 1] }}
-              className="h-full bg-mint rounded-full origin-left"
-              style={{ willChange: 'transform', boxShadow: '0 0 8px #7ED321' }}
-            />
+          {/* Ambient grid on the lime mask */}
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              inset: '-9999px',
+              backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.2) 1px, transparent 1px)`,
+              backgroundSize: '60px 60px',
+              opacity: 0.13,
+            }}
+          />
+
+          {/* Inner vignette on the aperture window */}
+          <div className="absolute inset-0 rounded-3xl pointer-events-none shadow-[inset_0_0_60px_rgba(0,0,0,0.65)]" />
+
+          {/* Progress bar — GPU scaleX, no layout cost */}
+          <div className="relative z-10 mb-8">
+            <div className="w-44 h-[5px] bg-black/60 rounded-full overflow-hidden border border-white/20 shadow-md">
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 1.6, ease: [0.4, 0, 0.2, 1] }}
+                className="h-full bg-mint rounded-full origin-left"
+                style={{ willChange: 'transform', boxShadow: '0 0 8px #7ED321' }}
+              />
+            </div>
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
     </AnimatePresence>
   )
 }
