@@ -187,9 +187,9 @@ export function RegisterCTA() {
               href="/passes"
               className="btn-mint-gradient flex items-center justify-center gap-2 rounded-full px-10 py-4 text-base font-bold shadow-lg transition-transform hover:scale-105"
               id="footer-register-btn"
-              aria-label="Claim Delegate Pass for E-Summit"
+              aria-label="Claim Your Pass for E-Summit"
             >
-              <span>Claim Delegate Pass</span>
+              <span>Claim Your Pass</span>
               <ArrowRight size={18} aria-hidden="true" />
             </Link>
 

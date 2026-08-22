@@ -237,7 +237,7 @@ export const MASTER_EVENTS: EventItem[] = [
     eyebrow: 'MACRO DISCUSSION',
     image: '/gallery/pec_auditorium.png',
     purpose: 'Debate and discussion on macroeconomic trends, startup policy reforms, and digital public infrastructure.',
-    delivery: 'Structured panel discussions followed by delegate Q&A.',
+    delivery: 'Structured panel discussions followed by audience Q&A.',
     expectedParticipation: '200+ Competitors',
     tags: ['Policy', 'Economics', 'Case Review'],
     partner: 'SAASC PEC',
@@ -357,7 +357,7 @@ export const MASTER_FAQS: FAQItem[] = [
   {
     id: 'faq-2',
     question: 'Are registration passes free?',
-    answer: 'General Student Delegate Passes and Campus Ambassador Passes are 100% FREE. Specialized passes like Startup Founder & Hackathon passes have small entry fees for prize pools.',
+    answer: 'General Student Passes and Campus Ambassador Passes are 100% FREE. Specialized passes like Startup Founder & Hackathon passes have small entry fees for prize pools.',
     category: 'Passes',
   },
   {

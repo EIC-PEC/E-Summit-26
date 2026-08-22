@@ -21,7 +21,7 @@ const PILLARS = [
   },
   {
     icon: Users,
-    title: '3,000+ Delegates & VCs',
+    title: '3,000+ Attendees & VCs',
     desc: 'Direct networking across student builders, active angel syndicates, and leading venture funds.',
   },
   {

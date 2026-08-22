@@ -183,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const userObj: SimpleUser = {
           uid: u.uid,
           email: u.email,
-          displayName: u.displayName || u.email?.split('@')[0] || 'Delegate',
+          displayName: u.displayName || u.email?.split('@')[0] || 'Attendee',
           photoURL: u.photoURL,
         }
         setUser(u)
@@ -201,7 +201,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const mockUser: SimpleUser = {
         uid: `g_${Date.now()}`,
         email: 'innovator@pec.edu.in',
-        displayName: 'E-Summit Delegate',
+        displayName: 'E-Summit Attendee',
       }
       setUser(mockUser)
       try {
