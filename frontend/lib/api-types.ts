@@ -240,6 +240,14 @@ export interface CmsGalleryItem {
   createdAt: string
 }
 
+export interface PortfolioEventMedia {
+  id: string
+  eventId: string
+  imageUrl: string
+  createdAt?: string
+  updatedAt?: string
+}
+
 /** Single-request bundle returned by GET /api/v1/cms/bundle */
 export interface CmsBundle {
   siteConfig: SiteConfig
@@ -250,6 +258,7 @@ export interface CmsBundle {
   alumni: CmsAlumni[]
   faqs: CmsFaq[]
   gallery: CmsGalleryItem[]
+  portfolioMedia?: PortfolioEventMedia[]
 }
 
 export interface SubscribeResponse {

@@ -7,34 +7,57 @@ import { PORTFOLIO_EVENTS, PortfolioEvent } from './data'
 import { Card } from './Card'
 import { FinalCard } from './FinalCard'
 import { DetailModal } from './DetailModal'
-import { useEvents } from '@/hooks/useSummitData'
+import { useSummitData } from '@/hooks/useSummitData'
 import type { CmsEvent } from '@/lib/api-types'
 
 export default function EventPortfolioShowcase() {
   const containerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
 
-  const { events: cmsEvents } = useEvents()
+  const { data } = useSummitData()
+  const cmsEvents = data.events || []
+  const portfolioMedia = data.portfolioMedia || []
 
-  // CmsEvent is compatible with PortfolioEvent shape — map if available
+  // Map CMS events or fallback with live portfolioMedia overrides
   const events: PortfolioEvent[] = useMemo(() => {
-    if (cmsEvents.length > 0) {
-      return cmsEvents.map((e: CmsEvent) => ({
+    const baseEvents = cmsEvents.length > 0 ? cmsEvents : PORTFOLIO_EVENTS
+
+    return baseEvents.map((e, idx) => {
+      const numStr = e.number || `0${idx + 1}`.slice(-2)
+      const matched = portfolioMedia.find(
+        (p) =>
+          p.eventId === e.id ||
+          p.eventId === numStr ||
+          (p.eventId === 'corporate-workshops' && (numStr === '01' || e.title.includes('Workshop'))) ||
+          (p.eventId === 'internship-job-fair' && (numStr === '02' || e.title.includes('Internship') || e.title.includes('Career'))) ||
+          (p.eventId === 'rd-conclave' && (numStr === '03' || e.title.includes('R&D'))) ||
+          (p.eventId === 'ipl-auction' && (numStr === '04' || e.title.includes('IPL'))) ||
+          (p.eventId === 'ignite' && (numStr === '05' || e.title.includes('Ignite'))) ||
+          (p.eventId === 'treasure-hunt' && (numStr === '06' || e.title.includes('Treasure'))) ||
+          (p.eventId === 'baazar' && (numStr === '07' || e.title.includes('Baazar'))) ||
+          (p.eventId === 'bizquiz-saasc' && (numStr === '08' || e.title.includes('BizQuiz'))) ||
+          (p.eventId === 'additional-quiz-saasc' && (numStr === '09' || e.title.includes('Knowledge Quiz'))) ||
+          (p.eventId === 'campus-ambassador' && (numStr === '10' || e.title.includes('Ambassador'))) ||
+          (p.eventId === 'expert-speakers' && (numStr === '11' || e.title.includes('Speaker'))) ||
+          (p.eventId === 'funding-conclave' && (numStr === '12' || e.title.includes('Funding'))) ||
+          (p.eventId === 'case-competition' && (numStr === '13' || e.title.includes('Case')))
+      )
+
+      return {
         id: e.id,
-        number: e.number,
+        number: numStr,
         title: e.title,
         category: e.category,
         eyebrow: e.eyebrow,
-        image: e.image,
+        image: matched?.imageUrl || e.image,
         purpose: e.purpose,
         delivery: e.delivery,
         expectedParticipation: e.expectedParticipation,
         tags: e.tags,
         partner: e.partner ?? undefined,
-      }))
-    }
-    return PORTFOLIO_EVENTS
-  }, [cmsEvents])
+      }
+    })
+  }, [cmsEvents, portfolioMedia])
 
   const [selectedEvent, setSelectedEvent] = useState<PortfolioEvent | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>('All')
