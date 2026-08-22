@@ -22,13 +22,22 @@ const LOCAL_STORAGE_KEY = 'pec_summit_registrations'
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1'
 
 const PASS_TYPE_MAP: Record<string, string> = {
+  'Student Pass': 'STUDENT_GENERAL',
   'Student Delegate Pass': 'STUDENT_GENERAL',
   'Student Delegate': 'STUDENT_GENERAL',
+  'STUDENT_GENERAL': 'STUDENT_GENERAL',
+  'Hackathon Pass': 'HACKATHON_BUILDER',
   '24-Hour Hackathon Pass': 'HACKATHON_BUILDER',
   '24-Hour Hackathon': 'HACKATHON_BUILDER',
+  'HACKATHON_BUILDER': 'HACKATHON_BUILDER',
+  'Pitch Pass': 'FOUNDER_PITCH',
   'Startup Pitch Pass': 'FOUNDER_PITCH',
+  'Founder Pass': 'FOUNDER_PITCH',
+  'FOUNDER_PITCH': 'FOUNDER_PITCH',
+  'Ambassador': 'CAMPUS_AMBASSADOR',
   'Campus Ambassador Pass': 'CAMPUS_AMBASSADOR',
   'Campus Ambassador': 'CAMPUS_AMBASSADOR',
+  'CAMPUS_AMBASSADOR': 'CAMPUS_AMBASSADOR',
 }
 
 export const getLocalRegistrations = (): RegistrationRecord[] => {
@@ -99,16 +108,19 @@ export const createRegistrationRecord = async (
           qrCodeData: serverData.qrDataUrl || qrData,
         }
       }
-    } else if (res.status === 409) {
+    } else {
       const errData = await res.json().catch(() => null)
-      const message = errData?.message || 'You are already registered for this pass category.'
+      const message =
+        errData?.message ||
+        (res.status === 409
+          ? 'You are already registered for this pass category.'
+          : `Registration failed with status ${res.status}.`)
       throw new Error(message)
     }
   } catch (err: any) {
-    if (err.message && err.message.includes('already registered')) {
+    if (err.message) {
       throw err
     }
-    // Graceful offline fallback for network issues
     console.warn('MongoDB API unreachable, saving to local cache:', err)
   }
 
