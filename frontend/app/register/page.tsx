@@ -1,0 +1,39 @@
+import type { Metadata } from 'next'
+import RegisterClient from './RegisterClient'
+
+export const metadata: Metadata = {
+  title: 'Register & Delegate Passes — PEC E-Summit 2026',
+  description:
+    'Claim your delegate pass for PEC E-Summit 2026. Free Student Delegate passes, Startup Founder Pitch passes, and Hackathon Builder passes available now at Punjab Engineering College, Chandigarh.',
+  alternates: {
+    canonical: '/register',
+  },
+  openGraph: {
+    title: 'Register for PEC E-Summit 2026 — Delegate Passes',
+    description:
+      'Join 3,000+ delegates, innovators, and investors at North India\'s premier entrepreneurship summit.',
+    url: 'https://esummit.pec.ac.in/register',
+    siteName: 'PEC E-Summit 2026',
+    images: [
+      {
+        url: '/eic-logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'PEC E-Summit 2026 Passes',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PEC E-Summit 2026 Passes — Register Now',
+    description:
+      'Claim your student, founder, or hacker delegate pass for PEC E-Summit 2026.',
+    images: ['/eic-logo.png'],
+  },
+}
+
+export default function RegisterPage() {
+  return <RegisterClient />
+}

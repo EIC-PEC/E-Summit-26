@@ -1,7 +1,7 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "installCommand": "npm ci",
-  "outputDirectory": ".next",
+  "buildCommand": "npm --prefix frontend run build",
+  "installCommand": "npm --prefix frontend ci",
+  "outputDirectory": "frontend/.next",
   "regions": ["bom1"]
 }
