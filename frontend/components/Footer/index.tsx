@@ -30,6 +30,7 @@ import StackedSlicedText from '@/components/ui/StackedSlicedText'
 import { FEST_META } from '@/lib/data'
 import { TOAST_STYLE } from '@/lib/constants'
 import { useSiteConfig } from '@/hooks/useSummitData'
+import { api } from '@/lib/api'
 
 function EmailCapture() {
   const [email, setEmail] = useState('')
@@ -42,17 +43,25 @@ function EmailCapture() {
       toast.error('Please enter a valid email address.', TOAST_STYLE)
       return
     }
+
+    const cleanEmail = email.trim().toLowerCase()
+
+    // Sync to backend DB asynchronously
+    api.subscribe(cleanEmail).catch(() => {
+      // Non-critical fallback
+    })
+
     try {
       const existing: string[] = JSON.parse(localStorage.getItem('pec_summit_subscribers') || '[]')
-      if (!existing.includes(email)) {
-        existing.push(email)
+      if (!existing.includes(cleanEmail)) {
+        existing.push(cleanEmail)
         localStorage.setItem('pec_summit_subscribers', JSON.stringify(existing))
       }
     } catch {
       // non-critical — continue
     }
     setSubmitted(true)
-    toast.success(`${email} — you're on the list!`, { ...TOAST_STYLE, duration: 4000 })
+    toast.success(`${cleanEmail} — you're on the list!`, { ...TOAST_STYLE, duration: 4000 })
   }
 
   if (submitted) {
