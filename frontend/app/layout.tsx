@@ -103,6 +103,51 @@ const AnnouncementBanner = dynamic(
   { ssr: false }
 )
 
+const JSON_LD_EVENT_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'Event',
+  name: 'PEC E-Summit 2026',
+  description:
+    "North India's largest student entrepreneurship summit at Punjab Engineering College. 2 days of keynotes, high-stakes startup pitches, hackathons, and angel investor networking.",
+  startDate: '2026-03-15T09:00:00+05:30',
+  endDate: '2026-03-16T18:00:00+05:30',
+  eventStatus: 'https://schema.org/EventScheduled',
+  eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+  location: {
+    '@type': 'Place',
+    name: 'Punjab Engineering College (PEC)',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: 'Sector 12',
+      addressLocality: 'Chandigarh',
+      postalCode: '160012',
+      addressRegion: 'Chandigarh',
+      addressCountry: 'IN',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 30.7672,
+      longitude: 76.7874,
+    },
+  },
+  image: ['https://esummit.pec.ac.in/readme-hero.png'],
+  offers: {
+    '@type': 'AggregateOffer',
+    url: 'https://esummit.pec.ac.in/register',
+    priceCurrency: 'INR',
+    lowPrice: 0,
+    highPrice: 999,
+    availability: 'https://schema.org/InStock',
+    validFrom: '2026-01-01T00:00:00+05:30',
+  },
+  organizer: {
+    '@type': 'Organization',
+    name: 'EIC - Entrepreneurship & Incubation Cell, PEC',
+    url: 'https://esummit.pec.ac.in',
+    logo: 'https://esummit.pec.ac.in/eic-logo.png',
+  },
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -110,6 +155,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="dark" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_EVENT_SCHEMA) }}
+        />
+      </head>
       <body
         className={`noise ${kanit.variable} ${inter.variable} font-body text-primary bg-void`}
         suppressHydrationWarning

@@ -132,16 +132,66 @@ export const createRegistrationRecord = async (
   return record
 }
 
-// ── READ (MongoDB + Local Sync) ──
+// ── READ (MongoDB + Local Offline Sync) ──
 export const getUserRegistrations = async (
   userId?: string,
   userEmail?: string
 ): Promise<RegistrationRecord[]> => {
   const localList = getLocalRegistrations()
 
+  // 1. Try fetching from backend API if online
+  try {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('pec_summit_access_token') : null
+    if (token) {
+      const res = await fetch(`${API_URL}/registrations/my-passes`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (res.ok) {
+        const serverPasses = await res.json()
+        if (Array.isArray(serverPasses) && serverPasses.length > 0) {
+          const syncedList: RegistrationRecord[] = serverPasses.map((sp: any) => ({
+            id: sp.passId || sp.id,
+            userId: sp.userId || userId,
+            name: sp.delegateName || sp.name || '',
+            email: sp.delegateEmail || sp.email || userEmail || '',
+            phone: sp.delegatePhone || sp.phone || 'Not provided',
+            college: sp.delegateCollege || sp.college || 'Punjab Engineering College',
+            category: sp.categoryTitle || sp.passType || 'Student Delegate',
+            tracks: sp.tracks || [],
+            selectedEvents: sp.selectedEvents || [],
+            amountPaid: sp.amountPaid || 0,
+            paymentStatus: sp.paymentStatus || 'PAID',
+            date: new Date(sp.createdAt || Date.now()).toLocaleDateString('en-IN', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            }),
+            qrCodeData: sp.qrCodeDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${sp.passId}`,
+          }))
+
+          // Merge server passes with local storage
+          const merged = [...syncedList]
+          for (const local of localList) {
+            if (!merged.some((m) => m.id === local.id)) {
+              merged.push(local)
+            }
+          }
+          saveLocalRegistrations(merged)
+          return merged
+        }
+      }
+    }
+  } catch {
+    // Offline or network failure — seamlessly fallback to local cache
+  }
+
+  // 2. Return cached offline passes
   if (userId || userEmail) {
     return localList.filter(
-      (r) => (userId && r.userId === userId) || (userEmail && r.email === userEmail)
+      (r) => (userId && r.userId === userId) || (userEmail && r.email?.toLowerCase() === userEmail?.toLowerCase())
     )
   }
 

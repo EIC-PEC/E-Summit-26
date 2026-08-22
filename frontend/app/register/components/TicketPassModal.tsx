@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { CheckCircle2, Ticket, Sparkles, Download, Edit3 } from 'lucide-react'
+import { CheckCircle2, Ticket, Sparkles, Download, Edit3, Share2, MessageCircle } from 'lucide-react'
 import { RegistrationRecord } from '@/lib/registrations'
 
 interface TicketPassModalProps {
@@ -24,6 +24,23 @@ export const TicketPassModal: React.FC<TicketPassModalProps> = ({
   onViewPasses,
   totalPassesCount,
 }) => {
+  const shareText = encodeURIComponent(
+    `I just registered for PEC E-Summit 2026! 🔥 Join 3,000+ founders, investors, and builders at Punjab Engineering College on March 15-16. Get your delegate pass: https://esummit.pec.ac.in/register`
+  )
+  const shareUrl = encodeURIComponent(`https://esummit.pec.ac.in/register?ref=${currentBadge.id}`)
+
+  const handleShareWhatsApp = () => {
+    window.open(`https://api.whatsapp.com/send?text=${shareText}`, '_blank')
+  }
+
+  const handleShareTwitter = () => {
+    window.open(`https://twitter.com/intent/tweet?text=${shareText}`, '_blank')
+  }
+
+  const handleShareLinkedIn = () => {
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`, '_blank')
+  }
+
   return (
     <div className="space-y-5 max-w-md mx-auto pt-4">
       <div className="text-center space-y-1">
@@ -106,6 +123,44 @@ export const TicketPassModal: React.FC<TicketPassModalProps> = ({
               Entry QR
             </span>
           </div>
+        </div>
+      </div>
+
+      {/* Social Share Strip */}
+      <div className="rounded-lg border border-white/10 bg-white/[0.02] p-3 space-y-2">
+        <div className="flex items-center justify-between text-[11px] font-semibold text-neutral-300">
+          <span className="flex items-center gap-1.5 font-mono uppercase text-mint">
+            <Share2 size={12} />
+            Share &amp; Invite Friends
+          </span>
+          <span className="text-[10px] text-neutral-500 font-mono">#PECESummit26</span>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={handleShareWhatsApp}
+            className="py-1.5 px-2 rounded bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer"
+          >
+            <MessageCircle size={12} />
+            <span>WhatsApp</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleShareTwitter}
+            className="py-1.5 px-2 rounded bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-400 text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer"
+          >
+            <span>Twitter / X</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleShareLinkedIn}
+            className="py-1.5 px-2 rounded bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 text-[11px] font-bold transition-colors flex items-center justify-center gap-1 cursor-pointer"
+          >
+            <span>LinkedIn</span>
+          </button>
         </div>
       </div>
 
