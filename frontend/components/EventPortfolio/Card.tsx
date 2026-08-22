@@ -36,7 +36,7 @@ export function Card({ event, index, total, onSelect }: CardProps) {
         src={event.image}
         alt={event.title}
         fill
-        sizes="(max-width: 640px) 280px, (max-width: 1024px) 340px, 26vw"
+        sizes="(min-width: 1024px) 280px, 22vw"
         loading="lazy"
         className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
       />

@@ -40,31 +40,23 @@ const PEC_GALLERY_IMAGES = [
 // Stable order — shuffled once at module load, not per-render
 const SHUFFLED_GALLERY = [...PEC_GALLERY_IMAGES].sort(() => Math.random() - 0.5)
 
-// Helper to inject Cloudinary responsive format & compression transforms
-function optimizeCloudinary(url: string, width = 500): string {
-  if (!url || !url.includes('res.cloudinary.com')) return url
-  return url.replace('/upload/', `/upload/f_auto,q_auto:good,w_${width}/`)
-}
-
 // Each column is its own self-contained infinite scroll strip
 function MarqueeColumn({
   items,
   direction,
   speed,
-  isActive = true,
 }: {
   items: CardItem[]
   direction: 'up' | 'down'
   speed: number
-  isActive?: boolean
 }) {
   return (
     <div className="relative flex-1 overflow-hidden">
       <motion.div
         className="flex flex-col gap-3"
-        animate={isActive ? {
+        animate={{
           y: direction === 'up' ? ['0%', '-50%'] : ['-50%', '0%'],
-        } : undefined}
+        }}
         transition={{
           duration: speed,
           ease: 'linear',
@@ -79,10 +71,10 @@ function MarqueeColumn({
             style={{ height: item.height }}
           >
             <BlurImage
-              src={optimizeCloudinary(item.img, 450)}
+              src={item.img}
               alt="E-Summit PEC event photo"
               fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+              sizes="(max-width: 768px) 33vw, 20vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </div>
@@ -98,14 +90,13 @@ export default function MasonryShowcase() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [columns, setColumns] = useState<CardItem[][]>([])
   const [isTitleVisible, setIsTitleVisible] = useState(true)
-  const [isInView, setIsInView] = useState(true)
 
   const allGalleryItems = useMemo(() => {
     const customItems: { img: string; height: number }[] =
       data.gallery && data.gallery.length > 0
         ? data.gallery.map((g) => ({
             img: g.imageUrl,
-            height: 240,
+            height: 250,
           }))
         : []
     return [...customItems, ...SHUFFLED_GALLERY]
@@ -113,8 +104,7 @@ export default function MasonryShowcase() {
 
   useEffect(() => {
     const updateColumns = () => {
-      const w = window.innerWidth
-      const colCount = w < 640 ? 2 : w < 1024 ? 3 : 5
+      const colCount = window.innerWidth < 768 ? 3 : 5
       const cols: CardItem[][] = Array.from({ length: colCount }, () => [])
 
       allGalleryItems.forEach((item, idx) => {
@@ -133,21 +123,6 @@ export default function MasonryShowcase() {
     window.addEventListener('resize', updateColumns)
     return () => window.removeEventListener('resize', updateColumns)
   }, [allGalleryItems])
-
-  useEffect(() => {
-    const target = containerRef.current
-    if (!target) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsInView(entry.isIntersecting)
-      },
-      { threshold: 0 }
-    )
-
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [])
 
   const { scrollYProgress, scrollY } = useScroll({
     target: containerRef,
@@ -211,7 +186,6 @@ export default function MasonryShowcase() {
               items={colItems}
               direction={colIdx % 2 === 0 ? 'up' : 'down'}
               speed={speeds[colIdx] ?? 45}
-              isActive={isInView}
             />
           ))}
         </motion.div>
