@@ -207,6 +207,8 @@ export default function RegisterClient() {
     phone: '',
     college: '',
     teamName: '',
+    gradYear: '2026',
+    referralCode: '',
   })
 
   // Pre-fill form when user logs in
