@@ -73,6 +73,14 @@ section,
   min-height: 100dvh;
 }
 
+#faq,
+#sponsors,
+#alumni,
+.esummit-lazy-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 800px;
+}
+
 #register {
   min-height: auto !important;
 }
