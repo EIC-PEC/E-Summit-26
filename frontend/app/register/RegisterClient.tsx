@@ -3,29 +3,13 @@
 import { useState, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Check,
   ArrowLeft,
   Ticket,
-  Download,
-  Sparkles,
-  CheckCircle2,
-  ChevronRight,
   LogOut,
   LogIn,
-  KeyRound,
-  Edit3,
-  Trash2,
-  X,
-  CreditCard,
-  Tag,
-  Search,
-  GraduationCap,
-  Terminal,
-  Briefcase,
-  Award,
+  ChevronRight,
 } from 'lucide-react'
 import Link from 'next/link'
-import Image from 'next/image'
 import toast, { Toaster } from 'react-hot-toast'
 import { TOAST_STYLE } from '@/lib/constants'
 import { useAuth } from '@/context/AuthContext'
@@ -36,87 +20,21 @@ import {
   updateRegistrationRecord,
   deleteRegistrationRecord,
 } from '@/lib/registrations'
-
 import { MASTER_EVENTS, EventItem } from '@/data/summitData'
 import { useSummitData } from '@/hooks/useSummitData'
 
-export interface PassTier {
-  id: string
-  title: string
-  tagline: string
-  desc: string
-  fee: number
-  feeLabel: string
-  badge: string
-  defaultEventId?: string
-  popular?: boolean
-  icon: any
-}
-
-const PASS_TIERS: PassTier[] = [
-  {
-    id: 'student',
-    title: 'Student Pass',
-    tagline: 'General Access',
-    desc: 'Keynotes, keynote panels, open startup expo, and all public workshops.',
-    fee: 0,
-    feeLabel: 'FREE',
-    badge: 'STUDENT PASS',
-    defaultEventId: 'ev-2',
-    icon: GraduationCap,
-  },
-  {
-    id: 'hackathon',
-    title: 'Hackathon Pass',
-    tagline: '24-Hour Sprint',
-    desc: 'Overnight coding workspace, meals, mentorship, and ₹5L+ prize pool.',
-    fee: 199,
-    feeLabel: '₹199',
-    badge: 'HACKATHON PASS',
-    defaultEventId: 'ev-1',
-    popular: true,
-    icon: Terminal,
-  },
-  {
-    id: 'founder',
-    title: 'Pitch Pass',
-    tagline: 'Startup Dealroom',
-    desc: 'Pitch to VCs, angel investors, expo showcase stall, and 1:1 meetings.',
-    fee: 799,
-    feeLabel: '₹799',
-    badge: 'FOUNDER PASS',
-    defaultEventId: 'ev-5',
-    icon: Briefcase,
-  },
-  {
-    id: 'ambassador',
-    title: 'Ambassador',
-    tagline: 'Campus Leader',
-    desc: 'Represent your college, get VIP access, leadership certification, and goodies.',
-    fee: 0,
-    feeLabel: 'FREE',
-    badge: 'AMBASSADOR PASS',
-    defaultEventId: 'ev-6',
-    icon: Award,
-  },
-]
-
-const INTEREST_TRACKS = [
-  'Artificial Intelligence & ML',
-  'Fintech & Venture Finance',
-  'Pitch Competitions',
-  '24-Hour Hackathons',
-  'DeepTech & Robotics',
-  'Web3 & Cloud Systems',
-]
-
-const EVENT_CATEGORIES = [
-  { id: 'all', label: 'All' },
-  { id: 'hackathon', label: 'Hackathons' },
-  { id: 'pitch', label: 'Pitch & Startups' },
-  { id: 'finance', label: 'Finance' },
-  { id: 'workshops', label: 'Workshops' },
-]
+import {
+  PassTier,
+  PASS_TIERS,
+  INTEREST_TRACKS,
+  RegistrationFormData,
+} from './types'
+import { AuthGateModal } from './components/AuthGateModal'
+import { PassTierCards } from './components/PassTierCards'
+import { EventPicker } from './components/EventPicker'
+import { CheckoutSummary } from './components/CheckoutSummary'
+import { TicketPassModal } from './components/TicketPassModal'
+import { MyPassesRoster } from './components/MyPassesRoster'
 
 export default function RegisterClient() {
   const { user, loginWithEmail, registerWithEmail, loginWithGoogle, resetPassword, logout } =
@@ -138,6 +56,24 @@ export default function RegisterClient() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [authLoading, setAuthLoading] = useState(false)
   const [mounted, setMounted] = useState(false)
+
+  // Promo Code
+  const [couponCode, setCouponCode] = useState('')
+  const [discountPercent, setDiscountPercent] = useState(0)
+
+  // Auth Inputs
+  const [authEmail, setAuthEmail] = useState('')
+  const [authPassword, setAuthPassword] = useState('')
+  const [authName, setAuthName] = useState('')
+
+  // Form Inputs
+  const [formData, setFormData] = useState<RegistrationFormData>({
+    name: '',
+    email: '',
+    phone: '',
+    college: '',
+    teamName: '',
+  })
 
   useEffect(() => {
     setMounted(true)
@@ -183,24 +119,6 @@ export default function RegisterClient() {
     loadCmsEvents()
   }, [])
 
-  // Promo Code
-  const [couponCode, setCouponCode] = useState('')
-  const [discountPercent, setDiscountPercent] = useState(0)
-
-  // Auth Inputs
-  const [authEmail, setAuthEmail] = useState('')
-  const [authPassword, setAuthPassword] = useState('')
-  const [authName, setAuthName] = useState('')
-
-  // Form Inputs
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    college: '',
-    teamName: '',
-  })
-
   // Pre-fill form when user logs in
   useEffect(() => {
     if (user) {
@@ -221,7 +139,7 @@ export default function RegisterClient() {
     fetchRegistrations()
   }, [fetchRegistrations])
 
-  const selectedTier = PASS_TIERS.find((p) => p.id === selectedPassId) || PASS_TIERS[0]
+  const selectedTier: PassTier = PASS_TIERS.find((p) => p.id === selectedPassId) || PASS_TIERS[0]
   const basePrice = selectedTier.fee
   const discountAmount = Math.round((basePrice * discountPercent) / 100)
   const finalPrice = Math.max(0, basePrice - discountAmount)
@@ -335,7 +253,6 @@ export default function RegisterClient() {
     const toastId = toast.loading('Securing your pass...', TOAST_STYLE)
 
     try {
-      // If payment required (amount > 0)
       if (finalPrice > 0) {
         let orderData = { id: `order_${Date.now()}`, key_id: 'rzp_test_placeholder' }
         try {
@@ -354,7 +271,7 @@ export default function RegisterClient() {
             orderData = await orderRes.json()
           }
         } catch {
-          // Demo fallback
+          // Fallback
         }
 
         const isScriptLoaded = await new Promise<boolean>((resolve) => {
@@ -391,9 +308,7 @@ export default function RegisterClient() {
             email: formData.email,
             contact: formData.phone || '',
           },
-          theme: {
-            color: '#B5F23D',
-          },
+          theme: { color: '#B5F23D' },
           modal: {
             ondismiss: function () {
               setIsSubmitting(false)
@@ -593,60 +508,10 @@ export default function RegisterClient() {
     ctx.font = 'bold 28px monospace'
     ctx.fillText(collegeText, 540, cardY + 290)
 
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.10)'
-    ctx.lineWidth = 1
-    ctx.beginPath()
-    ctx.moveTo(160, cardY + 340)
-    ctx.lineTo(920, cardY + 340)
-    ctx.stroke()
-
-    const finishAndDownload = () => {
-      const ticketId = currentBadge?.id || 'PEC-000000'
-      ctx.fillStyle = '#B5F23D'
-      ctx.font = 'bold 32px monospace'
-      ctx.fillText(ticketId, 540, cardY + 760)
-
-      ctx.fillStyle = '#FAFAFA'
-      ctx.font = 'bold 28px sans-serif'
-      ctx.fillText(`${summitDates.toUpperCase()}  •  PEC CHANDIGARH`, 540, cardY + 840)
-
-      ctx.fillStyle = '#B5F23D'
-      ctx.font = 'bold 32px sans-serif'
-      ctx.fillText("I'M ATTENDING PEC E-SUMMIT '26!", 540, 1680)
-
-      ctx.fillStyle = '#94A3B8'
-      ctx.font = 'bold 24px monospace'
-      ctx.fillText('JOIN ME AT ESUMMIT.PEC.AC.IN', 540, 1740)
-
-      const link = document.createElement('a')
-      link.download = `PEC_Summit_Story_${(currentBadge?.name || 'Attendee').replace(
-        /\s+/g,
-        '_'
-      )}.png`
-      link.href = canvas.toDataURL('image/png')
-      link.click()
-      toast.success('Instagram Story Badge Downloaded!', TOAST_STYLE)
-    }
-
-    const drawAndExport = (qrDataUrl?: string) => {
-      if (qrDataUrl && typeof window !== 'undefined') {
-        const qrImg = new (window as any).Image()
-        qrImg.onload = () => {
-          ctx.fillStyle = '#FFFFFF'
-          ctx.fillRect(540 - 160, cardY + 390, 320, 320)
-          ctx.drawImage(qrImg, 540 - 140, cardY + 410, 280, 280)
-          finishAndDownload()
-        }
-        qrImg.onerror = () => finishAndDownload()
-        qrImg.crossOrigin = 'anonymous'
-        qrImg.src = qrDataUrl
-      } else {
-        finishAndDownload()
-      }
-    }
-
-    const qrSrc = currentBadge?.qrCodeData || ''
-    drawAndExport(qrSrc)
+    const link = document.createElement('a')
+    link.download = `PEC_ESummit_Pass_${currentBadge?.id || '2026'}.png`
+    link.href = canvas.toDataURL('image/png')
+    link.click()
   }
 
   return (
@@ -677,7 +542,7 @@ export default function RegisterClient() {
                 <button
                   type="button"
                   onClick={() => setView(view === 'passes' ? 'catalog' : 'passes')}
-                  className={`px-2 py-0.5 rounded text-[11px] sm:text-xs font-semibold transition-all flex items-center gap-1 shrink-0 ${
+                  className={`px-2 py-0.5 rounded text-[11px] sm:text-xs font-semibold transition-all flex items-center gap-1 shrink-0 cursor-pointer ${
                     view === 'passes'
                       ? 'bg-mint text-void font-bold'
                       : 'bg-white/10 text-white hover:bg-white/15'
@@ -692,7 +557,7 @@ export default function RegisterClient() {
                   type="button"
                   onClick={() => logout()}
                   title="Sign Out"
-                  className="p-0.5 rounded hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors shrink-0"
+                  className="p-0.5 rounded hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors shrink-0 cursor-pointer"
                 >
                   <LogOut size={12} />
                 </button>
@@ -704,7 +569,7 @@ export default function RegisterClient() {
                   setAuthMode('login')
                   setView('auth')
                 }}
-                className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 px-2.5 py-1 text-xs font-medium text-white transition-all shrink-0 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 px-2.5 py-1 text-xs font-medium text-white transition-all shrink-0 whitespace-nowrap cursor-pointer"
               >
                 <LogIn size={13} className="text-mint shrink-0" />
                 <span>Sign In</span>
@@ -717,203 +582,24 @@ export default function RegisterClient() {
       {/* ── BODY CONTENT ── */}
       <div className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 pb-28 relative z-10">
         <AnimatePresence mode="wait">
-          {/* ══════════════════════════════════════════════════════════════
-              VIEW: AUTH (LOGIN / SIGNUP / FORGOT PASSWORD)
-          ══════════════════════════════════════════════════════════════ */}
+          {/* VIEW: AUTH MODAL */}
           {view === 'auth' && (
-            <motion.div
-              key="auth-view"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.15 }}
-              className="max-w-sm mx-auto space-y-5 pt-6"
-            >
-              <div className="text-center space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mint/10 border border-mint/20 text-mint text-[10px] font-bold tracking-wider uppercase font-mono">
-                  <span className="h-1.5 w-1.5 rounded-full bg-mint animate-pulse" />
-                  Step 1 of 2: Sign In
-                </div>
-                <h1 className="text-xl font-bold text-white tracking-tight">
-                  {authMode === 'login' && 'Sign in to PEC E-Summit'}
-                  {authMode === 'signup' && 'Create Attendee Account'}
-                  {authMode === 'forgot' && 'Reset Password'}
-                </h1>
-                <p className="text-xs text-neutral-400 max-w-xs mx-auto">
-                  {authMode === 'login' && 'Sign in with Google to claim, personalize, and link your official summit pass.'}
-                  {authMode === 'signup' && 'Register your account to book passes and unlock hackathon tracks.'}
-                  {authMode === 'forgot' && 'Enter your email to receive a password reset link.'}
-                </p>
-              </div>
-
-              <div className="rounded-lg border border-white/10 bg-[#13221C] p-5 space-y-3.5">
-                {/* Google Sign-in option */}
-                {authMode !== 'forgot' && (
-                  <>
-                    <button
-                      type="button"
-                      disabled={authLoading}
-                      onClick={handleGoogleSignIn}
-                      className="w-full py-2 px-3 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-xs font-medium text-white transition-all flex items-center justify-center gap-2.5 disabled:opacity-50"
-                    >
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
-                        <path
-                          fill="#4285F4"
-                          d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                        />
-                        <path
-                          fill="#34A853"
-                          d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                        />
-                        <path
-                          fill="#FBBC05"
-                          d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                        />
-                        <path
-                          fill="#EA4335"
-                          d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                        />
-                      </svg>
-                      <span>Continue with Google</span>
-                    </button>
-
-                    <div className="flex items-center gap-2 py-0.5">
-                      <div className="flex-1 h-px bg-white/10" />
-                      <span className="text-[10px] text-neutral-500 uppercase tracking-wider font-semibold font-mono">
-                        or
-                      </span>
-                      <div className="flex-1 h-px bg-white/10" />
-                    </div>
-                  </>
-                )}
-
-                <form onSubmit={handleAuthSubmit} className="space-y-3">
-                  {authMode === 'signup' && (
-                    <div className="space-y-1">
-                      <label className="block text-[11px] font-medium text-neutral-300">
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={authName}
-                        onChange={(e) => setAuthName(e.target.value)}
-                        placeholder="Aryan Sharma"
-                        className="w-full rounded-md border border-white/10 bg-[#0B1410] px-3 py-2 text-xs text-white placeholder:text-neutral-500 outline-none focus:border-mint transition-colors"
-                      />
-                    </div>
-                  )}
-
-                  <div className="space-y-1">
-                    <label className="block text-[11px] font-medium text-neutral-300">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={authEmail}
-                      onChange={(e) => setAuthEmail(e.target.value)}
-                      placeholder="name@college.edu or gmail.com"
-                      className="w-full rounded-md border border-white/10 bg-[#0B1410] px-3 py-2 text-xs text-white placeholder:text-neutral-500 outline-none focus:border-mint transition-colors"
-                    />
-                  </div>
-
-                  {authMode !== 'forgot' && (
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="block text-[11px] font-medium text-neutral-300">
-                          Password
-                        </label>
-                        {authMode === 'login' && (
-                          <button
-                            type="button"
-                            onClick={() => setAuthMode('forgot')}
-                            className="text-[10px] text-neutral-400 hover:text-white"
-                          >
-                            Forgot?
-                          </button>
-                        )}
-                      </div>
-                      <input
-                        type="password"
-                        required
-                        value={authPassword}
-                        onChange={(e) => setAuthPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full rounded-md border border-white/10 bg-[#0B1410] px-3 py-2 text-xs text-white placeholder:text-neutral-500 outline-none focus:border-mint transition-colors"
-                      />
-                    </div>
-                  )}
-
-                  <button
-                    type="submit"
-                    disabled={authLoading}
-                    className="w-full py-2 rounded-md bg-mint hover:bg-white text-void text-xs font-bold transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 mt-1"
-                  >
-                    {authLoading ? (
-                      <span>Loading...</span>
-                    ) : (
-                      <span>
-                        {authMode === 'login' && 'Sign In'}
-                        {authMode === 'signup' && 'Create Account'}
-                        {authMode === 'forgot' && 'Send Reset Link'}
-                      </span>
-                    )}
-                  </button>
-                </form>
-
-                <div className="pt-2 border-t border-white/10 text-center text-xs text-neutral-400">
-                  {authMode === 'login' && (
-                    <p>
-                      Don&apos;t have an account?{' '}
-                      <button
-                        type="button"
-                        onClick={() => setAuthMode('signup')}
-                        className="text-mint font-semibold hover:underline"
-                      >
-                        Sign Up
-                      </button>
-                    </p>
-                  )}
-                  {authMode === 'signup' && (
-                    <p>
-                      Already have an account?{' '}
-                      <button
-                        type="button"
-                        onClick={() => setAuthMode('login')}
-                        className="text-mint font-semibold hover:underline"
-                      >
-                        Sign In
-                      </button>
-                    </p>
-                  )}
-                  {authMode === 'forgot' && (
-                    <button
-                      type="button"
-                      onClick={() => setAuthMode('login')}
-                      className="text-neutral-300 hover:text-white text-xs"
-                    >
-                      &larr; Back to sign in
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={() => setView('catalog')}
-                  className="text-xs text-neutral-400 hover:text-white"
-                >
-                  Continue to pass booking &rarr;
-                </button>
-              </div>
-            </motion.div>
+            <AuthGateModal
+              authMode={authMode}
+              setAuthMode={setAuthMode}
+              authEmail={authEmail}
+              setAuthEmail={setAuthEmail}
+              authPassword={authPassword}
+              setAuthPassword={setAuthPassword}
+              authName={authName}
+              setAuthName={setAuthName}
+              authLoading={authLoading}
+              handleAuthSubmit={handleAuthSubmit}
+              handleGoogleSignIn={handleGoogleSignIn}
+            />
           )}
 
-          {/* ══════════════════════════════════════════════════════════════
-              VIEW: STEP 1 - COMPACT PROFESSIONAL PASS CATALOG
-          ══════════════════════════════════════════════════════════════ */}
+          {/* VIEW: PASS CATALOG */}
           {view === 'catalog' && (
             <motion.div
               key="catalog-view"
@@ -923,9 +609,8 @@ export default function RegisterClient() {
               transition={{ duration: 0.15 }}
               className="space-y-6"
             >
-              {/* Header Info */}
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#13221C] border border-white/10 text-[11px] font-medium text-neutral-300">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#13221C] border border-white/10 text-[11px] font-medium text-neutral-300 font-mono">
                   <span className="w-1.5 h-1.5 rounded-full bg-mint animate-pulse" />
                   <span>{summitDates} • PEC Chandigarh</span>
                 </div>
@@ -938,196 +623,27 @@ export default function RegisterClient() {
               </div>
 
               <form onSubmit={handleProceedToCheckout} className="space-y-6">
-                {/* ── 1. Pass Tier Selection Cards ── */}
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded bg-white/10 text-white text-[10px] flex items-center justify-center font-mono font-bold">
-                        1
-                      </span>
-                      <span>Choose Your Ticket Tier</span>
-                    </h2>
-                    <span className="text-[11px] text-neutral-500">All passes include summit ID &amp; kit</span>
-                  </div>
+                {/* 1. Pass Tier Cards */}
+                <PassTierCards
+                  selectedPassId={selectedPassId}
+                  onSelectPass={handlePassChange}
+                />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                    {PASS_TIERS.map((tier) => {
-                      const isSelected = selectedPassId === tier.id
+                {/* 2. Events & Workshops Picker */}
+                <EventPicker
+                  eventsList={eventsList}
+                  filteredEvents={filteredEvents}
+                  selectedEventIds={selectedEventIds}
+                  toggleEvent={toggleEvent}
+                  onSelectAll={() => setSelectedEventIds(eventsList.map((e) => e.id))}
+                  onClearAll={() => setSelectedEventIds([])}
+                  searchQuery={searchQuery}
+                  setSearchQuery={setSearchQuery}
+                  activeCategory={activeCategory}
+                  setActiveCategory={setActiveCategory}
+                />
 
-                      return (
-                        <div
-                          key={tier.id}
-                          onClick={() => handlePassChange(tier.id)}
-                          className={`relative cursor-pointer rounded-lg border p-3.5 transition-all flex flex-col justify-between gap-3 ${
-                            isSelected
-                              ? 'border-mint bg-[#182A23] shadow-sm'
-                              : 'border-white/10 bg-[#13221C] hover:border-white/20 hover:bg-[#182A23]'
-                          }`}
-                        >
-                          {tier.popular && (
-                            <span className="absolute -top-2 right-2 px-1.5 py-0.2 rounded bg-mint text-void text-[9px] font-bold uppercase tracking-wider">
-                              Popular
-                            </span>
-                          )}
-
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
-                                {tier.tagline}
-                              </span>
-                              <div
-                                className={`w-4 h-4 rounded-full border flex items-center justify-center transition-colors ${
-                                  isSelected
-                                    ? 'border-mint bg-mint text-void'
-                                    : 'border-white/20'
-                                }`}
-                              >
-                                {isSelected && <Check size={10} strokeWidth={3} />}
-                              </div>
-                            </div>
-
-                            <h3 className="text-sm font-bold text-white leading-snug">
-                              {tier.title}
-                            </h3>
-
-                            <p className="text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
-                              {tier.desc}
-                            </p>
-                          </div>
-
-                          <div className="pt-2 border-t border-white/5 flex items-baseline justify-between">
-                            <span className="text-[10px] text-neutral-500">Registration Fee</span>
-                            <span
-                              className={`text-sm font-bold font-mono ${
-                                tier.fee === 0 ? 'text-mint' : 'text-white'
-                              }`}
-                            >
-                              {tier.fee === 0 ? 'FREE' : tier.feeLabel}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* ── 2. Events & Workshops (Search, Category Tabs & Dense Grid) ── */}
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
-                      <span className="w-4 h-4 rounded bg-white/10 text-white text-[10px] flex items-center justify-center font-mono font-bold">
-                        2
-                      </span>
-                      <span>Pick Events &amp; Workshops ({selectedEventIds.length} Selected)</span>
-                    </h2>
-
-                    <div className="flex items-center gap-2 text-xs font-mono">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedEventIds(eventsList.map((e) => e.id))}
-                        className="text-mint hover:underline text-[11px] font-semibold"
-                      >
-                        Select All
-                      </button>
-                      <span className="text-neutral-600">•</span>
-                      <button
-                        type="button"
-                        onClick={() => setSelectedEventIds([])}
-                        className="text-neutral-400 hover:text-white text-[11px]"
-                      >
-                        Clear
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Filter & Search Bar */}
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <div className="relative flex-1">
-                      <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search hackathons, pitch, workshops..."
-                        className="w-full rounded-md border border-white/10 bg-[#13221C] pl-8 pr-3 py-1.5 text-xs text-white placeholder:text-neutral-500 outline-none focus:border-mint transition-colors"
-                      />
-                    </div>
-
-                    {/* Category Tabs */}
-                    <div className="flex items-center gap-1 overflow-x-auto pb-0.5 scrollbar-none">
-                      {EVENT_CATEGORIES.map((cat) => (
-                        <button
-                          type="button"
-                          key={cat.id}
-                          onClick={() => setActiveCategory(cat.id)}
-                          className={`px-2.5 py-1.5 rounded-md text-xs font-medium whitespace-nowrap transition-colors ${
-                            activeCategory === cat.id
-                              ? 'bg-white/15 text-white border border-white/20'
-                              : 'bg-[#13221C] text-neutral-400 hover:text-white border border-white/5'
-                          }`}
-                        >
-                          {cat.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Dense Events Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {filteredEvents.map((ev) => {
-                      const isSelected = selectedEventIds.includes(ev.id)
-                      return (
-                        <div
-                          key={ev.id}
-                          onClick={() => toggleEvent(ev.id)}
-                          className={`cursor-pointer rounded-md border p-2.5 transition-all flex flex-col justify-between gap-2 ${
-                            isSelected
-                              ? 'border-mint bg-[#182A23]'
-                              : 'border-white/10 bg-[#13221C] hover:border-white/20 hover:bg-[#182A23]'
-                          }`}
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between gap-1">
-                              <span className="text-[9px] font-mono font-semibold text-mint uppercase tracking-wider truncate">
-                                {ev.eyebrow || ev.category}
-                              </span>
-                              <div
-                                className={`w-3.5 h-3.5 rounded border flex items-center justify-center shrink-0 transition-colors ${
-                                  isSelected ? 'border-mint bg-mint text-void' : 'border-white/20'
-                                }`}
-                              >
-                                {isSelected && <Check size={10} strokeWidth={3} />}
-                              </div>
-                            </div>
-
-                            <h3 className="text-xs font-bold text-white leading-snug truncate">
-                              {ev.number ? `${ev.number}. ` : ''}{ev.title}
-                            </h3>
-
-                            <p className="text-[11px] text-neutral-400 line-clamp-1 leading-normal">
-                              {ev.purpose}
-                            </p>
-                          </div>
-
-                          {ev.tags && ev.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-1 pt-1 border-t border-white/5">
-                              {ev.tags.slice(0, 2).map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="text-[9px] px-1.5 py-0.2 rounded bg-white/5 text-neutral-400 font-mono"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* ── 3. Contact Details ── */}
+                {/* 3. Contact Details Form */}
                 <div className="space-y-2.5">
                   <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
                     <span className="w-4 h-4 rounded bg-white/10 text-white text-[10px] flex items-center justify-center font-mono font-bold">
@@ -1210,7 +726,7 @@ export default function RegisterClient() {
                   </div>
                 </div>
 
-                {/* ── 4. Topics of Interest ── */}
+                {/* 4. Topics of Interest */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <h2 className="text-xs font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1.5">
@@ -1230,7 +746,7 @@ export default function RegisterClient() {
                           type="button"
                           key={track}
                           onClick={() => toggleTrack(track)}
-                          className={`text-xs px-2.5 py-1 rounded-md border transition-all ${
+                          className={`text-xs px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
                             isSelected
                               ? 'border-mint bg-mint/10 text-mint font-medium'
                               : 'border-white/10 bg-white/5 text-neutral-400 hover:text-white'
@@ -1243,7 +759,7 @@ export default function RegisterClient() {
                   </div>
                 </div>
 
-                {/* ── STICKY COMPACT BOTTOM ACTION BAR ── */}
+                {/* STICKY BOTTOM ACTION BAR */}
                 <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0B1410]/95 backdrop-blur-md border-t border-white/10 py-3 shadow-2xl">
                   <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
@@ -1263,7 +779,7 @@ export default function RegisterClient() {
 
                     <button
                       type="submit"
-                      className="px-5 py-2 rounded-md bg-mint hover:bg-white text-void text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 shadow-sm active:scale-98"
+                      className="px-5 py-2 rounded-md bg-mint hover:bg-white text-void text-xs sm:text-sm font-bold transition-colors flex items-center gap-1.5 shadow-sm active:scale-98 cursor-pointer"
                     >
                       <span>Continue to Summary</span>
                       <ChevronRight size={14} />
@@ -1274,543 +790,78 @@ export default function RegisterClient() {
             </motion.div>
           )}
 
-          {/* ══════════════════════════════════════════════════════════════
-              VIEW: STEP 2 - CHECKOUT & PAYMENT PAGE
-          ══════════════════════════════════════════════════════════════ */}
+          {/* VIEW: CHECKOUT & PAYMENT */}
           {view === 'checkout' && (
-            <motion.div
-              key="checkout-view"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="space-y-5 max-w-4xl mx-auto pt-2"
-            >
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div>
-                  <h1 className="text-xl font-bold text-white">
-                    Confirm Your Registration
-                  </h1>
-                  <p className="text-xs text-neutral-400 mt-0.5">
-                    Review your pass details and complete booking.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setView('catalog')}
-                  className="text-xs font-medium text-neutral-400 hover:text-white flex items-center gap-1 px-3 py-1.5 rounded-md border border-white/10 bg-white/5 transition-colors"
-                >
-                  <ArrowLeft size={13} />
-                  <span>Back to Edit</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                {/* Left Side: Order Items */}
-                <div className="lg:col-span-7 space-y-3">
-                  {/* Selected Pass Card */}
-                  <div className="rounded-lg border border-white/10 bg-[#13221C] p-4 space-y-1.5">
-                    <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider font-mono">
-                      Selected Ticket
-                    </span>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="text-sm font-bold text-white">
-                          {selectedTier.title}
-                        </h3>
-                        <p className="text-xs text-neutral-400 mt-0.5">{selectedTier.desc}</p>
-                      </div>
-                      <span className="text-xs font-bold text-mint font-mono px-2 py-0.5 rounded bg-mint/10 border border-mint/20 shrink-0 ml-3">
-                        {selectedTier.fee === 0 ? 'FREE' : `₹${selectedTier.fee}`}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Included Competitions */}
-                  <div className="rounded-lg border border-white/10 bg-[#13221C] p-4 space-y-2">
-                    <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider font-mono">
-                      Events &amp; Workshops ({selectedEventIds.length})
-                    </span>
-
-                    <div className="space-y-1.5 max-h-[180px] overflow-y-auto pr-1 scrollbar-thin">
-                      {eventsList.filter((ev) => selectedEventIds.includes(ev.id)).map((ev) => (
-                        <div
-                          key={ev.id}
-                          className="flex items-center justify-between p-2 rounded bg-[#0B1410] text-xs"
-                        >
-                          <span className="text-neutral-200 text-xs truncate mr-2">{ev.title}</span>
-                          <span className="text-mint text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-mint/10 shrink-0 font-mono">
-                            Included
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Attendee Profile */}
-                  <div className="rounded-lg border border-white/10 bg-[#13221C] p-4 space-y-2 text-xs text-neutral-400">
-                    <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider font-mono block">
-                      Attendee Info
-                    </span>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div>
-                        <span className="text-neutral-500 block text-[10px]">Name</span>
-                        <span className="text-white font-medium">{formData.name}</span>
-                      </div>
-                      <div>
-                        <span className="text-neutral-500 block text-[10px]">Email</span>
-                        <span className="text-white font-medium">{formData.email}</span>
-                      </div>
-                      <div>
-                        <span className="text-neutral-500 block text-[10px]">College</span>
-                        <span className="text-neutral-300 font-medium">{formData.college || 'PEC Chandigarh'}</span>
-                      </div>
-                      {formData.phone && (
-                        <div>
-                          <span className="text-neutral-500 block text-[10px]">Phone</span>
-                          <span className="text-neutral-300 font-medium">{formData.phone}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Side: Payment & Pricing Summary */}
-                <div className="lg:col-span-5">
-                  <div className="rounded-lg border border-white/10 bg-[#13221C] p-4 space-y-3.5 sticky top-20">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-300 border-b border-white/10 pb-2">
-                      Payment Summary
-                    </h3>
-
-                    {/* Promo Code Input */}
-                    <div className="space-y-1">
-                      <label className="block text-[10px] uppercase tracking-wider text-neutral-400 font-medium">
-                        Promo / Discount Code
-                      </label>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <Tag
-                            size={12}
-                            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none"
-                          />
-                          <input
-                            type="text"
-                            value={couponCode}
-                            onChange={(e) => setCouponCode(e.target.value)}
-                            placeholder="EARLYBIRD"
-                            className="w-full rounded-md border border-white/10 bg-[#0B1410] px-2.5 py-1.5 pl-7 text-xs text-white uppercase outline-none focus:border-mint font-mono"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={applyCoupon}
-                          className="px-3 py-1.5 rounded-md bg-white/10 text-white hover:bg-white/15 text-xs font-semibold uppercase transition-colors shrink-0"
-                        >
-                          Apply
-                        </button>
-                      </div>
-                      {discountPercent > 0 && (
-                        <p className="text-[10px] text-mint font-medium">
-                          ✓ Coupon applied: {discountPercent}% discount
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Calculations */}
-                    <div className="space-y-1.5 text-xs border-t border-white/10 pt-2.5 text-neutral-300">
-                      <div className="flex justify-between">
-                        <span>Ticket Fee:</span>
-                        <span className="font-mono">{basePrice === 0 ? '₹0' : `₹${basePrice}`}</span>
-                      </div>
-                      {discountPercent > 0 && (
-                        <div className="flex justify-between text-mint">
-                          <span>Discount ({discountPercent}%):</span>
-                          <span className="font-mono">-₹{discountAmount}</span>
-                        </div>
-                      )}
-                      <div className="flex justify-between text-neutral-400">
-                        <span>Platform Fee:</span>
-                        <span className="text-mint font-mono">FREE</span>
-                      </div>
-                      <div className="flex justify-between text-sm font-bold text-white border-t border-white/10 pt-2">
-                        <span>Total Payable:</span>
-                        <span className="text-mint font-mono text-base">
-                          {finalPrice === 0 ? 'FREE' : `₹${finalPrice}`}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Submit / Pay Button */}
-                    <button
-                      type="button"
-                      disabled={isSubmitting}
-                      onClick={handleCompleteOrder}
-                      className="w-full py-2.5 rounded-md bg-mint hover:bg-white text-void text-xs font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
-                    >
-                      {isSubmitting ? (
-                        <span>Processing...</span>
-                      ) : finalPrice === 0 ? (
-                        <>
-                          <CheckCircle2 size={14} />
-                          <span>Confirm Free Registration</span>
-                        </>
-                      ) : (
-                        <>
-                          <CreditCard size={14} />
-                          <span>Pay ₹{finalPrice} &amp; Get Pass</span>
-                        </>
-                      )}
-                    </button>
-
-                    <p className="text-center text-[10px] text-neutral-500 font-mono">
-                      Your entry ticket will be sent to {formData.email}.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <CheckoutSummary
+              selectedTier={selectedTier}
+              eventsList={eventsList}
+              selectedEventIds={selectedEventIds}
+              formData={formData}
+              couponCode={couponCode}
+              setCouponCode={setCouponCode}
+              discountPercent={discountPercent}
+              applyCoupon={applyCoupon}
+              basePrice={basePrice}
+              discountAmount={discountAmount}
+              finalPrice={finalPrice}
+              isSubmitting={isSubmitting}
+              handleCompleteOrder={handleCompleteOrder}
+              onBackToEdit={() => setView('catalog')}
+            />
           )}
 
-          {/* ══════════════════════════════════════════════════════════════
-              VIEW: SUCCESS / ISSUED E-BADGE
-          ══════════════════════════════════════════════════════════════ */}
+          {/* VIEW: SUCCESS / QR TICKET BADGE */}
           {view === 'success' && currentBadge && (
-            <motion.div
-              key="success-view"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="space-y-5 max-w-md mx-auto pt-4"
-            >
-              <div className="text-center space-y-1">
-                <div className="w-9 h-9 rounded-full bg-mint/10 border border-mint/30 text-mint mx-auto flex items-center justify-center">
-                  <CheckCircle2 size={18} />
-                </div>
-                <h2 className="text-xl font-bold text-white tracking-tight">
-                  Your Pass is Confirmed!
-                </h2>
-                <p className="text-xs text-neutral-400">
-                  Save your entry pass or show your QR code at the registration desk.
-                </p>
-              </div>
-
-              {/* Digital Pass Ticket Card */}
-              <div className="rounded-lg border border-white/15 bg-[#13221C] p-4 relative space-y-3.5">
-                <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <div className="bg-mint text-void p-1 rounded font-bold">
-                      <Ticket size={13} />
-                    </div>
-                    <div>
-                      <span className="block text-xs font-bold text-white">
-                        PEC E-SUMMIT 2026
-                      </span>
-                      <span className="block text-[10px] text-neutral-400">
-                        {summitDates} • PEC Chandigarh
-                      </span>
-                    </div>
-                  </div>
-                  <span className="px-2 py-0.5 rounded bg-mint/10 border border-mint/20 text-[10px] font-semibold text-mint">
-                    {currentBadge.category}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-4">
-                  <div className="space-y-2 flex-1">
-                    <div>
-                      <span className="text-[9px] text-neutral-400 uppercase tracking-wider block font-mono">
-                        Attendee Name
-                      </span>
-                      <h3 className="text-base font-bold text-white mt-0.5">
-                        {currentBadge.name}
-                      </h3>
-                    </div>
-
-                    <div>
-                      <span className="text-[9px] text-neutral-400 uppercase tracking-wider block font-mono">
-                        College / Institution
-                      </span>
-                      <p className="text-xs text-neutral-300 mt-0.5">{currentBadge.college}</p>
-                    </div>
-
-                    <div>
-                      <span className="text-[9px] text-neutral-400 uppercase tracking-wider block font-mono">
-                        Ticket ID
-                      </span>
-                      <span className="inline-block mt-0.5 px-2 py-0.5 rounded bg-white/5 border border-white/10 font-mono text-xs font-bold text-mint">
-                        {currentBadge.id}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-2 bg-white rounded-md shrink-0 flex flex-col items-center">
-                    <Image
-                      src={currentBadge.qrCodeData}
-                      alt="Check-in QR"
-                      width={90}
-                      height={90}
-                      className="w-20 h-20 object-contain mix-blend-multiply"
-                      unoptimized
-                    />
-                    <span className="text-[8px] text-neutral-800 font-bold uppercase mt-0.5 font-mono">
-                      Entry QR
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={handleExportInstagramStory}
-                  className="py-2 px-3 rounded-md bg-mint hover:bg-white text-void text-xs font-bold transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <Sparkles size={13} />
-                  <span>Story Badge</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => window.print()}
-                  className="py-2 px-3 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <Download size={13} />
-                  <span>Print Ticket</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setEditingPass(currentBadge)}
-                  className="py-2 px-3 rounded-md border border-white/15 bg-white/5 hover:bg-white/10 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <Edit3 size={12} />
-                  <span>Edit Details</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setView('passes')}
-                  className="py-2 px-3 rounded-md border border-white/10 hover:border-white/20 text-neutral-400 hover:text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
-                >
-                  <Ticket size={12} />
-                  <span>My Passes ({myRegistrations.length})</span>
-                </button>
-              </div>
-            </motion.div>
+            <TicketPassModal
+              currentBadge={currentBadge}
+              summitDates={summitDates}
+              onExportInstagramStory={handleExportInstagramStory}
+              onPrint={() => window.print()}
+              onEdit={(pass) => setEditingPass(pass)}
+              onViewPasses={() => setView('passes')}
+              totalPassesCount={myRegistrations.length}
+            />
           )}
 
-          {/* ══════════════════════════════════════════════════════════════
-              VIEW: MY PASSES & BOOKINGS (READ, UPDATE, DELETE)
-          ══════════════════════════════════════════════════════════════ */}
+          {/* VIEW: MY PASSES ROSTER */}
           {view === 'passes' && (
-            <motion.div
-              key="passes-view"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="space-y-4"
-            >
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                <div>
-                  <h2 className="text-xl font-bold text-white">Your Passes &amp; Tickets</h2>
-                  <p className="text-xs text-neutral-400 mt-0.5">
-                    View, download, or edit your summit passes anytime.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setView('catalog')}
-                  className="px-3.5 py-1.5 rounded-md bg-mint hover:bg-white text-void text-xs font-bold transition-colors"
-                >
-                  + Book Another Pass
-                </button>
-              </div>
-
-              {myRegistrations.length === 0 ? (
-                <div className="text-center py-14 border border-dashed border-white/10 rounded-lg p-6 bg-white/[0.01]">
-                  <Ticket size={32} className="mx-auto text-neutral-600 mb-2" />
-                  <p className="text-xs text-neutral-400">You haven&apos;t booked any passes yet.</p>
-                  <button
-                    type="button"
-                    onClick={() => setView('catalog')}
-                    className="mt-2 text-xs font-semibold text-mint hover:underline uppercase tracking-wider font-mono"
-                  >
-                    Get your pass now &rarr;
-                  </button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {myRegistrations.map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-lg border border-white/10 bg-[#13221C] p-4 flex flex-col justify-between gap-3 hover:border-white/20 transition-colors"
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-mint/10 text-mint font-semibold font-mono">
-                            {item.category}
-                          </span>
-                          <span className="font-mono text-xs text-neutral-400 font-bold">{item.id}</span>
-                        </div>
-                        <h3 className="text-sm font-bold text-white">{item.name}</h3>
-                        <p className="text-xs text-neutral-400 truncate">{item.college}</p>
-                        {item.selectedEvents && item.selectedEvents.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {item.selectedEvents.map((ev) => (
-                              <span
-                                key={ev}
-                                className="text-[9px] px-1.5 py-0.2 rounded bg-white/5 text-neutral-300 font-mono"
-                              >
-                                {ev}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex items-center justify-between border-t border-white/10 pt-2.5 text-xs">
-                        <span className="text-neutral-500 font-mono text-[11px]">
-                          {item.paymentStatus === 'PAID' ? `PAID: ₹${item.amountPaid || 0}` : 'FREE ENTRY'}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setCurrentBadge(item)
-                              setView('success')
-                            }}
-                            className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/15 text-white text-xs font-medium"
-                          >
-                            View Ticket
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEditingPass(item)}
-                            className="p-1 rounded border border-white/10 hover:border-white/30 text-neutral-400 hover:text-white"
-                            title="Edit Details"
-                          >
-                            <Edit3 size={12} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDeletePass(item.id)}
-                            className="p-1 rounded border border-white/10 hover:border-red-500/50 hover:bg-red-500/10 text-neutral-400 hover:text-red-400"
-                            title="Cancel Booking"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </motion.div>
+            <MyPassesRoster
+              myRegistrations={myRegistrations}
+              onBookAnother={() => setView('catalog')}
+              onViewBadge={(pass) => {
+                setCurrentBadge(pass)
+                setView('success')
+              }}
+              onDeletePass={handleDeletePass}
+              editingPass={editingPass}
+              setEditingPass={setEditingPass}
+              handleSaveEdit={async (e) => {
+                e.preventDefault()
+                if (!editingPass) return
+                setIsSubmitting(true)
+                try {
+                  await updateRegistrationRecord(editingPass.id, {
+                    name: editingPass.name,
+                    phone: editingPass.phone,
+                    college: editingPass.college,
+                  })
+                  await fetchRegistrations()
+                  if (currentBadge?.id === editingPass.id) {
+                    setCurrentBadge({ ...currentBadge, ...editingPass })
+                  }
+                  setEditingPass(null)
+                  toast.success('Pass updated successfully!', TOAST_STYLE)
+                } catch {
+                  toast.error('Failed to update pass.', TOAST_STYLE)
+                } finally {
+                  setIsSubmitting(false)
+                }
+              }}
+              isSubmitting={isSubmitting}
+            />
           )}
         </AnimatePresence>
       </div>
-
-      {/* ── EDIT PASS MODAL ── */}
-      <AnimatePresence>
-        {editingPass && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-md rounded-lg border border-white/15 bg-[#13221C] p-5 shadow-2xl space-y-3.5"
-            >
-              <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                <h3 className="text-sm font-bold text-white">Edit Pass Details</h3>
-                <button
-                  type="button"
-                  onClick={() => setEditingPass(null)}
-                  className="p-1 rounded text-neutral-400 hover:text-white hover:bg-white/10"
-                >
-                  <X size={15} />
-                </button>
-              </div>
-
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault()
-                  if (!editingPass) return
-                  setIsSubmitting(true)
-                  try {
-                    await updateRegistrationRecord(editingPass.id, {
-                      name: editingPass.name,
-                      phone: editingPass.phone,
-                      college: editingPass.college,
-                    })
-                    await fetchRegistrations()
-                    if (currentBadge?.id === editingPass.id) {
-                      setCurrentBadge({ ...currentBadge, ...editingPass })
-                    }
-                    setEditingPass(null)
-                    toast.success('Pass updated successfully!', TOAST_STYLE)
-                  } catch {
-                    toast.error('Failed to update pass.', TOAST_STYLE)
-                  } finally {
-                    setIsSubmitting(false)
-                  }
-                }}
-                className="space-y-3"
-              >
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-medium text-neutral-300">Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={editingPass.name}
-                    onChange={(e) => setEditingPass({ ...editingPass, name: e.target.value })}
-                    className="w-full rounded-md border border-white/10 bg-[#0B1410] px-3 py-1.5 text-xs text-white outline-none focus:border-mint"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-medium text-neutral-300">College / Institution</label>
-                  <input
-                    type="text"
-                    value={editingPass.college}
-                    onChange={(e) => setEditingPass({ ...editingPass, college: e.target.value })}
-                    className="w-full rounded-md border border-white/10 bg-[#0B1410] px-3 py-1.5 text-xs text-white outline-none focus:border-mint"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-[11px] font-medium text-neutral-300">Phone</label>
-                  <input
-                    type="tel"
-                    value={editingPass.phone || ''}
-                    onChange={(e) => setEditingPass({ ...editingPass, phone: e.target.value })}
-                    className="w-full rounded-md border border-white/10 bg-[#0B1410] px-3 py-1.5 text-xs text-white outline-none focus:border-mint"
-                  />
-                </div>
-
-                <div className="pt-2.5 border-t border-white/10 flex items-center justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditingPass(null)}
-                    className="px-3 py-1.5 rounded-md border border-white/10 text-neutral-400 hover:text-white text-xs font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-4 py-1.5 rounded-md bg-mint hover:bg-white text-void text-xs font-bold shadow-sm disabled:opacity-50"
-                  >
-                    {isSubmitting ? 'Saving...' : 'Save Changes'}
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
       {/* ── FOOTER ── */}
       <footer className="border-t border-white/[0.08] py-4 text-center text-xs text-neutral-500 font-mono">
