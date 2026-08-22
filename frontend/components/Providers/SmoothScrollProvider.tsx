@@ -17,14 +17,16 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
 
         gsap.registerPlugin(ScrollTrigger)
 
+        const isTouch = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0)
         lenisInstance = new Lenis({
-          duration: 1.0,
+          duration: isTouch ? 0.75 : 1.0,
           easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           orientation: 'vertical',
           gestureOrientation: 'vertical',
           smoothWheel: true,
           wheelMultiplier: 1.0,
-          touchMultiplier: 1.2,
+          touchMultiplier: 1.4,
+          syncTouch: true,
         })
 
         lenisInstance.on('scroll', ScrollTrigger.update)

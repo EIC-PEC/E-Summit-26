@@ -212,7 +212,9 @@ export default function NewHero() {
     const handleResize = () => {
       const canvas = canvasRef.current
       if (canvas) {
-        const dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 1.5)
+        const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)
+        const maxDpr = isAndroid ? 1.15 : 1.5
+        const dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, maxDpr)
         const w = window.innerWidth
         const h = window.innerHeight
         canvas.width = Math.round(w * dpr)
@@ -262,7 +264,7 @@ export default function NewHero() {
         <canvas
           ref={canvasRef}
           className="absolute inset-0 z-0 h-full w-full object-cover"
-          style={{ willChange: 'transform', transform: 'translateZ(0)' }}
+          style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', touchAction: 'pan-y' }}
         />{/* Ambient Dark Scrim Radial Gradient */}
         <div
           className="z-1 pointer-events-none absolute inset-0"
@@ -278,7 +280,8 @@ export default function NewHero() {
           style={{
             opacity: endBlackenOpacity,
             filter: endBlur,
-            backdropFilter: endBlur,
+            willChange: 'opacity, filter',
+            transform: 'translateZ(0)',
           }}
         />
 
