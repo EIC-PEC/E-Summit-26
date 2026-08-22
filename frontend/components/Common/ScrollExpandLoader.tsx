@@ -11,22 +11,14 @@ declare global {
 }
 
 export default function ScrollExpandLoader() {
-  const [isMounted, setIsMounted] = useState(false)
   const [stage, setStage] = useState<'loading' | 'expanding' | 'done'>('loading')
 
   useEffect(() => {
-    setIsMounted(true)
+    window.__SCROLL_LOADER_ACTIVE__ = true
+    document.body.classList.add('loader-active')
+    window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: true } }))
 
-    if (typeof window !== 'undefined') {
-      window.__SCROLL_LOADER_ACTIVE__ = true
-      document.body.classList.add('loader-active')
-      window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: true } }))
-    }
-
-    const preventDefault = (e: Event) => {
-      e.preventDefault()
-    }
-
+    const preventDefault = (e: Event) => e.preventDefault()
     const preventKeys = (e: KeyboardEvent) => {
       if (['Space', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(e.code)) {
         e.preventDefault()
@@ -42,18 +34,13 @@ export default function ScrollExpandLoader() {
     document.body.style.position = 'fixed'
     document.body.style.top = '0px'
     document.body.style.width = '100%'
-
-    if (typeof window !== 'undefined') {
-      window.scrollTo(0, 0)
-    }
+    window.scrollTo(0, 0)
 
     const unlock = () => {
       setStage('done')
-      if (typeof window !== 'undefined') {
-        window.__SCROLL_LOADER_ACTIVE__ = false
-        document.body.classList.remove('loader-active')
-        window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
-      }
+      window.__SCROLL_LOADER_ACTIVE__ = false
+      document.body.classList.remove('loader-active')
+      window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
       document.documentElement.style.overflow = ''
       document.body.style.overflow = ''
       document.body.style.position = ''
@@ -64,40 +51,29 @@ export default function ScrollExpandLoader() {
       window.removeEventListener('keydown', preventKeys)
     }
 
-    // Stage 1: Progress bar runs for 1.6s, then initiates expansion
-    const timer1 = setTimeout(() => {
-      setStage('expanding')
-    }, 1600)
+    // Progress bar fills for 1.6s, then the aperture blasts open
+    const t1 = setTimeout(() => setStage('expanding'), 1600)
 
-    // Stage 1.5: Fade navbar in during expansion
-    const timer1_5 = setTimeout(() => {
-      if (typeof window !== 'undefined') {
-        window.__SCROLL_LOADER_ACTIVE__ = false
-        document.body.classList.remove('loader-active')
-        window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
-      }
-    }, 2400)
+    // Notify navbar to fade in mid-expansion
+    const t2 = setTimeout(() => {
+      window.__SCROLL_LOADER_ACTIVE__ = false
+      document.body.classList.remove('loader-active')
+      window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
+    }, 2200)
 
-    // Stage 2: Complete expansion and unlock scroll
-    const timer2 = setTimeout(() => {
-      unlock()
-    }, 2900)
+    // Kill the overlay after expansion completes + a tiny buffer
+    const t3 = setTimeout(unlock, 2700)
 
-    // Tab Switch / Window Switch Safety: unlock immediately if user leaves/returns
-    const handleVisibilityChange = () => {
-      if (document.hidden || document.visibilityState === 'hidden') {
-        unlock()
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
+    // Failsafe: switching tabs/windows unlocks instantly
+    const onHide = () => { if (document.hidden) unlock() }
+    document.addEventListener('visibilitychange', onHide)
     window.addEventListener('blur', unlock)
 
     return () => {
-      clearTimeout(timer1)
-      clearTimeout(timer1_5)
-      clearTimeout(timer2)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      clearTimeout(t1)
+      clearTimeout(t2)
+      clearTimeout(t3)
+      document.removeEventListener('visibilitychange', onHide)
       window.removeEventListener('blur', unlock)
       unlock()
     }
@@ -107,66 +83,75 @@ export default function ScrollExpandLoader() {
 
   return (
     <AnimatePresence>
+      {/* Full-screen lime overlay — aperture window punches a hole through it via box-shadow */}
       <motion.div
-        key="loader-portal-overlay"
+        key="loader-overlay"
         initial={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none overflow-hidden"
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden pointer-events-none"
       >
-        {/* Vantage Style Portal Aperture Window — Cutout revealing live site behind it */}
+        {/*
+          The aperture punch-out:
+          - scaleX + scaleY animates on the GPU compositor thread (no layout, no paint)
+          - box-shadow of 9999px creates the lime green mask around it
+          - transformOrigin: center keeps it expanding from the middle
+        */}
         <motion.div
-          initial={{
-            width: 'clamp(320px, 68vw, 920px)',
-            height: 'clamp(300px, 60vh, 640px)',
-            borderRadius: '24px',
-          }}
-          animate={{
-            width: stage === 'expanding' ? '140vw' : 'clamp(320px, 68vw, 920px)',
-            height: stage === 'expanding' ? '140vh' : 'clamp(300px, 60vh, 640px)',
-            borderRadius: stage === 'expanding' ? '0px' : '24px',
-          }}
+          initial={{ scaleX: 0.68, scaleY: 0.62, borderRadius: '24px' }}
+          animate={
+            stage === 'expanding'
+              ? { scaleX: 2.0, scaleY: 2.0, borderRadius: '0px' }
+              : { scaleX: 0.68, scaleY: 0.62, borderRadius: '24px' }
+          }
           transition={{
-            duration: 1.3,
-            ease: [0.76, 0, 0.24, 1], // Silky smooth cinematic deceleration
+            duration: 1.1,
+            ease: [0.76, 0, 0.24, 1],
           }}
-          className="relative flex items-end justify-center border-2 border-black/30 bg-transparent transition-all"
+          className="relative flex items-end justify-center border-2 border-black/30"
           style={{
+            width: '100vw',
+            height: '100vh',
+            transformOrigin: 'center center',
+            willChange: 'transform',
             boxShadow: '0 0 0 9999px #7ED321',
           }}
         >
-          {/* Subtle Ambient Grid Lines on Lime Mask */}
+          {/* Ambient grid on the lime mask — positioned relative to viewport not aperture */}
           <div
-            className="absolute -inset-[9999px] opacity-15 pointer-events-none z-0"
+            className="absolute pointer-events-none"
             style={{
+              inset: '-9999px',
               backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.2) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.2) 1px, transparent 1px)`,
               backgroundSize: '60px 60px',
+              opacity: 0.15,
             }}
           />
 
-          {/* Inner Vignette Shadow on Portal Window Frame */}
+          {/* Inset vignette on the aperture frame — fades out before expansion */}
           <motion.div
             animate={{ opacity: stage === 'expanding' ? 0 : 1 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.3 }}
             className="absolute inset-0 rounded-[inherit] pointer-events-none shadow-[inset_0_0_50px_rgba(0,0,0,0.6)]"
           />
 
-          {/* Bottom Progress Bar — Live E-SUMMIT '26 text shines naturally from NewHero behind it */}
+          {/* Progress bar — uses scaleX so no layout is triggered per frame */}
           <motion.div
             initial={{ opacity: 1, y: 0 }}
             animate={{
               opacity: stage === 'expanding' ? 0 : 1,
-              y: stage === 'expanding' ? 20 : 0,
+              y: stage === 'expanding' ? 16 : 0,
             }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="relative z-10 mb-8 flex flex-col items-center gap-2 px-6 text-center"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="relative z-10 mb-8"
           >
-            <div className="w-48 h-1.5 bg-black/80 rounded-full overflow-hidden border border-white/20 p-[1px] shadow-lg">
+            <div className="w-48 h-1.5 bg-black/70 rounded-full overflow-hidden border border-white/20 shadow-lg">
               <motion.div
-                initial={{ width: '0%' }}
-                animate={{ width: '100%' }}
-                transition={{ duration: 1.8, ease: 'easeInOut' }}
-                className="h-full bg-mint rounded-full shadow-[0_0_12px_#7ED321]"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 1.6, ease: [0.4, 0, 0.2, 1] }}
+                className="h-full bg-mint rounded-full origin-left shadow-[0_0_10px_#7ED321]"
+                style={{ willChange: 'transform' }}
               />
             </div>
           </motion.div>
