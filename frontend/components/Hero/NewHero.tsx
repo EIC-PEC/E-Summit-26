@@ -7,8 +7,8 @@ import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-mot
 import { FEST_META } from '@/lib/data'
 import { useSiteConfig } from '@/hooks/useSummitData'
 
-const TOTAL_RAW_FRAMES = 260
-const FRAME_STEP = 3 // Sample every 3rd frame => ~86 fast, lightweight frames
+const TOTAL_RAW_FRAMES = 360
+const FRAME_STEP = 2 // Sample every 2nd frame => ~180 dense, smooth frames
 const FRAME_COUNT = Math.floor(TOTAL_RAW_FRAMES / FRAME_STEP)
 
 export default function NewHero() {
@@ -16,9 +16,11 @@ export default function NewHero() {
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null)
-  const imagesRef = useRef<HTMLImageElement[]>([])
+  const imagesRef = useRef<(HTMLImageElement | null)[]>([])
   const currentFrameRef = useRef(0)
+  const targetFrameRef = useRef(0)
   const isVisibleRef = useRef(true)
+  const isLoopingRef = useRef(false)
   const dimensionsRef = useRef({ w: 0, h: 0 })
   const rafIdRef = useRef<number | null>(null)
 
@@ -45,22 +47,23 @@ export default function NewHero() {
   const endBlur = useTransform(scrollYProgress, [0.75, 0.96], ['blur(0px)', 'blur(24px)'])
   const endBlackenOpacity = useTransform(scrollYProgress, [0.75, 0.96], [0, 0.95])
 
-  // Get nearest loaded image so canvas never freezes during load
+  // Get nearest loaded image so canvas never freezes during rapid scrubbing
   const getLoadedImage = (targetIndex: number): HTMLImageElement | null => {
     const list = imagesRef.current
     if (!list || list.length === 0) return null
 
-    if (list[targetIndex] && list[targetIndex].complete && list[targetIndex].naturalWidth > 0) {
-      return list[targetIndex]
+    const exact = list[targetIndex]
+    if (exact && exact.complete && exact.naturalWidth > 0) {
+      return exact
     }
 
     for (let offset = 1; offset < FRAME_COUNT; offset++) {
       const prev = targetIndex - offset
       const next = targetIndex + offset
-      if (prev >= 0 && list[prev] && list[prev].complete && list[prev].naturalWidth > 0) {
+      if (prev >= 0 && list[prev]?.complete && (list[prev]?.naturalWidth || 0) > 0) {
         return list[prev]
       }
-      if (next < FRAME_COUNT && list[next] && list[next].complete && list[next].naturalWidth > 0) {
+      if (next < FRAME_COUNT && list[next]?.complete && (list[next]?.naturalWidth || 0) > 0) {
         return list[next]
       }
     }
@@ -76,6 +79,10 @@ export default function NewHero() {
 
     if (!ctxRef.current) {
       ctxRef.current = canvas.getContext('2d', { alpha: false })
+      if (ctxRef.current) {
+        ctxRef.current.imageSmoothingEnabled = true
+        ctxRef.current.imageSmoothingQuality = 'medium'
+      }
     }
     const ctx = ctxRef.current
     if (!ctx) return
@@ -106,6 +113,39 @@ export default function NewHero() {
     )
   }
 
+  // Continuous Smooth LERP Loop for buttery 60-120fps motion on mobile & desktop
+  const tick = () => {
+    if (!isVisibleRef.current) {
+      isLoopingRef.current = false
+      return
+    }
+
+    const current = currentFrameRef.current
+    const target = targetFrameRef.current
+    const diff = target - current
+
+    if (Math.abs(diff) > 0.05) {
+      // Smooth exponential damping factor (0.16 gives realistic fluid inertia)
+      const nextFrame = current + diff * 0.16
+      currentFrameRef.current = nextFrame
+      renderFrame(Math.round(nextFrame))
+      rafIdRef.current = requestAnimationFrame(tick)
+    } else {
+      if (Math.round(current) !== Math.round(target)) {
+        currentFrameRef.current = target
+        renderFrame(Math.round(target))
+      }
+      isLoopingRef.current = false
+    }
+  }
+
+  const startLoop = () => {
+    if (!isLoopingRef.current) {
+      isLoopingRef.current = true
+      rafIdRef.current = requestAnimationFrame(tick)
+    }
+  }
+
   // IntersectionObserver to pause rendering loop when scrolled offscreen
   useEffect(() => {
     const target = containerRef.current
@@ -115,7 +155,7 @@ export default function NewHero() {
       ([entry]) => {
         isVisibleRef.current = entry.isIntersecting
         if (entry.isIntersecting) {
-          renderFrame(currentFrameRef.current)
+          renderFrame(Math.round(currentFrameRef.current))
         }
       },
       { threshold: 0 }
@@ -125,52 +165,70 @@ export default function NewHero() {
     return () => observer.disconnect()
   }, [])
 
-  // Preload sampled frame sequence into memory
+  // Progressive 2-Pass Preloader for instant startup & ultra-dense high FPS
   useEffect(() => {
     let isMounted = true
-    const loadedImages: HTMLImageElement[] = []
+    const loadedImages: (HTMLImageElement | null)[] = new Array(FRAME_COUNT).fill(null)
+    imagesRef.current = loadedImages
 
-    for (let i = 0; i < FRAME_COUNT; i++) {
+    // Pass 1: Load Keyframes first (every 4th step) for instant responsiveness
+    const loadFrame = (i: number) => {
       const rawFrameNum = Math.min(TOTAL_RAW_FRAMES, i * FRAME_STEP + 1)
       const frameStr = String(rawFrameNum).padStart(4, '0')
-
       const img = new Image()
       img.src = `/sequence/vdo1/output_${frameStr}.png`
-
       img.onload = () => {
         if (!isMounted) return
-        if (i === 0 || i === currentFrameRef.current) {
-          renderFrame(currentFrameRef.current)
+        loadedImages[i] = img
+        if (i === 0 || Math.abs(i - currentFrameRef.current) <= 2) {
+          renderFrame(Math.round(currentFrameRef.current))
         }
       }
-
-      loadedImages.push(img)
     }
 
-    imagesRef.current = loadedImages
+    // Load keyframes first
+    for (let i = 0; i < FRAME_COUNT; i += 4) {
+      loadFrame(i)
+    }
+
+    // Pass 2: Asynchronously backfill all remaining frames in idle time
+    const timer = setTimeout(() => {
+      if (!isMounted) return
+      for (let i = 0; i < FRAME_COUNT; i++) {
+        if (i % 4 !== 0) {
+          loadFrame(i)
+        }
+      }
+    }, 150)
 
     return () => {
       isMounted = false
+      clearTimeout(timer)
     }
   }, [])
 
-  // Handle window resize — update canvas buffer size ONLY here
+  // Handle window resize & DPR scaling with performance clamping (max DPR 1.5 on mobile)
   useEffect(() => {
     const handleResize = () => {
       const canvas = canvasRef.current
       if (canvas) {
+        const dpr = Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 1.5)
         const w = window.innerWidth
         const h = window.innerHeight
-        canvas.width = w
-        canvas.height = h
-        dimensionsRef.current = { w, h }
-        renderFrame(currentFrameRef.current)
+        canvas.width = Math.round(w * dpr)
+        canvas.height = Math.round(h * dpr)
+        dimensionsRef.current = { w: canvas.width, h: canvas.height }
+        if (ctxRef.current) {
+          ctxRef.current.imageSmoothingEnabled = true
+          ctxRef.current.imageSmoothingQuality = 'medium'
+        }
+        renderFrame(Math.round(currentFrameRef.current))
       }
     }
 
     handleResize()
     const handleReactivate = () => {
-      renderFrame(currentFrameRef.current)
+      renderFrame(Math.round(currentFrameRef.current))
     }
     window.addEventListener('resize', handleResize, { passive: true })
     window.addEventListener('focus', handleReactivate, { passive: true })
@@ -179,20 +237,17 @@ export default function NewHero() {
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('focus', handleReactivate)
       document.removeEventListener('visibilitychange', handleReactivate)
-    }
-  }, [])
-
-  // Scrub canvas video frames on scroll with RAF deduplication
-  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    const frameIndex = Math.min(FRAME_COUNT - 1, Math.floor(latest * FRAME_COUNT))
-
-    if (frameIndex !== currentFrameRef.current) {
-      currentFrameRef.current = frameIndex
       if (rafIdRef.current) {
         cancelAnimationFrame(rafIdRef.current)
       }
-      rafIdRef.current = requestAnimationFrame(() => renderFrame(frameIndex))
     }
+  }, [])
+
+  // Scrub canvas video frames on scroll via buttery LERP engine
+  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+    const target = Math.min(FRAME_COUNT - 1, Math.max(0, latest * (FRAME_COUNT - 1)))
+    targetFrameRef.current = target
+    startLoop()
   })
 
   return (
