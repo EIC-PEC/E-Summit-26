@@ -13,7 +13,6 @@ declare global {
 export default function ScrollExpandLoader() {
   const [isMounted, setIsMounted] = useState(false)
   const [stage, setStage] = useState<'loading' | 'expanding' | 'done'>('loading')
-  const [initialDims, setInitialDims] = useState({ width: '52vw', height: '60vh' })
 
   useEffect(() => {
     setIsMounted(true)
@@ -23,18 +22,6 @@ export default function ScrollExpandLoader() {
       document.body.classList.add('loader-active')
       window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: true } }))
     }
-
-    const updateDims = () => {
-      if (window.innerWidth < 640) {
-        setInitialDims({ width: '88vw', height: '52vh' })
-      } else if (window.innerWidth < 1024) {
-        setInitialDims({ width: '78vw', height: '58vh' })
-      } else {
-        setInitialDims({ width: '70vw', height: '65vh' })
-      }
-    }
-    updateDims()
-    window.addEventListener('resize', updateDims, { passive: true })
 
     const preventDefault = (e: Event) => {
       e.preventDefault()
@@ -77,10 +64,10 @@ export default function ScrollExpandLoader() {
       window.removeEventListener('keydown', preventKeys)
     }
 
-    // Stage 1: Progress bar runs for 1.8s, then initiates expansion
+    // Stage 1: Progress bar runs for 1.6s, then initiates expansion
     const timer1 = setTimeout(() => {
       setStage('expanding')
-    }, 1800)
+    }, 1600)
 
     // Stage 1.5: Fade navbar in during expansion
     const timer1_5 = setTimeout(() => {
@@ -89,12 +76,12 @@ export default function ScrollExpandLoader() {
         document.body.classList.remove('loader-active')
         window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
       }
-    }, 2700)
+    }, 2400)
 
     // Stage 2: Complete expansion and unlock scroll
     const timer2 = setTimeout(() => {
       unlock()
-    }, 3200)
+    }, 2900)
 
     // Tab Switch / Window Switch Safety: unlock immediately if user leaves/returns
     const handleVisibilityChange = () => {
@@ -112,7 +99,6 @@ export default function ScrollExpandLoader() {
       clearTimeout(timer2)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('blur', unlock)
-      window.removeEventListener('resize', updateDims)
       unlock()
     }
   }, [])
@@ -125,19 +111,19 @@ export default function ScrollExpandLoader() {
         key="loader-portal-overlay"
         initial={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
         className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none overflow-hidden"
       >
         {/* Vantage Style Portal Aperture Window — Cutout revealing live site behind it */}
         <motion.div
           initial={{
-            width: initialDims.width,
-            height: initialDims.height,
+            width: 'clamp(320px, 68vw, 920px)',
+            height: 'clamp(300px, 60vh, 640px)',
             borderRadius: '24px',
           }}
           animate={{
-            width: stage === 'expanding' ? '140vw' : initialDims.width,
-            height: stage === 'expanding' ? '140vh' : initialDims.height,
+            width: stage === 'expanding' ? '140vw' : 'clamp(320px, 68vw, 920px)',
+            height: stage === 'expanding' ? '140vh' : 'clamp(300px, 60vh, 640px)',
             borderRadius: stage === 'expanding' ? '0px' : '24px',
           }}
           transition={{
