@@ -170,8 +170,12 @@ export default function Concierge() {
       {/* Floating Concierge Action Pill */}
       <motion.button
         onClick={() => setOpen(!open)}
-        style={{ position: 'fixed' }}
-        className={`btn-mint-gradient !fixed bottom-14 right-3 sm:right-6 z-[10000] min-h-[38px] sm:min-h-[42px] px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono-data text-xs font-bold text-void flex items-center gap-2 cursor-pointer transition-all duration-400 shadow-xl ${
+        style={{
+          position: 'fixed',
+          // Drop below loader (z-9999) while it's active so it's physically behind the overlay
+          zIndex: isLoaderActive ? 9000 : 10000,
+        }}
+        className={`btn-mint-gradient !fixed bottom-14 right-3 sm:right-6 min-h-[38px] sm:min-h-[42px] px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono-data text-xs font-bold text-void flex items-center gap-2 cursor-pointer transition-all duration-400 shadow-xl ${
           isHidden ? 'opacity-0 scale-75 pointer-events-none translate-y-4' : 'opacity-100 scale-100 pointer-events-auto translate-y-0'
         }`}
         whileHover={{ scale: isHidden ? 0.75 : 1.05 }}
