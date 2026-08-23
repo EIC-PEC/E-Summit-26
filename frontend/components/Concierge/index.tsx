@@ -39,17 +39,19 @@ export default function Concierge() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Listen to initial scroll expand loader state so button doesn't float over the intro animation
+  // Use MutationObserver on the body class instead of custom events — immune to
+  // StrictMode double-invoke timing where the loader cleanup briefly fires active:false.
   useEffect(() => {
-    const handleLoaderState = (e: Event) => {
-      const customEvt = e as CustomEvent<{ active: boolean }>
-      if (customEvt.detail !== undefined) {
-        setIsLoaderActive(customEvt.detail.active)
-      }
-    }
-    window.addEventListener('scroll-loader-state', handleLoaderState)
-    return () => window.removeEventListener('scroll-loader-state', handleLoaderState)
+    // Sync immediately with actual DOM state on mount
+    setIsLoaderActive(document.body.classList.contains('loader-active'))
+
+    const observer = new MutationObserver(() => {
+      setIsLoaderActive(document.body.classList.contains('loader-active'))
+    })
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] })
+    return () => observer.disconnect()
   }, [])
+
 
   // Hide floating action button when any modal (event detail, speaker, sponsor, etc) is open
   useEffect(() => {
