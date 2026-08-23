@@ -12,9 +12,33 @@ export default function ScrollExpandLoader() {
   const [stage, setStage] = useState<'loading' | 'expanding' | 'done'>('loading')
 
   useEffect(() => {
-    window.__SCROLL_LOADER_ACTIVE__ = true
-    document.body.classList.add('loader-active')
-    window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: true } }))
+    // In React 18 StrictMode (dev only), effects run twice: mount → cleanup → remount.
+    // Without this flag the cleanup's DOM teardown called setStage('done') on the
+    // first invocation, flashing the loader away before the real run could start.
+    let active = true
+
+    const lockBody = () => {
+      window.__SCROLL_LOADER_ACTIVE__ = true
+      document.body.classList.add('loader-active')
+      window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: true } }))
+      document.documentElement.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden'
+      document.body.style.position = 'fixed'
+      document.body.style.top = '0px'
+      document.body.style.width = '100%'
+      window.scrollTo(0, 0)
+    }
+
+    const releaseBody = () => {
+      document.documentElement.style.overflow = ''
+      document.body.style.overflow = ''
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      window.__SCROLL_LOADER_ACTIVE__ = false
+      document.body.classList.remove('loader-active')
+      window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
+    }
 
     const noScroll = (e: Event) => e.preventDefault()
     const noKeys = (e: KeyboardEvent) => {
@@ -23,50 +47,47 @@ export default function ScrollExpandLoader() {
       }
     }
 
+    lockBody()
     window.addEventListener('wheel', noScroll, { passive: false })
     window.addEventListener('touchmove', noScroll, { passive: false })
     window.addEventListener('keydown', noKeys, { passive: false })
-    document.documentElement.style.overflow = 'hidden'
-    document.body.style.overflow = 'hidden'
-    document.body.style.position = 'fixed'
-    document.body.style.top = '0px'
-    document.body.style.width = '100%'
-    window.scrollTo(0, 0)
 
     const unlock = () => {
-      setStage('done')
-      window.__SCROLL_LOADER_ACTIVE__ = false
-      document.body.classList.remove('loader-active')
-      window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
-      document.documentElement.style.overflow = ''
-      document.body.style.overflow = ''
-      document.body.style.position = ''
-      document.body.style.top = ''
-      document.body.style.width = ''
+      // Only the active invocation may transition React state.
+      // The StrictMode cleanup invocation has active=false and must only
+      // handle DOM cleanup, not state — otherwise it kills the loader instantly.
+      if (active) setStage('done')
+      releaseBody()
       window.removeEventListener('wheel', noScroll)
       window.removeEventListener('touchmove', noScroll)
       window.removeEventListener('keydown', noKeys)
     }
 
-    const t1 = setTimeout(() => setStage('expanding'), 1600)
+    const t1 = setTimeout(() => { if (active) setStage('expanding') }, 1600)
 
     const t2 = setTimeout(() => {
+      if (!active) return
       window.__SCROLL_LOADER_ACTIVE__ = false
       document.body.classList.remove('loader-active')
       window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
-    }, 2000)
+    }, 2100)
 
-    const t3 = setTimeout(unlock, 2600)
+    const t3 = setTimeout(unlock, 2700)
 
     const onHide = () => { if (document.hidden) unlock() }
     document.addEventListener('visibilitychange', onHide)
     window.addEventListener('blur', unlock)
 
     return () => {
+      active = false
       clearTimeout(t1); clearTimeout(t2); clearTimeout(t3)
       document.removeEventListener('visibilitychange', onHide)
       window.removeEventListener('blur', unlock)
-      unlock()
+      // Restore DOM state without touching React state (safe for StrictMode cleanup)
+      releaseBody()
+      window.removeEventListener('wheel', noScroll)
+      window.removeEventListener('touchmove', noScroll)
+      window.removeEventListener('keydown', noKeys)
     }
   }, [])
 
@@ -74,16 +95,10 @@ export default function ScrollExpandLoader() {
 
   return (
     <AnimatePresence>
-      {/*
-        The expansion works by fading the ENTIRE overlay to opacity:0.
-        We never animate width/height/scale — so box-shadow never hits
-        the viewport boundary and there is NO flash possible.
-        The aperture stays at its rounded shape and gently zooms in as it fades.
-      */}
       <motion.div
         key="loader-overlay"
         className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden pointer-events-none"
-        initial={{ opacity: 1 }}
+        initial={{ opacity: 1, scale: 1 }}
         animate={{
           opacity: stage === 'expanding' ? 0 : 1,
           scale: stage === 'expanding' ? 1.06 : 1,
@@ -94,7 +109,7 @@ export default function ScrollExpandLoader() {
         }}
         style={{ willChange: 'opacity, transform' }}
       >
-        {/* Lime aperture frame via box-shadow — this stays static, no scale animation */}
+        {/* Lime aperture frame — static, never scaled, so box-shadow never hits viewport edge */}
         <div
           className="relative flex items-end justify-center border-2 border-black/25"
           style={{
@@ -102,7 +117,6 @@ export default function ScrollExpandLoader() {
             height: 'clamp(280px, 60vh, 640px)',
             borderRadius: '24px',
             boxShadow: '0 0 0 9999px #7ED321',
-            willChange: 'auto',
           }}
         >
           {/* Ambient grid on the lime mask */}
@@ -116,10 +130,10 @@ export default function ScrollExpandLoader() {
             }}
           />
 
-          {/* Inner vignette on the aperture window */}
+          {/* Inner vignette on the aperture */}
           <div className="absolute inset-0 rounded-3xl pointer-events-none shadow-[inset_0_0_60px_rgba(0,0,0,0.65)]" />
 
-          {/* Progress bar — GPU scaleX, no layout cost */}
+          {/* Progress bar */}
           <div className="relative z-10 mb-8">
             <div className="w-44 h-[5px] bg-black/60 rounded-full overflow-hidden border border-white/20 shadow-md">
               <motion.div
