@@ -95,29 +95,39 @@ export default function ScrollExpandLoader() {
 
   return (
     <AnimatePresence>
+      {/*
+        Outer wrapper fades out with a delay so it's already semi-transparent
+        by the time the aperture scale crosses 1.0 (where box-shadow leaves the
+        viewport). This bridges the lime-disappearance moment cleanly.
+      */}
       <motion.div
         key="loader-overlay"
         className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden pointer-events-none"
-        initial={{ opacity: 1, scale: 1 }}
-        animate={{
-          opacity: stage === 'expanding' ? 0 : 1,
-          scale: stage === 'expanding' ? 1.06 : 1,
-        }}
-        transition={{
-          opacity: { duration: 0.75, ease: [0.4, 0, 1, 1] },
-          scale: { duration: 0.85, ease: [0.4, 0, 0.2, 1] },
-        }}
-        style={{ willChange: 'opacity, transform' }}
+        initial={{ opacity: 1 }}
+        animate={{ opacity: stage === 'expanding' ? 0 : 1 }}
+        transition={{ opacity: { duration: 0.55, delay: 0.4, ease: 'easeIn' } }}
       >
-        {/* Lime aperture frame — static, never scaled, so box-shadow never hits viewport edge */}
-        <div
+        {/*
+          Aperture div: 100vw × 100vh base, scaled down to show the lime border.
+          During expansion it scales up — the hero shows through (transparent bg)
+          and the lime border shrinks naturally as the element fills the viewport.
+        */}
+        <motion.div
           className="relative flex items-end justify-center border-2 border-black/25"
           style={{
-            width: 'clamp(320px, 68vw, 920px)',
-            height: 'clamp(280px, 60vh, 640px)',
-            borderRadius: '24px',
+            width: '100vw',
+            height: '100vh',
+            transformOrigin: 'center center',
+            willChange: 'transform',
             boxShadow: '0 0 0 9999px #7ED321',
           }}
+          initial={{ scaleX: 0.68, scaleY: 0.62, borderRadius: '24px' }}
+          animate={
+            stage === 'expanding'
+              ? { scaleX: 1.8, scaleY: 1.8, borderRadius: '0px' }
+              : { scaleX: 0.68, scaleY: 0.62, borderRadius: '24px' }
+          }
+          transition={{ duration: 1.0, ease: [0.76, 0, 0.24, 1] }}
         >
           {/* Ambient grid on the lime mask */}
           <div
@@ -130,11 +140,19 @@ export default function ScrollExpandLoader() {
             }}
           />
 
-          {/* Inner vignette on the aperture */}
-          <div className="absolute inset-0 rounded-3xl pointer-events-none shadow-[inset_0_0_60px_rgba(0,0,0,0.65)]" />
+          {/* Inner vignette — fades before expansion */}
+          <motion.div
+            animate={{ opacity: stage === 'expanding' ? 0 : 1 }}
+            transition={{ duration: 0.25 }}
+            className="absolute inset-0 rounded-[inherit] pointer-events-none shadow-[inset_0_0_60px_rgba(0,0,0,0.65)]"
+          />
 
           {/* Progress bar */}
-          <div className="relative z-10 mb-8">
+          <motion.div
+            animate={{ opacity: stage === 'expanding' ? 0 : 1, y: stage === 'expanding' ? 12 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="relative z-10 mb-8"
+          >
             <div className="w-44 h-[5px] bg-black/60 rounded-full overflow-hidden border border-white/20 shadow-md">
               <motion.div
                 initial={{ scaleX: 0 }}
@@ -144,8 +162,8 @@ export default function ScrollExpandLoader() {
                 style={{ willChange: 'transform', boxShadow: '0 0 8px #7ED321' }}
               />
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </motion.div>
     </AnimatePresence>
   )
