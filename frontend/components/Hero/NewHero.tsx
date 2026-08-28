@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { Ticket, Sparkles, ArrowUpRight, Play } from 'lucide-react'
-import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion'
+import { motion, useScroll, useTransform, useMotionValueEvent, useReducedMotion } from 'framer-motion'
 import NextImage from 'next/image'
 import { useSiteConfig } from '@/hooks/useSummitData'
 
@@ -36,6 +36,7 @@ const supportsOffscreenCanvas =
 
 export default function NewHero() {
   const { siteConfig } = useSiteConfig()
+  const prefersReducedMotion = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -140,8 +141,11 @@ export default function NewHero() {
 
   // ─── IntersectionObserver — pause rendering when off-screen ──────────────────
   useEffect(() => {
+    if (prefersReducedMotion) return
     const target = containerRef.current
     if (!target) return
+    
+    // Primary observer: pause/resume
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisibleRef.current = entry.isIntersecting
@@ -155,15 +159,34 @@ export default function NewHero() {
       { threshold: 0 }
     )
     observer.observe(target)
-    return () => observer.disconnect()
-  }, [renderFrameFallback])
+
+    // Secondary observer: flush VRAM when 200% away
+    const flushObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (usingWorkerRef.current && workerRef.current) {
+          if (!entry.isIntersecting) {
+            workerRef.current.postMessage({ type: 'flush' })
+          } else {
+            workerRef.current.postMessage({ type: 'wake' })
+          }
+        }
+      },
+      { threshold: 0, rootMargin: '200% 0px 200% 0px' }
+    )
+    flushObserver.observe(target)
+
+    return () => {
+      observer.disconnect()
+      flushObserver.disconnect()
+    }
+  }, [renderFrameFallback, prefersReducedMotion])
 
   // ─── EFFECT 2: Worker init via ImageBitmap transfer (no canvas ownership transfer) ───
   // The worker maintains its own internal OffscreenCanvas and sends back rendered
   // frames as ImageBitmap objects. The main thread displays them via bitmaprenderer.
   // This avoids canvas.transferControlToOffscreen() which breaks React StrictMode.
   useEffect(() => {
-    if (!supportsOffscreenCanvas) return
+    if (prefersReducedMotion || !supportsOffscreenCanvas) return
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -188,8 +211,8 @@ export default function NewHero() {
       .then((manifest: FrameManifest) => {
         const isAndroid = /android/i.test(navigator.userAgent)
         const dpr = Math.min(window.devicePixelRatio || 1, isAndroid ? 1.15 : 1.5)
-        const w = Math.round(window.innerWidth * dpr)
-        const h = Math.round(window.innerHeight * dpr)
+        const w = Math.min(2560, Math.round(window.innerWidth * dpr))
+        const h = Math.min(1440, Math.round(window.innerHeight * dpr))
         const isMobile = window.innerWidth < 768
         dimensionsRef.current = { w, h }
         worker.postMessage({ type: 'init', manifest, width: w, height: h, isMobile })
@@ -212,7 +235,7 @@ export default function NewHero() {
 
   // ─── EFFECT 3: Main-thread manifest + low-res loading (fallback only) ────────
   useEffect(() => {
-    if (usingWorkerRef.current) return
+    if (prefersReducedMotion || usingWorkerRef.current) return
     let isMounted = true
 
     const init = async () => {
@@ -244,7 +267,7 @@ export default function NewHero() {
 
   // ─── EFFECT 4: Main-thread sprite sheet loading (fallback only) ───────────────
   useEffect(() => {
-    if (usingWorkerRef.current) return
+    if (prefersReducedMotion || usingWorkerRef.current) return
     let isMounted = true
 
     const isMobile = window.innerWidth < 768
@@ -272,11 +295,12 @@ export default function NewHero() {
 
   // ─── EFFECT 5: Canvas resize + DPR scaling ────────────────────────────────────
   useEffect(() => {
+    if (prefersReducedMotion) return
     const handleResize = () => {
       const isAndroid = /android/i.test(navigator.userAgent)
       const dpr = Math.min(window.devicePixelRatio || 1, isAndroid ? 1.15 : 1.5)
-      const w = Math.round(window.innerWidth * dpr)
-      const h = Math.round(window.innerHeight * dpr)
+      const w = Math.min(2560, Math.round(window.innerWidth * dpr))
+      const h = Math.min(1440, Math.round(window.innerHeight * dpr))
       dimensionsRef.current = { w, h }
 
       if (usingWorkerRef.current && workerRef.current) {
@@ -314,6 +338,7 @@ export default function NewHero() {
   // This gives scroll-velocity-sensitive momentum: fast scrolls build speed and
   // Coast past the target slightly (elastic feel) before settling.
   useEffect(() => {
+    if (prefersReducedMotion) return
     const isMobile = window.innerWidth < 768
     const SPRING_STIFFNESS = isMobile ? 0.08 : 0.13
     const SPRING_DAMPING = isMobile ? 0.85 : 0.80
@@ -373,15 +398,18 @@ export default function NewHero() {
             alt="E-Summit Hero Background"
             fill
             priority
+            fetchPriority="high"
             className="object-cover"
           />
         </div>
 
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 z-0 h-full w-full"
-          style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', touchAction: 'pan-y' }}
-        />
+        {!prefersReducedMotion && (
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 z-0 h-full w-full"
+            style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', touchAction: 'pan-y' }}
+          />
+        )}
 
         {/* Ambient radial dark scrim */}
         <div

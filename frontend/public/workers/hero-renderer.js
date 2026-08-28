@@ -151,6 +151,23 @@ self.onmessage = ({ data }) => {
       break
     }
 
+    case 'flush': {
+      isActive = false
+      sheets.fill(null)
+      lowres.fill(null)
+      if (ctx && offscreen) ctx.clearRect(0, 0, offscreen.width, offscreen.height)
+      break
+    }
+
+    case 'wake': {
+      if (!isActive) {
+        isActive = true
+        loadLowres()
+        loadSheets()
+      }
+      break
+    }
+
     case 'destroy': {
       isActive = false
       break
