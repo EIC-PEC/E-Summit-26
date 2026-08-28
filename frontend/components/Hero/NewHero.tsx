@@ -180,7 +180,8 @@ export default function NewHero() {
     if (!bitmapCtx) return // browser doesn't support bitmaprenderer, fall back
     bitmapCtxRef.current = bitmapCtx
 
-    const worker = new Worker('/workers/hero-renderer.js')
+    // Force cache bypass for the worker script to guarantee latest code
+    const worker = new Worker('/workers/hero-renderer.js?v=' + Date.now())
     workerRef.current = worker
     usingWorkerRef.current = true
 
