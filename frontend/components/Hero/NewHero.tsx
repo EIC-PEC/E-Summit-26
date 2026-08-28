@@ -387,17 +387,23 @@ export default function NewHero() {
           style={{ opacity: initialOpacity, visibility: initialVisibility }}
           className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center px-4 text-center"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.6)_0%,transparent_40%)] sm:bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.4)_0%,transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.75)_0%,rgba(0,0,0,0.3)_40%,transparent_70%)] sm:bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.5)_0%,transparent_60%)] pointer-events-none" />
           <h1
-            className="relative font-display font-black leading-none tracking-tighter drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] flex items-baseline justify-center gap-2 sm:gap-4"
-            style={{ fontSize: 'clamp(2.5rem, 9.5vw, 8.5rem)' }}
+            className="relative font-display font-black leading-none tracking-tighter drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] flex flex-wrap items-baseline justify-center gap-2 sm:gap-4 w-full px-4"
+            style={{ fontSize: 'clamp(2rem, 10vw, 8.5rem)' }}
           >
             <span className="text-gradient-white">E-SUMMIT</span>{' '}
             <span className="text-gradient-mint">&apos;26</span>
           </h1>
-          <p className="relative mt-4 max-w-2xl font-mono-data text-sm sm:text-base md:text-lg font-bold uppercase tracking-widest text-gradient-white drop-shadow-[0_2px_15px_rgba(0,0,0,1)]">
-            Chandigarh&apos;s Launchpad for Founders
-          </p>
+          <motion.p 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="relative mt-3 sm:mt-4 w-full max-w-[90vw] font-mono-data text-[10px] sm:text-sm md:text-base font-bold uppercase tracking-[0.15em] sm:tracking-widest text-white/80 drop-shadow-[0_4px_20px_rgba(0,0,0,1)] text-center"
+          >
+            Chandigarh&apos;s Launchpad <span className="hidden sm:inline">for Founders</span>
+            <span className="inline sm:hidden"><br />for Founders</span>
+          </motion.p>
         </motion.div>
 
         {/* Pinned hero content — visible and centered through the scroll journey */}
