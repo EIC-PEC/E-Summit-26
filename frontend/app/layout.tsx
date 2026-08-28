@@ -160,11 +160,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_EVENT_SCHEMA) }}
         />
-        {/* Preload critical hero sequence assets so the browser starts fetching
-            them during HTML parsing, before React hydrates */}
-        <link rel="preload" href="/sequence/manifest.json" as="fetch" crossOrigin="anonymous" />
-        <link rel="preload" href="/sequence/vdo1-sheets/sheet_00.webp" as="fetch" crossOrigin="anonymous" />
-        <link rel="preload" href="/sequence/vdo1-lowres/output_0001.webp" as="fetch" crossOrigin="anonymous" />
       </head>
       <body
         className={`noise ${kanit.variable} ${inter.variable} font-body text-primary bg-void`}
