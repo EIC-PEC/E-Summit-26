@@ -4,14 +4,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 
-// 5 Stacked horizontal color bands that sweep up in a layered curtain effect
-const LAYERS = [
-  { color: '#B8F068', height: '100%', id: 'stripe-lime' },
-  { color: '#7ED321', height: '100%', id: 'stripe-mint' },
-  { color: '#1A4D32', height: '100%', id: 'stripe-emerald-light' },
-  { color: '#0F3022', height: '100%', id: 'stripe-emerald-dark' },
-  { color: '#07130F', height: '100%', id: 'stripe-void' },
-]
+// 5 Stacked horizontal color bands now baked into a raw CSS linear-gradient for 60fps performance
 
 export default function ChevronRouteTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -77,47 +70,30 @@ export default function ChevronRouteTransition({ children }: { children: React.R
       {/* Active Route Children */}
       {children}
 
-      {/* ── Multi-Layered Stacked Horizontal Transition ── */}
+      {/* ── Single-Layer Hardware Accelerated Transition (God-Tier Optimization) ── */}
       <AnimatePresence>
         {phase !== 'idle' && (
           <motion.div
             key="chevron-transition-overlay"
             className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden select-none"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
-          >
-            {LAYERS.map((layer, i) => {
-              // Staggered delays create visible stacked horizontal bands as the wave sweeps up
-              const delay = phase === 'enter' ? i * 0.08 : (4 - i) * 0.08
-
-              return (
-                <motion.div
-                  key={layer.id}
-                  className="absolute inset-0 flex flex-col justify-start"
-                  initial={{ y: '100%' }}
-                  animate={{ y: phase === 'enter' ? '0%' : '-100%' }}
-                  transition={{
-                    duration: 0.6,
-                    ease: [0.76, 0, 0.24, 1],
-                    delay: delay,
-                  }}
-                  style={{
-                    backgroundColor: layer.color,
-                    willChange: 'transform',
-                  }}
-                >
-                  {/* Leading accent line on each layer to emphasize stacked stripes */}
-                  <div
-                    className="w-full h-[2px] shrink-0"
-                    style={{
-                      backgroundColor: i === 0 ? '#FFFFFF' : LAYERS[Math.max(0, i - 1)].color,
-                    }}
-                  />
-                </motion.div>
-              )
-            })}
-          </motion.div>
+            initial={{ y: '100%' }}
+            animate={{ y: phase === 'enter' ? '0%' : '-100%' }}
+            exit={{ y: '-100%' }}
+            transition={{
+              duration: 0.7,
+              ease: [0.76, 0, 0.24, 1],
+            }}
+            style={{
+              willChange: 'transform',
+              background: `linear-gradient(to bottom, 
+                #B8F068 0%, #B8F068 20%, 
+                #7ED321 20%, #7ED321 40%, 
+                #1A4D32 40%, #1A4D32 60%, 
+                #0F3022 60%, #0F3022 80%, 
+                #07130F 80%, #07130F 100%
+              )`,
+            }}
+          />
         )}
       </AnimatePresence>
     </div>
