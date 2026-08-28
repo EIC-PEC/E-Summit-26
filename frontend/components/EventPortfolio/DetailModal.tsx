@@ -111,7 +111,7 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
           </div>
 
           {/* Scrollable Content Body */}
-          <div className="overflow-y-auto custom-scrollbar flex-1 p-4 sm:p-6 space-y-4">
+          <div className="overflow-y-auto min-h-0 custom-scrollbar flex-1 p-4 sm:p-6 space-y-4">
             {/* Hero Image */}
             <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-xl overflow-hidden border border-white/10 bg-black shrink-0">
               <Image
