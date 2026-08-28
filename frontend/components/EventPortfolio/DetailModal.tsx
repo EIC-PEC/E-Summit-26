@@ -88,7 +88,7 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="relative z-10 w-full h-full sm:h-auto sm:max-w-xl lg:max-w-3xl sm:max-h-[85vh] overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-b from-[#0C1A14] via-[#07120E] to-[#040A08] border-0 sm:border sm:border-mint/30 shadow-[0_0_100px_rgba(0,0,0,0.95),inset_0_1px_1px_rgba(255,255,255,0.1)] flex flex-col"
+          className="relative z-10 w-full h-[100dvh] sm:h-auto sm:max-w-xl lg:max-w-3xl sm:max-h-[85vh] overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-b from-[#0C1A14] via-[#07120E] to-[#040A08] border-0 sm:border sm:border-mint/30 shadow-[0_0_100px_rgba(0,0,0,0.95),inset_0_1px_1px_rgba(255,255,255,0.1)] flex flex-col"
         >
           {/* Top Bar Header */}
           <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-mint/20 bg-[#060D0A]/90 shrink-0 pt-[max(0.8rem,env(safe-area-inset-top))]">
@@ -111,7 +111,10 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
           </div>
 
           {/* Scrollable Content Body */}
-          <div className="overflow-y-auto min-h-0 custom-scrollbar flex-1 p-4 sm:p-6 space-y-4">
+          <div 
+            className="overflow-y-auto min-h-0 overscroll-contain touch-pan-y custom-scrollbar flex-1 p-4 sm:p-6 space-y-4"
+            onPointerDown={(e) => e.stopPropagation()}
+          >
             {/* Hero Image */}
             <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-xl overflow-hidden border border-white/10 bg-black shrink-0">
               <Image
