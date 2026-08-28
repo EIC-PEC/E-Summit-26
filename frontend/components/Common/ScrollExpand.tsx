@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import './ScrollExpand.css'
 
 const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v)
@@ -212,11 +213,12 @@ export default function ScrollExpand({
       playsInline
     />
   ) : (
-    <img
+    <Image
       ref={mediaRef as React.RefObject<HTMLImageElement>}
-      className="scroll-expand__media"
-      src={src}
-      alt={alt}
+      className="scroll-expand__media object-cover"
+      src={src || ''}
+      alt={alt || ''}
+      fill
       draggable={false}
     />
   )

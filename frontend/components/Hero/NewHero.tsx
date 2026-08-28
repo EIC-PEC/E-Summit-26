@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { Ticket, Sparkles, ArrowUpRight, Play } from 'lucide-react'
 import { motion, useScroll, useTransform, useMotionValueEvent } from 'framer-motion'
@@ -83,7 +83,7 @@ export default function NewHero() {
   const endBlackenOpacity = useTransform(scrollYProgress, [0.75, 0.96], [0, 0.95])
 
   // ─── Main-thread fallback rendering ──────────────────────────────────────────
-  const nearestLowres = (target: number): ImageBitmap | null => {
+  const nearestLowres = useCallback((target: number): ImageBitmap | null => {
     const list = lowresRef.current
     if (list[target]) return list[target]
     for (let off = 1; off < FRAME_COUNT; off++) {
@@ -91,9 +91,9 @@ export default function NewHero() {
       if (target + off < FRAME_COUNT && list[target + off]) return list[target + off]
     }
     return null
-  }
+  }, [])
 
-  const renderFrameFallback = (index: number) => {
+  const renderFrameFallback = useCallback((index: number) => {
     // Worker owns the canvas after transferControlToOffscreen — bail immediately
     if (usingWorkerRef.current) return
     const canvas = canvasRef.current
@@ -133,7 +133,7 @@ export default function NewHero() {
 
     const lr = nearestLowres(index)
     if (lr) drawCoverFit(lr, 0, 0, lr.width, lr.height)
-  }
+  }, [nearestLowres])
 
   // ─── IntersectionObserver — pause rendering when off-screen ──────────────────
   useEffect(() => {
@@ -153,7 +153,7 @@ export default function NewHero() {
     )
     observer.observe(target)
     return () => observer.disconnect()
-  }, [])
+  }, [renderFrameFallback])
 
   // ─── EFFECT 2: Worker init via ImageBitmap transfer (no canvas ownership transfer) ───
   // The worker maintains its own internal OffscreenCanvas and sends back rendered
@@ -236,7 +236,7 @@ export default function NewHero() {
 
     init()
     return () => { isMounted = false }
-  }, [])
+  }, [renderFrameFallback])
 
   // ─── EFFECT 4: Main-thread sprite sheet loading (fallback only) ───────────────
   useEffect(() => {
@@ -261,7 +261,7 @@ export default function NewHero() {
     }, 300)
 
     return () => { isMounted = false; clearTimeout(timer) }
-  }, [])
+  }, [renderFrameFallback])
 
   // ─── EFFECT 5: Canvas resize + DPR scaling ────────────────────────────────────
   useEffect(() => {
@@ -300,7 +300,7 @@ export default function NewHero() {
       window.removeEventListener('focus', onFocus)
       document.removeEventListener('visibilitychange', onFocus)
     }
-  }, [])
+  }, [renderFrameFallback])
 
   // ─── Spring physics rAF loop ──────────────────────────────────────────────────
   // Runs every frame. Pulls displayFrame toward targetFrame with a spring equation.
@@ -334,7 +334,7 @@ export default function NewHero() {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
-  }, [])
+  }, [renderFrameFallback])
 
   // ─── Scroll → target frame (raw, unsmoothed — spring loop handles display) ────
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {

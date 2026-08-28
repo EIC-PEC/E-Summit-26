@@ -67,6 +67,19 @@ export function useCampusMap({ containerRef, day, onMapLoad, onError }: UseCampu
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null)
   const destMarkerRef = useRef<mapboxgl.Marker | null>(null)
 
+  const flyToVenue = useCallback((venueId: string) => {
+    const map = mapRef.current
+    if (!map) return
+    const venue = CAMPUS_VENUES[venueId as keyof typeof CAMPUS_VENUES]
+    if (!venue) return
+    map.flyTo({
+      center: venue.coordinates, zoom: 19.5, pitch: 65,
+      bearing: map.getBearing() + 15, duration: 1800,
+      easing: (t: number) => t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2,
+      essential: true,
+    })
+  }, [])
+
   const setViewport = useCallback((newViewport: Partial<MapViewport>) => {
     setViewportState((prev) => ({ ...prev, ...newViewport }))
     if (mapRef.current) {
@@ -190,32 +203,19 @@ export function useCampusMap({ containerRef, day, onMapLoad, onError }: UseCampu
 
     map.on("error", (e: any) => onError?.(e.error?.message || "Map error"))
 
+    const currentRouteAnimation = routeAnimationRef.current
+    const currentMarkers = venueMarkersRef.current
+
     return () => {
-      const anim = routeAnimationRef.current
-      if (anim) cancelAnimationFrame(anim)
-      const markers = venueMarkersRef.current
-      markers.forEach((m) => m.remove())
+      if (currentRouteAnimation) cancelAnimationFrame(currentRouteAnimation)
+      currentMarkers.forEach((m) => m.remove())
       userMarkerRef.current?.remove()
       destMarkerRef.current?.remove()
       map.remove()
       mapRef.current = null
       isInitializedRef.current = false
     }
-  }, [containerRef, onMapLoad, onError])
-
-
-  const flyToVenue = useCallback((venueId: string) => {
-    const map = mapRef.current
-    if (!map) return
-    const venue = CAMPUS_VENUES[venueId as keyof typeof CAMPUS_VENUES]
-    if (!venue) return
-    map.flyTo({
-      center: venue.coordinates, zoom: 19.5, pitch: 65,
-      bearing: map.getBearing() + 15, duration: 1800,
-      easing: (t: number) => t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2,
-      essential: true,
-    })
-  }, [])
+  }, [containerRef, onMapLoad, onError, flyToVenue])
 
   const addRoute = useCallback((route: RouteData) => {
     const map = mapRef.current

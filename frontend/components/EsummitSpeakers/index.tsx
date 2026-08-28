@@ -290,7 +290,7 @@ function LeafletMapInner({
 
       markersRef.current[vKey] = marker
     })
-  }, [dayEvents, mapInstance])
+  }, [dayEvents, mapInstance, onSelectEventId])
 
   useEffect(() => {
     if (!mapInstance) return

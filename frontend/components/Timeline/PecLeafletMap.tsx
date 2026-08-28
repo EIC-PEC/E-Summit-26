@@ -11,6 +11,9 @@ interface PecLeafletMapProps {
   activeDayLabel: string
 }
 
+// PEC Chandigarh Center
+const PEC_CENTER: [number, number] = [30.7673, 76.7871]
+
 export default function PecLeafletMap({
   events,
   selectedEvent,
@@ -20,9 +23,6 @@ export default function PecLeafletMap({
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
   const markersRef = useRef<Record<string, any>>({})
-
-  // PEC Chandigarh Center
-  const PEC_CENTER: [number, number] = [30.7673, 76.7871]
 
   // Initialize Leaflet Map once
   useEffect(() => {
@@ -198,7 +198,7 @@ export default function PecLeafletMap({
         marker.openPopup()
       }
     })
-  }, [events, selectedEvent])
+  }, [events, selectedEvent, onSelectEvent])
 
   // Fly to venue when selectedEvent changes
   useEffect(() => {

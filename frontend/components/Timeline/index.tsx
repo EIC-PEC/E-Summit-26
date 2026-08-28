@@ -182,7 +182,7 @@ export default function Timeline() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [globalDates])
 
 
   const currentSchedule = dynamicSchedule || SCHEDULE
