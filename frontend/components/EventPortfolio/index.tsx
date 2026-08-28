@@ -15,11 +15,9 @@ export default function EventPortfolioShowcase() {
   const trackRef = useRef<HTMLDivElement>(null)
 
   const { data } = useSummitData()
-  const cmsEvents = data.events || []
-  const portfolioMedia = data.portfolioMedia || []
-
-  // Map CMS events or fallback with live portfolioMedia overrides
   const events: PortfolioEvent[] = useMemo(() => {
+    const cmsEvents = data.events || []
+    const portfolioMedia = data.portfolioMedia || []
     const baseEvents = cmsEvents.length > 0 ? cmsEvents : PORTFOLIO_EVENTS
 
     return baseEvents.map((e, idx) => {
@@ -57,7 +55,7 @@ export default function EventPortfolioShowcase() {
         partner: e.partner ?? undefined,
       }
     })
-  }, [cmsEvents, portfolioMedia])
+  }, [data.events, data.portfolioMedia])
 
   const [selectedEvent, setSelectedEvent] = useState<PortfolioEvent | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>('All')
@@ -92,7 +90,10 @@ export default function EventPortfolioShowcase() {
         const scrollWidth = trackRef.current.scrollWidth
         const viewportWidth = window.innerWidth
         const maxScroll = Math.max(0, scrollWidth - viewportWidth)
-        setScrollRange(['0px', `-${maxScroll}px`])
+        setScrollRange((prev) => {
+          const newRange = `-${maxScroll}px`
+          return prev[1] === newRange ? prev : ['0px', newRange]
+        })
       }
     }
     handleResize()

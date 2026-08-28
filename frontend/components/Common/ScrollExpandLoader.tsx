@@ -63,16 +63,16 @@ export default function ScrollExpandLoader() {
       window.removeEventListener('keydown', noKeys)
     }
 
-    const t1 = setTimeout(() => { if (active) setStage('expanding') }, 1600)
+    const t1 = setTimeout(() => { if (active) setStage('expanding') }, 2400)
 
     const t2 = setTimeout(() => {
       if (!active) return
       window.__SCROLL_LOADER_ACTIVE__ = false
       document.body.classList.remove('loader-active')
       window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
-    }, 2100)
+    }, 3200)
 
-    const t3 = setTimeout(unlock, 2700)
+    const t3 = setTimeout(unlock, 3800)
 
     const onHide = () => { if (document.hidden) unlock() }
     document.addEventListener('visibilitychange', onHide)
@@ -157,7 +157,7 @@ export default function ScrollExpandLoader() {
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ duration: 1.6, ease: [0.4, 0, 0.2, 1] }}
+                transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
                 className="h-full bg-mint rounded-full origin-left"
                 style={{ willChange: 'transform', boxShadow: '0 0 8px #7ED321' }}
               />

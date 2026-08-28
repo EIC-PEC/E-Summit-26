@@ -20,6 +20,7 @@ export default function BlurImage({
   onLoad,
   style,
   fill,
+  priority,
   ...props
 }: BlurImageProps) {
   const [isLoaded, setIsLoaded] = useState(false)
@@ -57,6 +58,7 @@ export default function BlurImage({
           setIsLoaded(true)
           if (onLoad) onLoad(e)
         }}
+        priority={priority}
         {...props}
       />
     </div>

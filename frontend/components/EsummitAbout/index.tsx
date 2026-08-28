@@ -45,10 +45,14 @@ function GeometricNodesCanvas() {
     let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth)
     let height = (canvas.height = canvas.parentElement?.clientHeight || 600)
 
+    let resizeTimeout: NodeJS.Timeout
     const handleResize = () => {
-      if (!canvas || !canvas.parentElement) return
-      width = canvas.width = canvas.parentElement.clientWidth
-      height = canvas.height = canvas.parentElement.clientHeight
+      clearTimeout(resizeTimeout)
+      resizeTimeout = setTimeout(() => {
+        if (!canvas || !canvas.parentElement) return
+        width = canvas.width = canvas.parentElement.clientWidth
+        height = canvas.height = canvas.parentElement.clientHeight
+      }, 200)
     }
     window.addEventListener('resize', handleResize, { passive: true })
 
@@ -64,10 +68,17 @@ function GeometricNodesCanvas() {
     let mouseX = width / 2
     let mouseY = height / 2
 
+    let mouseTick = false
     const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect()
-      mouseX = e.clientX - rect.left
-      mouseY = e.clientY - rect.top
+      if (!mouseTick) {
+        requestAnimationFrame(() => {
+          const rect = canvas.getBoundingClientRect()
+          mouseX = e.clientX - rect.left
+          mouseY = e.clientY - rect.top
+          mouseTick = false
+        })
+        mouseTick = true
+      }
     }
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
 
@@ -86,6 +97,7 @@ function GeometricNodesCanvas() {
 
     const maxDistSq = 140 * 140
     const mouseRadiusSq = 180 * 180
+    const PI2 = Math.PI * 2 // Memoize Math.PI * 2
 
     const draw = () => {
       if (!isVisible) return
@@ -97,13 +109,16 @@ function GeometricNodesCanvas() {
       ctx.strokeStyle = 'rgba(126, 211, 33, 0.12)'
       ctx.lineWidth = 1
 
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x
-          const dy = nodes[i].y - nodes[j].y
+      const len = nodes.length
+      for (let i = 0; i < len; i++) {
+        const nodeI = nodes[i]
+        for (let j = i + 1; j < len; j++) {
+          const nodeJ = nodes[j]
+          const dx = nodeI.x - nodeJ.x
+          const dy = nodeI.y - nodeJ.y
           if (dx * dx + dy * dy < maxDistSq) {
-            ctx.moveTo(nodes[i].x, nodes[i].y)
-            ctx.lineTo(nodes[j].x, nodes[j].y)
+            ctx.moveTo(nodeI.x, nodeI.y)
+            ctx.lineTo(nodeJ.x, nodeJ.y)
           }
         }
       }
@@ -113,7 +128,8 @@ function GeometricNodesCanvas() {
       ctx.beginPath()
       ctx.fillStyle = 'rgba(126, 211, 33, 0.5)'
 
-      nodes.forEach((node) => {
+      for (let i = 0; i < len; i++) {
+        const node = nodes[i]
         const mdx = mouseX - node.x
         const mdy = mouseY - node.y
         const mdistSq = mdx * mdx + mdy * mdy
@@ -130,8 +146,8 @@ function GeometricNodesCanvas() {
         if (node.y < 0 || node.y > height) node.vy *= -1
 
         ctx.moveTo(node.x + node.radius, node.y)
-        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2)
-      })
+        ctx.arc(node.x, node.y, node.radius, 0, PI2)
+      }
       ctx.fill()
 
       animId = requestAnimationFrame(draw)
@@ -144,6 +160,7 @@ function GeometricNodesCanvas() {
       observer.disconnect()
       window.removeEventListener('resize', handleResize)
       window.removeEventListener('mousemove', handleMouseMove)
+      clearTimeout(resizeTimeout)
     }
   }, [])
 
