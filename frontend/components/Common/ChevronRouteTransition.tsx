@@ -104,14 +104,14 @@ export default function ChevronRouteTransition({ children }: { children: React.R
                   }}
                   style={{
                     backgroundColor: layer.color,
+                    willChange: 'transform',
                   }}
                 >
                   {/* Leading accent line on each layer to emphasize stacked stripes */}
                   <div
-                    className="w-full h-1 shrink-0"
+                    className="w-full h-[2px] shrink-0"
                     style={{
                       backgroundColor: i === 0 ? '#FFFFFF' : LAYERS[Math.max(0, i - 1)].color,
-                      boxShadow: i === 4 ? '0 0 20px rgba(126,211,33,0.9)' : 'none',
                     }}
                   />
                 </motion.div>
