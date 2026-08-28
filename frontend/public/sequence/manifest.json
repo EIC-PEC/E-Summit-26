@@ -1,6 +1,8 @@
 {
   "cellWidth": 960,
   "cellHeight": 540,
+  "cellMobileWidth": 480,
+  "cellMobileHeight": 270,
   "frameCount": 150,
   "framesPerSheet": 25,
   "sheetCols": 5,

@@ -17,6 +17,8 @@ const SHEET_COUNT = Math.ceil(FRAME_COUNT / FRAMES_PER_SHEET) // 6
 interface FrameManifest {
   cellWidth: number
   cellHeight: number
+  cellMobileWidth: number
+  cellMobileHeight: number
   frameCount: number
   framesPerSheet: number
   sheetCols: number
@@ -56,8 +58,6 @@ export default function NewHero() {
   // Spring physics — decouples target (raw scroll) from display (spring-interpolated)
   // Stiffness: how aggressively the display frame chases the target
   // Damping:   how quickly velocity bleeds out (lower = more elastic overshoot)
-  const SPRING_STIFFNESS = 0.13
-  const SPRING_DAMPING = 0.80
   const targetFrameRef = useRef(0)      // float — raw scroll-mapped position
   const displayFrameRef = useRef(0)     // float — spring-interpolated
   const springVelRef = useRef(0)        // current spring velocity
@@ -102,7 +102,7 @@ export default function NewHero() {
       ctxRef.current = canvas.getContext('2d', { alpha: true })
       if (ctxRef.current) {
         ctxRef.current.imageSmoothingEnabled = true
-        ctxRef.current.imageSmoothingQuality = 'high'
+        ctxRef.current.imageSmoothingQuality = window.innerWidth < 768 ? 'low' : 'high'
       }
     }
     const ctx = ctxRef.current
@@ -127,7 +127,10 @@ export default function NewHero() {
       const cell = index % FRAMES_PER_SHEET
       const col = cell % manifest.sheetCols
       const row = Math.floor(cell / manifest.sheetCols)
-      drawCoverFit(sheet, col * manifest.cellWidth, row * manifest.cellHeight, manifest.cellWidth, manifest.cellHeight)
+      const isMobile = window.innerWidth < 768
+      const cW = isMobile ? manifest.cellMobileWidth : manifest.cellWidth
+      const cH = isMobile ? manifest.cellMobileHeight : manifest.cellHeight
+      drawCoverFit(sheet, col * cW, row * cH, cW, cH)
       return
     }
 
@@ -187,8 +190,9 @@ export default function NewHero() {
         const dpr = Math.min(window.devicePixelRatio || 1, isAndroid ? 1.15 : 1.5)
         const w = Math.round(window.innerWidth * dpr)
         const h = Math.round(window.innerHeight * dpr)
+        const isMobile = window.innerWidth < 768
         dimensionsRef.current = { w, h }
-        worker.postMessage({ type: 'init', manifest, width: w, height: h })
+        worker.postMessage({ type: 'init', manifest, width: w, height: h, isMobile })
       })
       .catch(() => {
         // Manifest not yet generated — fall back to main-thread rendering
@@ -243,9 +247,12 @@ export default function NewHero() {
     if (usingWorkerRef.current) return
     let isMounted = true
 
+    const isMobile = window.innerWidth < 768
+
     const loadSheet = async (s: number) => {
       try {
-        const res = await fetch(`/sequence/vdo1-sheets/sheet_${String(s).padStart(2, '0')}.webp`, { cache: 'force-cache' })
+        const dir = isMobile ? 'vdo1-sheets-mobile' : 'vdo1-sheets'
+        const res = await fetch(`/sequence/${dir}/sheet_${String(s).padStart(2, '0')}.webp`, { cache: 'force-cache' })
         if (!res.ok || !isMounted) return
         sheetsRef.current[s] = await createImageBitmap(await res.blob())
         if (Math.floor(currentFrameRef.current / FRAMES_PER_SHEET) === s) {
@@ -305,8 +312,12 @@ export default function NewHero() {
   // ─── Spring physics rAF loop ──────────────────────────────────────────────────
   // Runs every frame. Pulls displayFrame toward targetFrame with a spring equation.
   // This gives scroll-velocity-sensitive momentum: fast scrolls build speed and
-  // coast past the target slightly (elastic feel) before settling.
+  // Coast past the target slightly (elastic feel) before settling.
   useEffect(() => {
+    const isMobile = window.innerWidth < 768
+    const SPRING_STIFFNESS = isMobile ? 0.08 : 0.13
+    const SPRING_DAMPING = isMobile ? 0.85 : 0.80
+
     const tick = () => {
       if (isVisibleRef.current) {
         const diff = targetFrameRef.current - displayFrameRef.current
@@ -316,7 +327,12 @@ export default function NewHero() {
           Math.min(FRAME_COUNT - 1, displayFrameRef.current + springVelRef.current)
         )
 
-        const frame = Math.round(displayFrameRef.current)
+        let frame = Math.round(displayFrameRef.current)
+        if (isMobile) {
+          // Snap to even frames to instantly halve GPU workload and decode latency
+          frame = Math.round(frame / 2) * 2
+        }
+
         if (frame !== lastDispatchedRef.current) {
           lastDispatchedRef.current = frame
           currentFrameRef.current = frame

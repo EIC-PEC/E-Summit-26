@@ -20,6 +20,7 @@ const PUBLIC = resolve('public')
 const SRC_DIR = join(PUBLIC, 'sequence', 'vdo1')
 const LOWRES_DIR = join(PUBLIC, 'sequence', 'vdo1-lowres')
 const SHEETS_DIR = join(PUBLIC, 'sequence', 'vdo1-sheets')
+const SHEETS_MOBILE_DIR = join(PUBLIC, 'sequence', 'vdo1-sheets-mobile')
 const MANIFEST_PATH = join(PUBLIC, 'sequence', 'manifest.json')
 
 const TOTAL_RAW_FRAMES = 600
@@ -37,12 +38,16 @@ const SHEET_COUNT = Math.ceil(FRAME_COUNT / FRAMES_PER_SHEET) // 6
 const CELL_W = 960
 const CELL_H = 540
 
+// Mobile sprite sheet cell resolution (4x less pixels than desktop)
+const CELL_MOBILE_W = 480
+const CELL_MOBILE_H = 270
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const pad = (n) => String(n).padStart(4, '0')
 const getRawFrameNum = (i) => Math.min(TOTAL_RAW_FRAMES, i * FRAME_STEP + 1)
 
-for (const dir of [LOWRES_DIR, SHEETS_DIR]) {
+for (const dir of [LOWRES_DIR, SHEETS_DIR, SHEETS_MOBILE_DIR]) {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
 }
 
@@ -61,6 +66,8 @@ writeFileSync(
     {
       cellWidth: CELL_W,
       cellHeight: CELL_H,
+      cellMobileWidth: CELL_MOBILE_W,
+      cellMobileHeight: CELL_MOBILE_H,
       frameCount: FRAME_COUNT,
       framesPerSheet: FRAMES_PER_SHEET,
       sheetCols: SHEET_COLS,
@@ -155,4 +162,56 @@ for (let s = 0; s < SHEET_COUNT; s++) {
   console.log(`  Sheet ${s + 1}/${SHEET_COUNT} written.`)
 }
 
-console.log('\nAll done! Commit the vdo1-lowres/ and vdo1-sheets/ directories to your repo.')
+// ─── Step 4: Build mobile sprite sheets ──────────────────────────────────────
+
+console.log('\nStep 3/3 — Building mobile sprite sheets...')
+
+for (let s = 0; s < SHEET_COUNT; s++) {
+  const dest = join(SHEETS_MOBILE_DIR, `sheet_${String(s).padStart(2, '0')}.webp`)
+  if (existsSync(dest)) {
+    console.log(`  Mobile Sheet ${s + 1}/${SHEET_COUNT} already exists, skipping.`)
+    continue
+  }
+
+  const startIdx = s * FRAMES_PER_SHEET
+  const framesInSheet = Math.min(FRAMES_PER_SHEET, FRAME_COUNT - startIdx)
+  const sheetH = CELL_MOBILE_H * Math.ceil(framesInSheet / SHEET_COLS)
+
+  const compositeInputs = await Promise.all(
+    Array.from({ length: framesInSheet }, async (_, f) => {
+      const frameIdx = startIdx + f
+      const rawNum = getRawFrameNum(frameIdx)
+      const frameStr = pad(rawNum)
+      const col = f % SHEET_COLS
+      const row = Math.floor(f / SHEET_COLS)
+
+      const resizedBuffer = await sharp(join(SRC_DIR, `output_${frameStr}.png`))
+        .resize(CELL_MOBILE_W, CELL_MOBILE_H, { fit: 'cover' })
+        .toFormat('raw')
+        .toBuffer({ resolveWithObject: true })
+
+      return {
+        input: resizedBuffer.data,
+        raw: { width: CELL_MOBILE_W, height: CELL_MOBILE_H, channels: 3 },
+        left: col * CELL_MOBILE_W,
+        top: row * CELL_MOBILE_H,
+      }
+    })
+  )
+
+  await sharp({
+    create: {
+      width: CELL_MOBILE_W * SHEET_COLS,
+      height: sheetH,
+      channels: 3,
+      background: { r: 0, g: 0, b: 0 },
+    },
+  })
+    .composite(compositeInputs)
+    .webp({ quality: 75, effort: 3 })
+    .toFile(dest)
+
+  console.log(`  Mobile Sheet ${s + 1}/${SHEET_COUNT} written.`)
+}
+
+console.log('\nAll done! Commit the vdo1-lowres/, vdo1-sheets/, and vdo1-sheets-mobile/ directories to your repo.')

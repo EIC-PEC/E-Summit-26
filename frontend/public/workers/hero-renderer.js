@@ -29,6 +29,7 @@ let ctx = null
 let manifest = null
 let currentFrame = 0
 let isActive = true
+let isMobile = false
 
 const sheets = new Array(SHEET_COUNT).fill(null)
 const lowres = new Array(FRAME_COUNT).fill(null)
@@ -64,7 +65,9 @@ const renderAndSend = (index) => {
     const cell = index % FRAMES_PER_SHEET
     const col = cell % manifest.sheetCols
     const row = Math.floor(cell / manifest.sheetCols)
-    drawCoverFit(sheet, col * manifest.cellWidth, row * manifest.cellHeight, manifest.cellWidth, manifest.cellHeight)
+    const cW = isMobile ? manifest.cellMobileWidth : manifest.cellWidth
+    const cH = isMobile ? manifest.cellMobileHeight : manifest.cellHeight
+    drawCoverFit(sheet, col * cW, row * cH, cW, cH)
   } else {
     const lr = nearestLowres(index)
     if (!lr) return
@@ -95,7 +98,8 @@ const loadLowres = async () => {
 
 const loadSheet = async (s) => {
   try {
-    const res = await fetch(`/sequence/vdo1-sheets/sheet_${String(s).padStart(2, '0')}.webp`, { cache: 'force-cache' })
+    const dir = isMobile ? 'vdo1-sheets-mobile' : 'vdo1-sheets'
+    const res = await fetch(`/sequence/${dir}/sheet_${String(s).padStart(2, '0')}.webp`, { cache: 'force-cache' })
     if (!res.ok || !isActive) return
     sheets[s] = await createImageBitmap(await res.blob())
     if (Math.floor(currentFrame / FRAMES_PER_SHEET) === s) renderAndSend(currentFrame)
@@ -111,10 +115,11 @@ const loadSheets = async () => {
 self.onmessage = ({ data }) => {
   switch (data.type) {
     case 'init': {
+      isMobile = data.isMobile
       offscreen = new OffscreenCanvas(data.width, data.height)
       ctx = offscreen.getContext('2d', { alpha: true })
       ctx.imageSmoothingEnabled = true
-      ctx.imageSmoothingQuality = 'high'
+      ctx.imageSmoothingQuality = isMobile ? 'low' : 'high'
       manifest = data.manifest
 
       loadLowres()
@@ -135,7 +140,7 @@ self.onmessage = ({ data }) => {
       offscreen.height = data.height
       if (ctx) {
         ctx.imageSmoothingEnabled = true
-        ctx.imageSmoothingQuality = 'high'
+        ctx.imageSmoothingQuality = isMobile ? 'low' : 'high'
       }
       renderAndSend(currentFrame)
       break
