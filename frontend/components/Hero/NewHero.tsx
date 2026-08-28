@@ -168,7 +168,10 @@ export default function NewHero() {
   // frames as ImageBitmap objects. The main thread displays them via bitmaprenderer.
   // This avoids canvas.transferControlToOffscreen() which breaks React StrictMode.
   useEffect(() => {
-    if (!supportsOffscreenCanvas) return
+    const isMobileUserAgent = typeof navigator !== 'undefined' && /android|iphone|ipad|ipod/i.test(navigator.userAgent)
+    const canUseOffscreen = typeof window !== 'undefined' && 'OffscreenCanvas' in window && !isMobileUserAgent
+    
+    if (!canUseOffscreen) return
     const canvas = canvasRef.current
     if (!canvas) return
 
