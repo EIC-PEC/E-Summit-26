@@ -403,13 +403,11 @@ export default function NewHero() {
           />
         </div>
 
-        {!prefersReducedMotion && (
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 z-0 h-full w-full"
-            style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', touchAction: 'pan-y' }}
-          />
-        )}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 z-0 h-full w-full"
+          style={{ willChange: 'transform', transform: 'translate3d(0,0,0)', touchAction: 'pan-y' }}
+        />
 
         {/* Ambient radial dark scrim */}
         <div
