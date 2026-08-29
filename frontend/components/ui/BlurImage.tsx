@@ -49,7 +49,7 @@ export default function BlurImage({
         src={src}
         alt={alt}
         fill={fill}
-        className={`transition-opacity transition-transform duration-500 ease-out will-change-[opacity,transform] ${
+        className={`transition-all duration-500 ease-out will-change-[opacity,transform] ${
           isLoaded
             ? 'scale-100 opacity-100'
             : 'scale-105 opacity-0'

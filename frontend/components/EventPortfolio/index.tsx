@@ -2,7 +2,7 @@
 'use client'
 
 import React, { useRef, useState, useMemo, useEffect } from 'react'
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion'
+import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from 'framer-motion'
 import { PORTFOLIO_EVENTS, PortfolioEvent } from './data'
 import { Card } from './Card'
 import { FinalCard } from './FinalCard'
@@ -59,7 +59,7 @@ export default function EventPortfolioShowcase() {
 
   const [selectedEvent, setSelectedEvent] = useState<PortfolioEvent | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>('All')
-  const [scrollRange, setScrollRange] = useState(['0px', '0px'])
+  const xMotion = useMotionValue(0)
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(events.map((e) => e.category)))
@@ -85,26 +85,13 @@ export default function EventPortfolioShowcase() {
   })
 
   useEffect(() => {
-    const el = trackRef.current
-    if (!el) return
-
-    const ro = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const scrollWidth = entry.target.scrollWidth
-        const viewportWidth = window.innerWidth
-        const maxScroll = Math.max(0, scrollWidth - viewportWidth)
-        setScrollRange((prev) => {
-          const newRange = `-${maxScroll}px`
-          return prev[1] === newRange ? prev : ['0px', newRange]
-        })
-      }
+    const unsubscribe = smoothProgress.on('change', (progress) => {
+      if (!trackRef.current) return
+      const maxScroll = Math.max(0, trackRef.current.scrollWidth - window.innerWidth)
+      xMotion.set(-progress * maxScroll)
     })
-
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [filteredEvents])
-
-  const xTranslate = useTransform(smoothProgress, [0, 1], scrollRange)
+    return unsubscribe
+  }, [smoothProgress, filteredEvents, xMotion])
 
   return (
     <section
@@ -132,9 +119,8 @@ export default function EventPortfolioShowcase() {
         <div className="relative z-10 flex w-full items-center pt-32 sm:pt-36">
           <motion.div
             ref={trackRef}
-            initial={{ x: '0px' }}
-            style={{ x: xTranslate, willChange: 'transform' }}
-            className="flex items-center gap-6 sm:gap-8 px-6 sm:px-12 md:px-16 cursor-grab active:cursor-grabbing w-full"
+            style={{ x: xMotion, willChange: 'transform' }}
+            className="flex items-center gap-6 sm:gap-8 px-6 sm:px-12 md:px-16 cursor-grab active:cursor-grabbing w-max"
           >
             {filteredEvents.map((event, index) => (
               <Card

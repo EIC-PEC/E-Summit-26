@@ -221,8 +221,11 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
   const { siteConfig } = useSiteConfig()
   const contacts = siteConfig?.contacts as Record<string, string> | undefined
 
+  const instagramUrl = contacts?.instagram || FEST_META.social.instagram
+  const isEicInsta = instagramUrl.toLowerCase().includes('eic')
+
   const dynamicSocials = [
-    { icon: Instagram, href: contacts?.instagram || FEST_META.social.instagram, label: 'E-Cell PEC on Instagram' },
+    { icon: Instagram, href: instagramUrl, label: isEicInsta ? 'EIC PEC on Instagram' : 'E-Cell PEC on Instagram' },
     { icon: Youtube, href: contacts?.youtube || 'https://youtube.com', label: 'E-Cell PEC on YouTube' },
     { icon: Twitter, href: FEST_META.social.twitter, label: 'E-Cell PEC on X' },
     { icon: Facebook, href: 'https://facebook.com', label: 'E-Cell PEC on Facebook' },
@@ -270,6 +273,7 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
                   alt="Punjab Engineering College Logo"
                   width={120}
                   height={80}
+                  style={{ width: 'auto', height: 'auto' }}
                   className="brightness-120 object-contain drop-shadow-md"
                 />
                 <Image
@@ -277,6 +281,7 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
                   alt="EIC Logo"
                   width={90}
                   height={90}
+                  style={{ width: 'auto', height: 'auto' }}
                   className="brightness-120 object-contain drop-shadow-md"
                 />
               </div>
@@ -308,50 +313,53 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
 
             {/* Column 4: Contact & Team Leadership */}
             <div className="space-y-6 min-h-[420px] lg:min-h-0">
-              <h3 className="font-display text-xl font-bold uppercase tracking-wider text-white">
+              <h3 className="mb-6 font-display text-xl font-bold uppercase tracking-wider text-white">
                 Contact Us
               </h3>
               
               {/* Address */}
               <div>
-                <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-1">
+                <span className="font-mono-data text-[10px] font-bold uppercase tracking-[0.2em] text-mint block mb-1.5">
                   CAMPUS VENUE
                 </span>
-                <p className="font-body text-xs leading-relaxed text-gray-300">
-                  {siteConfig?.summitVenue || 'Entrepreneurship & Incubation Cell - Incubator (Near Siemens Lab), Punjab Engineering College, Sector-12 (160012), Chandigarh'}
+                <p className="font-body text-xs sm:text-sm leading-relaxed text-gray-200 font-medium">
+                  {siteConfig?.summitVenue || 'Punjab Engineering College (Deemed to be University), Sector 12, Chandigarh, 160012'}
                 </p>
               </div>
 
               {/* Helpline Phone */}
               {contacts?.phone && (
                 <div>
-                  <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-1">
+                  <span className="font-mono-data text-[10px] font-bold uppercase tracking-[0.2em] text-mint block mb-1.5">
                     HELPLINE / SUPPORT
                   </span>
-                  <a
-                    href={`tel:${contacts.phone.replace(/\s+/g, '')}`}
-                    className="font-mono-data text-xs font-semibold text-mint hover:underline transition-colors inline-block"
-                  >
-                    {contacts.phone}
-                  </a>
+                  <div className="flex items-center justify-between gap-2 py-0.5">
+                    <span className="font-body text-gray-200 font-medium text-xs sm:text-sm">Helpdesk Support</span>
+                    <a
+                      href={`tel:${contacts.phone.replace(/\s+/g, '')}`}
+                      className="font-mono-data text-xs text-mint/90 hover:text-mint hover:underline transition-colors shrink-0"
+                    >
+                      {contacts.phone}
+                    </a>
+                  </div>
                 </div>
               )}
 
               {/* Faculty Coordinators */}
               <div>
-                <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-2">
+                <span className="font-mono-data text-[10px] font-bold uppercase tracking-[0.2em] text-mint block mb-2">
                   FACULTY COORDINATORS
                 </span>
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="text-gray-200 font-medium">Dr. Simranjit Singh:</span>
-                    <a href="tel:+919872552898" className="text-mint hover:underline font-mono-data">
+                <div className="space-y-1 text-xs sm:text-sm">
+                  <div className="flex items-center justify-between gap-2 py-0.5 border-b border-white/[0.05]">
+                    <span className="font-body text-gray-200 font-medium">Dr. Simranjit Singh</span>
+                    <a href="tel:+919872552898" className="font-mono-data text-xs text-mint/90 hover:text-mint hover:underline shrink-0">
                       +91 98725 52898
                     </a>
                   </div>
-                  <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="text-gray-200 font-medium">Dr. Sudesh Rani:</span>
-                    <a href="tel:+919876860085" className="text-mint hover:underline font-mono-data">
+                  <div className="flex items-center justify-between gap-2 py-0.5">
+                    <span className="font-body text-gray-200 font-medium">Dr. Sudesh Rani</span>
+                    <a href="tel:+919876860085" className="font-mono-data text-xs text-mint/90 hover:text-mint hover:underline shrink-0">
                       +91 98768 60085
                     </a>
                   </div>
@@ -360,31 +368,31 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
 
               {/* Student Leadership */}
               <div>
-                <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-2">
+                <span className="font-mono-data text-[10px] font-bold uppercase tracking-[0.2em] text-mint block mb-2">
                   STUDENT CONVENERS
                 </span>
-                <div className="space-y-1.5 text-xs">
-                  <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="text-gray-200 font-medium">Simarpreet Kaur:</span>
-                    <a href="tel:+918427146574" className="text-mint hover:underline font-mono-data">
+                <div className="space-y-1 text-xs sm:text-sm">
+                  <div className="flex items-center justify-between gap-2 py-0.5 border-b border-white/[0.05]">
+                    <span className="font-body text-gray-200 font-medium">Simarpreet Kaur</span>
+                    <a href="tel:+918427146574" className="font-mono-data text-xs text-mint/90 hover:text-mint hover:underline shrink-0">
                       +91 84271 46574
                     </a>
                   </div>
-                  <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="text-gray-200 font-medium">Shubham Mangal:</span>
-                    <a href="tel:+917834975811" className="text-mint hover:underline font-mono-data">
+                  <div className="flex items-center justify-between gap-2 py-0.5 border-b border-white/[0.05]">
+                    <span className="font-body text-gray-200 font-medium">Shubham Mangal</span>
+                    <a href="tel:+917834975811" className="font-mono-data text-xs text-mint/90 hover:text-mint hover:underline shrink-0">
                       +91 78349 75811
                     </a>
                   </div>
-                  <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="text-gray-200 font-medium">Vedansh Singh:</span>
-                    <a href="tel:+918826873264" className="text-mint hover:underline font-mono-data">
+                  <div className="flex items-center justify-between gap-2 py-0.5 border-b border-white/[0.05]">
+                    <span className="font-body text-gray-200 font-medium">Vedansh Singh</span>
+                    <a href="tel:+918826873264" className="font-mono-data text-xs text-mint/90 hover:text-mint hover:underline shrink-0">
                       +91 88268 73264
                     </a>
                   </div>
-                  <div className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="text-gray-200 font-medium">Japneet Pathania:</span>
-                    <a href="tel:+918544918700" className="text-mint hover:underline font-mono-data">
+                  <div className="flex items-center justify-between gap-2 py-0.5">
+                    <span className="font-body text-gray-200 font-medium">Japneet Pathania</span>
+                    <a href="tel:+918544918700" className="font-mono-data text-xs text-mint/90 hover:text-mint hover:underline shrink-0">
                       +91 85449 18700
                     </a>
                   </div>
@@ -393,26 +401,30 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
 
               {/* Email Inquiries */}
               <div>
-                <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-2">
+                <span className="font-mono-data text-[10px] font-bold uppercase tracking-[0.2em] text-mint block mb-2">
                   OFFICIAL INQUIRIES
                 </span>
-                <div className="space-y-2 text-xs font-mono-data">
-                  <a
-                    href="mailto:eicpec@pec.edu.in"
-                    className="flex items-center gap-2 text-gray-300 hover:text-mint hover:underline transition-colors py-0.5"
-                    aria-label="Email EIC PEC at eicpec@pec.edu.in"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-mint/70 inline-block shrink-0" />
-                    eicpec@pec.edu.in
-                  </a>
-                  <a
-                    href="mailto:esummitpr.pec@gmail.com"
-                    className="flex items-center gap-2 text-gray-300 hover:text-mint hover:underline transition-colors py-0.5"
-                    aria-label="Email Public Relations at esummitpr.pec@gmail.com"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-mint/70 inline-block shrink-0" />
-                    esummitpr.pec@gmail.com
-                  </a>
+                <div className="space-y-1 text-xs sm:text-sm">
+                  <div className="flex items-center justify-between gap-2 py-0.5 border-b border-white/[0.05]">
+                    <span className="font-body text-gray-200 font-medium">General / Secretariat</span>
+                    <a
+                      href="mailto:eicpec@pec.edu.in"
+                      className="font-mono-data text-xs text-mint/90 hover:text-mint hover:underline transition-colors shrink-0"
+                      aria-label="Email EIC PEC Secretariat at eicpec@pec.edu.in"
+                    >
+                      eicpec@pec.edu.in
+                    </a>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 py-0.5">
+                    <span className="font-body text-gray-200 font-medium">Media &amp; Sponsorship</span>
+                    <a
+                      href="mailto:esummitpr.pec@gmail.com"
+                      className="font-mono-data text-xs text-mint/90 hover:text-mint hover:underline transition-colors shrink-0"
+                      aria-label="Email Public Relations & Sponsorship at esummitpr.pec@gmail.com"
+                    >
+                      esummitpr.pec@gmail.com
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

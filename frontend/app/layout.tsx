@@ -160,10 +160,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="dark" className="dark" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://firebase.googleapis.com" />
         <link rel="dns-prefetch" href="https://firebase.googleapis.com" />
         <script
           type="application/ld+json"

@@ -35,27 +35,37 @@ if (typeof window !== 'undefined' || isFirebaseConfigured) {
       googleProvider.setCustomParameters({ prompt: 'select_account' })
 
       if (typeof window !== 'undefined') {
+        let initialized = false
+        const events = ['scroll', 'pointerdown', 'touchstart', 'keydown']
+
+        const cleanupListeners = () => {
+          events.forEach((evt) => window.removeEventListener(evt, initAnalytics))
+        }
+
         const initAnalytics = () => {
+          if (initialized) return
+          initialized = true
+          cleanupListeners()
+
           isSupported()
             .then((supported: boolean) => {
               if (supported && app) {
                 try {
                   analytics = getAnalytics(app)
                 } catch (e: unknown) {
-                  console.warn('Firebase Analytics not supported in this storage context:', e)
+                  console.warn('Firebase Analytics context bypassed:', e)
                 }
               }
             })
-            .catch((err: unknown) => {
-              console.warn('Firebase Analytics isSupported check bypassed:', err)
-            })
+            .catch(() => {})
         }
 
-        if ('requestIdleCallback' in window) {
-          ;(window as any).requestIdleCallback(initAnalytics, { timeout: 4000 })
-        } else {
-          setTimeout(initAnalytics, 2500)
-        }
+        events.forEach((evt) => {
+          window.addEventListener(evt, initAnalytics, { once: true, passive: true })
+        })
+
+        // 6s fallback for idle sessions
+        setTimeout(initAnalytics, 6000)
       }
     }
   } catch (error) {

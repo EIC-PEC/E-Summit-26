@@ -139,6 +139,7 @@ export default function Sponsors() {
                 width={150}
                 height={44}
                 sizes="(max-width: 640px) 120px, 150px"
+                style={{ width: 'auto', height: 'auto' }}
                 className={`h-9 sm:h-11 w-auto max-w-[150px] object-contain transition-all duration-300 group-hover:scale-105 ${
                   sponsor.invert ? 'brightness-0 invert' : ''
                 }`}
@@ -163,6 +164,7 @@ export default function Sponsors() {
                 width={110}
                 height={28}
                 sizes="(max-width: 640px) 90px, 110px"
+                style={{ width: 'auto', height: 'auto' }}
                 className={`h-6 sm:h-7 w-auto max-w-[110px] object-contain opacity-70 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105 ${
                   sponsor.invert ? 'brightness-0 invert' : ''
                 }`}

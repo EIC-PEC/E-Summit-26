@@ -275,22 +275,13 @@ export function useHeroFrameScrubber({
     return () => window.removeEventListener('resize', handleResize)
   }, [canvasRef, renderFrameFallback])
 
-  // Spring physics RAF loop
+  // Direct 1:1 frame dispatch loop
   useEffect(() => {
     const isMobile = window.innerWidth < 768
-    const SPRING_STIFFNESS = isMobile ? 0.08 : 0.13
-    const SPRING_DAMPING = isMobile ? 0.85 : 0.8
 
     const tick = () => {
       if (isVisibleRef.current) {
-        const diff = targetFrameRef.current - displayFrameRef.current
-        springVelRef.current = (springVelRef.current + diff * SPRING_STIFFNESS) * SPRING_DAMPING
-        displayFrameRef.current = Math.max(
-          0,
-          Math.min(FRAME_COUNT - 1, displayFrameRef.current + springVelRef.current)
-        )
-
-        let frame = Math.round(displayFrameRef.current)
+        let frame = Math.round(targetFrameRef.current)
         if (isMobile) {
           frame = Math.round(frame / 2) * 2
         }

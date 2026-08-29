@@ -24,7 +24,7 @@ import { TOAST_STYLE } from '@/lib/constants'
 
 export default function Home() {
   return (
-    <main id="main-content" className="bg-void overflow-x-hidden" suppressHydrationWarning>
+    <main id="main-content" className="bg-void overflow-x-clip" suppressHydrationWarning>
       {/* Vantage Initial Page Loader */}
       <ScrollExpandLoader />
 

@@ -127,13 +127,13 @@ export default function NavMobileDrawer({
                       <span
                         className={`font-display text-3xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight transition-colors ${
                           isActive
-                            ? 'text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.4)]'
-                            : 'text-void group-hover:text-white'
+                            ? 'text-void underline decoration-void decoration-4 underline-offset-8'
+                            : 'text-void/80 group-hover:text-void group-hover:underline decoration-void/50 underline-offset-4'
                         }`}
                       >
                         {item.label}
                       </span>
-                      <span className="font-mono-data text-xs text-void/70 group-hover:text-white transition-colors font-black tracking-widest">
+                      <span className="font-mono-data text-xs text-void/70 group-hover:text-void transition-colors font-black tracking-widest">
                         {item.code}
                       </span>
                     </Link>

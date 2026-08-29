@@ -61,11 +61,11 @@ function PhotoCard({ src }: { src: string }) {
 function CleanStripSlat({
   index,
   totalSlats,
-  smoothProgress,
+  progress,
 }: {
   index: number
   totalSlats: number
-  smoothProgress: any
+  progress: any
 }) {
   const slatHeightPercent = 100 / totalSlats
   const topPositionPercent = index * slatHeightPercent
@@ -74,15 +74,15 @@ function CleanStripSlat({
   const startRange = (index / totalSlats) * 0.08
   const endRange = startRange + 0.10
 
-  const collapseScaleY = useTransform(smoothProgress, [startRange, endRange], [1, 0])
+  const collapseScaleY = useTransform(progress, [startRange, endRange], [1, 0])
   const collapseOpacity = useTransform(
-    smoothProgress,
+    progress,
     [startRange, endRange - 0.02, endRange],
     [1, 1, 0]
   )
 
   const laserOpacity = useTransform(
-    smoothProgress,
+    progress,
     [startRange - 0.02, startRange + 0.05, endRange - 0.02, endRange + 0.02],
     [0, 1, 1, 0]
   )
@@ -142,15 +142,9 @@ export default function FlipFlopTransition({ slatCount = 10 }: { slatCount?: num
     offset: ['start 85%', 'end end'],
   })
 
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 160,
-    damping: 28,
-    restDelta: 0.001,
-  })
-
   // Scroll-driven horizontal entry: Row 1 from LEFT (-100vw -> 0vw), Row 2 from RIGHT (100vw -> 0vw)
-  const row1X = useTransform(smoothProgress, [0.08, 0.38], ['-100vw', '0vw'])
-  const row2X = useTransform(smoothProgress, [0.08, 0.38], ['100vw', '0vw'])
+  const row1X = useTransform(scrollYProgress, [0.08, 0.38], ['-100vw', '0vw'])
+  const row2X = useTransform(scrollYProgress, [0.08, 0.38], ['100vw', '0vw'])
 
   const slats = Array.from({ length: slatCount }, (_, i) => i)
 
@@ -216,7 +210,7 @@ export default function FlipFlopTransition({ slatCount = 10 }: { slatCount?: num
               key={index}
               index={index}
               totalSlats={slatCount}
-              smoothProgress={smoothProgress}
+              progress={scrollYProgress}
             />
           ))}
         </div>
