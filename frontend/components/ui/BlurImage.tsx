@@ -44,6 +44,12 @@ export default function BlurImage({
         src={src}
         alt={alt}
         fill={fill}
+        unoptimized={
+          typeof src === 'string' &&
+          (src.startsWith('https://res.cloudinary.com/') ||
+            src.startsWith('https://cdn.simpleicons.org/') ||
+            src.startsWith('https://images.unsplash.com/'))
+        }
         className={`transition-all duration-500 ease-out will-change-[opacity,transform] ${
           isLoaded
             ? 'scale-100 opacity-100'

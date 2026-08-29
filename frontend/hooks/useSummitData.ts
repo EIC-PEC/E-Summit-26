@@ -23,7 +23,15 @@ import {
   MASTER_FAQS,
 } from '@/data/summitData'
 
+const CACHE_KEY = 'esummit_cms_bundle_v1'
+const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+
 export function refreshSummitData() {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem(CACHE_KEY)
+    } catch (_) {}
+  }
   return mutate('cms-bundle')
 }
 
@@ -145,15 +153,39 @@ interface UseSummitDataReturn {
   isFallback: boolean
 }
 
+const fetchCmsBundleWithCache = async (): Promise<CmsBundle> => {
+  if (typeof window !== 'undefined') {
+    try {
+      const raw = localStorage.getItem(CACHE_KEY)
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (parsed.timestamp && Date.now() - parsed.timestamp < CACHE_TTL_MS && parsed.data) {
+          return parsed.data
+        }
+      }
+    } catch (_) {}
+  }
+
+  const fresh = await api.getBundle()
+  if (typeof window !== 'undefined' && fresh) {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data: fresh }))
+    } catch (_) {}
+  }
+  return fresh
+}
+
 export function useSummitData(): UseSummitDataReturn {
   const { data, error, isLoading } = useSWR<CmsBundle>(
     'cms-bundle',
-    () => api.getBundle(),
+    fetchCmsBundleWithCache,
     {
-      revalidateOnFocus: true,
-      dedupingInterval: 3000, // 3 seconds for instant admin-to-frontend sync
-      errorRetryCount: 2,
-      shouldRetryOnError: true,
+      revalidateOnFocus: false,
+      revalidateIfStale: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: CACHE_TTL_MS,
+      errorRetryCount: 1,
+      shouldRetryOnError: false,
     },
   )
 
