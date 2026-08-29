@@ -1,13 +1,12 @@
 // components/EventPortfolio/DetailModal.tsx
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Bookmark, Check, ArrowRight, Layers, Layout, Users, ShieldCheck, ExternalLink } from 'lucide-react'
+import { X, Bookmark, Check, Layers, Layout, Users, ShieldCheck, ExternalLink } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { PortfolioEvent } from './data'
-
 
 interface DetailModalProps {
   event: PortfolioEvent | null
@@ -16,6 +15,7 @@ interface DetailModalProps {
 
 export function DetailModal({ event, onClose }: DetailModalProps) {
   const [isSaved, setIsSaved] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (event) {
@@ -36,6 +36,39 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
       document.body.classList.remove('modal-open')
     }
   }, [event])
+
+  // Focus trapping and Escape key handler
+  useEffect(() => {
+    if (!event) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+        if (focusable.length === 0) return
+
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [event, onClose])
 
   const toggleSchedule = () => {
     if (!event) return
@@ -73,17 +106,22 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[99999] flex items-stretch sm:items-center justify-center p-0 sm:p-6">
-        {/* Deep Dark Glassmorphic Backdrop — Blurs whole page including navbar, Ask AI button, and marquee */}
+        {/* Backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
           className="absolute inset-0 bg-black/40 backdrop-blur-md"
+          aria-hidden="true"
         />
 
-        {/* Modal Window — Edge-to-edge on mobile, floating glassmorphic card on desktop */}
+        {/* Modal Window */}
         <motion.div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-event-title"
           initial={{ opacity: 0, scale: 0.96, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
@@ -101,17 +139,18 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
               </span>
             </div>
 
+            {/* Accessible Touch Target Close Button (>= 44x44px) */}
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white flex items-center justify-center transition-colors shrink-0"
-              aria-label="Close modal"
+              className="min-h-[44px] min-w-[44px] rounded-full bg-white/10 hover:bg-white/20 text-neutral-300 hover:text-white flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+              aria-label="Close event details modal"
             >
-              <X size={16} />
+              <X size={18} />
             </button>
           </div>
 
           {/* Scrollable Content Body */}
-          <div 
+          <div
             className="overflow-y-auto min-h-0 overscroll-contain touch-pan-y custom-scrollbar flex-1 p-4 sm:p-6 space-y-4"
             onPointerDown={(e) => e.stopPropagation()}
           >
@@ -131,7 +170,10 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
               <p className="font-mono-data text-[10px] font-bold uppercase tracking-[0.2em] text-mint">
                 {event.eyebrow}
               </p>
-              <h2 className="font-display text-2xl sm:text-3xl font-black uppercase tracking-tight text-white leading-tight">
+              <h2
+                id="modal-event-title"
+                className="font-display text-2xl sm:text-3xl font-black uppercase tracking-tight text-white leading-tight"
+              >
                 {event.title}
               </h2>
             </div>
@@ -166,9 +208,7 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
                     <h4 className="font-mono-data text-[10px] font-extrabold uppercase tracking-widest text-mint">
                       {label}
                     </h4>
-                    <p className="text-xs text-neutral-300 leading-relaxed font-normal">
-                      {text}
-                    </p>
+                    <p className="text-xs text-neutral-300 leading-relaxed font-normal">{text}</p>
                   </div>
                 </div>
               ))}
@@ -192,14 +232,14 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
             )}
           </div>
 
-          {/* Fixed Sticky Action Footer */}
+          {/* Action Footer */}
           <div className="p-3.5 sm:p-5 border-t border-white/10 bg-[#07100D] flex flex-wrap items-center gap-2.5 shrink-0 pb-[max(0.8rem,env(safe-area-inset-bottom))]">
             {event.registrationUrl && (
               <a
                 href={event.registrationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 min-w-[130px] flex items-center justify-center gap-1.5 h-11 px-3 rounded-xl bg-mint text-[#040806] font-mono-data text-[11px] sm:text-xs font-black uppercase tracking-wider hover:bg-[#8ee430] transition-colors whitespace-nowrap"
+                className="flex-1 min-w-32 flex items-center justify-center gap-1.5 h-11 px-3 rounded-xl bg-mint text-[#040806] font-mono-data text-[11px] sm:text-xs font-black uppercase tracking-wider hover:bg-[#8ee430] transition-colors whitespace-nowrap"
               >
                 <span>Register on Unstop</span>
                 <ExternalLink size={14} className="shrink-0" />
@@ -208,7 +248,7 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
 
             <button
               onClick={toggleSchedule}
-              className={`flex-1 min-w-[120px] flex items-center justify-center gap-1.5 h-11 px-3 rounded-xl font-mono-data text-[11px] sm:text-xs font-bold uppercase tracking-wider border transition-all whitespace-nowrap ${
+              className={`flex-1 min-w-28 flex items-center justify-center gap-1.5 h-11 px-3 rounded-xl font-mono-data text-[11px] sm:text-xs font-bold uppercase tracking-wider border transition-all whitespace-nowrap ${
                 isSaved
                   ? 'bg-mint/15 border-mint text-mint'
                   : 'bg-white/5 border-white/15 text-white hover:border-mint/50 hover:text-mint'
@@ -220,12 +260,11 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
 
             <button
               onClick={onClose}
-              className="px-4 flex items-center justify-center gap-1.5 h-11 rounded-xl bg-white/10 text-neutral-300 font-mono-data text-[11px] sm:text-xs font-bold uppercase tracking-wider hover:bg-white/20 hover:text-white transition-colors"
+              className="px-4 flex items-center justify-center gap-1.5 h-11 rounded-xl bg-white/10 text-neutral-300 font-mono-data text-[11px] sm:text-xs font-bold uppercase tracking-wider hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
             >
               <span>Close</span>
             </button>
           </div>
-
         </motion.div>
       </div>
     </AnimatePresence>

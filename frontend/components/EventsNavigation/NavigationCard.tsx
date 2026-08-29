@@ -119,7 +119,7 @@ export function NavigationCard({ day, index, scrollYProgress }: NavigationCardPr
         }}
       >
         {/* ── Top row: number + name ── */}
-        <div className="flex items-baseline justify-between gap-4 flex-shrink-0">
+        <div className="flex items-baseline justify-between gap-4 shrink-0">
           <div className="flex items-baseline gap-4 sm:gap-6">
             {/* Number */}
             <span

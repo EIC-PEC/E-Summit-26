@@ -18,7 +18,7 @@ export default function LimeTransitionBanner() {
           transition={{ duration: 18, ease: 'linear', repeat: Infinity }}
           className="flex items-center gap-6 sm:gap-10 shrink-0"
         >
-          {[...words, ...words, ...words, ...words].map((word, idx) => (
+          {[...words, ...words].map((word, idx) => (
             <div key={idx} className="flex items-center gap-6 sm:gap-10">
               <span className="font-display font-black text-2xl sm:text-4xl lg:text-5xl uppercase tracking-tighter text-void">
                 {word}

@@ -72,7 +72,7 @@ export function EventListItem({ event, isSelected, distance, duration, onClick }
       <div className="relative flex items-center gap-3 px-3 py-3 pl-4">
         {/* Icon */}
         <motion.div
-          className="flex-shrink-0 flex items-center justify-center rounded-lg"
+          className="shrink-0 flex items-center justify-center rounded-lg"
           style={{ width: 34, height: 34 }}
           animate={isSelected ? {
             background: 'rgba(57,255,20,0.15)',
@@ -138,7 +138,7 @@ export function EventListItem({ event, isSelected, distance, duration, onClick }
 
         {/* Arrow */}
         <motion.div
-          className="flex-shrink-0"
+          className="shrink-0"
           animate={isSelected
             ? { color: '#39FF14', rotate: 0, opacity: 1 }
             : { color: 'rgba(255,255,255,0.15)', rotate: -20, opacity: 0.5 }}

@@ -41,13 +41,13 @@ const SPARKLINE_PTS = '0,40 12,32 24,36 36,20 48,28 60,12 72,18 84,6 96,14 108,4
 
 /** Animated live ticker strip */
 function TickerStrip() {
-  const items = [...TICKERS, ...TICKERS, ...TICKERS]
+  const items = [...TICKERS, ...TICKERS]
   return (
     <div className="relative overflow-hidden py-2 border-y" style={{ borderColor: 'rgba(126,211,33,0.15)', background: 'rgba(126,211,33,0.04)' }}>
       <motion.div
         className="flex gap-10 whitespace-nowrap"
-        animate={{ x: ['0%', '-33.333%'] }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
+        animate={{ x: ['0%', '-50%'] }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
       >
         {items.map((t, i) => (
           <span key={i} className="inline-flex items-center gap-2 shrink-0">
@@ -252,6 +252,7 @@ export default function EsummitHero() {
                 background: 'rgba(7,11,8,0.85)',
                 border: `1px solid ${b.color}40`,
                 backdropFilter: 'blur(12px)',
+                WebkitBackdropFilter: 'blur(12px)',
                 boxShadow: `0 4px 24px rgba(0,0,0,0.4), 0 0 0 1px ${b.color}20`,
               }}
               initial={{ opacity: 0, scale: 0.6, y: 10 }}
@@ -284,6 +285,7 @@ export default function EsummitHero() {
               background: 'rgba(7,11,8,0.9)',
               border: '1px solid rgba(126,211,33,0.45)',
               backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
               boxShadow: '0 0 20px rgba(126,211,33,0.15)',
               whiteSpace: 'nowrap',
             }}
@@ -313,6 +315,7 @@ export default function EsummitHero() {
               borderRadius: '10px',
               padding: '8px',
               backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)',
             }}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}

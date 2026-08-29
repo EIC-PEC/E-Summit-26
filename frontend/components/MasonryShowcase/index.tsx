@@ -63,23 +63,24 @@ function MarqueeColumn({
           repeat: Infinity,
           repeatType: 'loop',
         }}
+        style={{ willChange: 'transform', transform: 'translateZ(0)' }}
       >
         {items.map((item) => (
           <div
             key={item.id}
-            className="group relative w-full shrink-0 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0A1611] transition-all duration-300 hover:border-white/20"
-            style={{ height: item.height }}
+            className="group relative w-full shrink-0 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0A1611] transition-transform duration-300 hover:border-white/20"
+            style={{ height: `${item.height}px`, willChange: 'transform', transform: 'translateZ(0)' }}
           >
             <BlurImage
               src={item.img}
               alt="E-Summit PEC event photo"
               fill
-              sizes="(max-width: 768px) 33vw, 20vw"
+              sizes="(max-width: 640px) 140px, (max-width: 1024px) 200px, 260px"
+              quality={65}
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           </div>
         ))}
-
       </motion.div>
     </div>
   )

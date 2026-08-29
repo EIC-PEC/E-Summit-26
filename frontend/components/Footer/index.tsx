@@ -243,7 +243,6 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
             </p>
             <div
               className="flex items-center gap-4 sm:gap-6"
-              role="list"
               aria-label="Social media links"
             >
               {dynamicSocials.map(({ icon: Icon, href, label }) => (
@@ -253,8 +252,7 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  role="listitem"
-                  className="border-mint/30 flex h-11 w-11 items-center justify-center rounded-xl border bg-[#07130F] text-white shadow-sm transition-all hover:scale-105 hover:border-mint hover:text-mint"
+                  className="border-mint/30 flex min-h-[44px] min-w-[44px] h-11 w-11 items-center justify-center rounded-xl border bg-[#07130F] text-white shadow-sm transition-all hover:scale-105 hover:border-mint hover:text-mint"
                 >
                   <Icon size={18} aria-hidden="true" strokeWidth={1.5} />
                 </a>
@@ -291,15 +289,15 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
 
             {/* Column 3: Quick Links */}
             <div>
-              <h4 className="mb-6 font-display text-xl font-bold uppercase tracking-wider text-white">
+              <h3 className="mb-6 font-display text-xl font-bold uppercase tracking-wider text-white">
                 Quick Links
-              </h4>
-              <ul className="space-y-3">
+              </h3>
+              <ul className="space-y-2.5">
                 {QUICK_LINKS.map((link) => (
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="inline-block py-2 sm:py-1 font-body text-sm font-medium text-gray-200 transition-colors hover:text-mint"
+                      className="font-body text-sm font-medium text-gray-300 transition-colors hover:text-mint inline-block py-0.5"
                     >
                       {link.label}
                     </a>
@@ -309,14 +307,16 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
             </div>
 
             {/* Column 4: Contact & Team Leadership */}
-            <div>
-              <h4 className="mb-6 font-display text-xl font-bold uppercase tracking-wider text-white">
+            <div className="space-y-6 min-h-[420px] lg:min-h-0">
+              <h3 className="font-display text-xl font-bold uppercase tracking-wider text-white">
                 Contact Us
-              </h4>
+              </h3>
               
               {/* Address */}
-              <div className="mb-6">
-                <span className="font-body text-xs font-bold uppercase tracking-wider text-mint block mb-1">Visit Us At</span>
+              <div>
+                <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-1">
+                  CAMPUS VENUE
+                </span>
                 <p className="font-body text-xs leading-relaxed text-gray-300">
                   {siteConfig?.summitVenue || 'Entrepreneurship & Incubation Cell - Incubator (Near Siemens Lab), Punjab Engineering College, Sector-12 (160012), Chandigarh'}
                 </p>
@@ -324,53 +324,102 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
 
               {/* Helpline Phone */}
               {contacts?.phone && (
-                <div className="mb-4 space-y-1">
-                  <span className="font-body text-xs font-bold uppercase tracking-wider text-mint block">Helpline / Support</span>
-                  <a href={`tel:${contacts.phone.replace(/\s+/g, '')}`} className="text-xs text-gray-200 hover:text-mint font-semibold">
+                <div>
+                  <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-1">
+                    HELPLINE / SUPPORT
+                  </span>
+                  <a
+                    href={`tel:${contacts.phone.replace(/\s+/g, '')}`}
+                    className="font-mono-data text-xs font-semibold text-mint hover:underline transition-colors inline-block"
+                  >
                     {contacts.phone}
                   </a>
                 </div>
               )}
 
               {/* Faculty Coordinators */}
-              <div className="mb-4 space-y-2">
-                <span className="font-body text-xs font-bold uppercase tracking-wider text-mint block">Faculty Coordinators</span>
-                <div className="text-xs text-gray-200">
-                  <p><strong className="text-white">Dr. Simranjit Singh:</strong> <a href="tel:+919872552898" className="hover:text-mint">+91 98725 52898</a></p>
-                  <p><strong className="text-white">Dr. Sudesh Rani:</strong> <a href="tel:+919876860085" className="hover:text-mint">+91 98768 60085</a></p>
+              <div>
+                <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-2">
+                  FACULTY COORDINATORS
+                </span>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="text-gray-200 font-medium">Dr. Simranjit Singh:</span>
+                    <a href="tel:+919872552898" className="text-mint hover:underline font-mono-data">
+                      +91 98725 52898
+                    </a>
+                  </div>
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="text-gray-200 font-medium">Dr. Sudesh Rani:</span>
+                    <a href="tel:+919876860085" className="text-mint hover:underline font-mono-data">
+                      +91 98768 60085
+                    </a>
+                  </div>
                 </div>
               </div>
 
               {/* Student Leadership */}
-              <div className="mb-4 space-y-2">
-                <span className="font-body text-xs font-bold uppercase tracking-wider text-mint block">Student Conveners</span>
-                <div className="text-xs text-gray-200 space-y-1">
-                  <p><strong className="text-white">Simarpreet Kaur (Convener):</strong> <a href="tel:+918427146574" className="hover:text-mint">+91 84271 46574</a></p>
-                  <p><strong className="text-white">Shubham Mangal (Co-convener):</strong> <a href="tel:+917834975811" className="hover:text-mint">+91 78349 75811</a></p>
-                  <p><strong className="text-white">Vedansh Singh (Co-convener):</strong> <a href="tel:+918826873264" className="hover:text-mint">+91 88268 73264</a></p>
-                  <p><strong className="text-white">Japneet Pathania (Marketing):</strong> <a href="tel:+918544918700" className="hover:text-mint">+91 85449 18700</a></p>
+              <div>
+                <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-2">
+                  STUDENT CONVENERS
+                </span>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="text-gray-200 font-medium">Simarpreet Kaur:</span>
+                    <a href="tel:+918427146574" className="text-mint hover:underline font-mono-data">
+                      +91 84271 46574
+                    </a>
+                  </div>
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="text-gray-200 font-medium">Shubham Mangal:</span>
+                    <a href="tel:+917834975811" className="text-mint hover:underline font-mono-data">
+                      +91 78349 75811
+                    </a>
+                  </div>
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="text-gray-200 font-medium">Vedansh Singh:</span>
+                    <a href="tel:+918826873264" className="text-mint hover:underline font-mono-data">
+                      +91 88268 73264
+                    </a>
+                  </div>
+                  <div className="flex flex-wrap items-baseline gap-1.5">
+                    <span className="text-gray-200 font-medium">Japneet Pathania:</span>
+                    <a href="tel:+918544918700" className="text-mint hover:underline font-mono-data">
+                      +91 85449 18700
+                    </a>
+                  </div>
                 </div>
               </div>
 
-              {/* Email Links */}
-              <div className="pt-2 border-t border-white/10 space-y-1">
-                <span className="font-body text-xs font-bold uppercase tracking-wider text-mint block mb-1">Emails</span>
-                {contacts?.email ? (
-                  <a href={`mailto:${contacts.email}`} className="block text-xs text-gray-300 hover:text-mint hover:underline font-semibold">
-                    {contacts.email}
+              {/* Email Inquiries */}
+              <div>
+                <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint block mb-2">
+                  OFFICIAL INQUIRIES
+                </span>
+                <div className="space-y-2 text-xs font-mono-data">
+                  <a
+                    href="mailto:eicpec@pec.edu.in"
+                    className="flex items-center gap-2 text-gray-300 hover:text-mint hover:underline transition-colors py-0.5"
+                    aria-label="Email EIC PEC at eicpec@pec.edu.in"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-mint/70 inline-block shrink-0" />
+                    eicpec@pec.edu.in
                   </a>
-                ) : (
-                  <>
-                    <a href="mailto:eicpec@pec.edu.in" className="block text-xs text-gray-300 hover:text-mint hover:underline">eicpec@pec.edu.in</a>
-                    <a href="mailto:esummitpr.pec@gmail.com" className="block text-xs text-gray-300 hover:text-mint hover:underline">esummitpr.pec@gmail.com</a>
-                  </>
-                )}
+                  <a
+                    href="mailto:esummitpr.pec@gmail.com"
+                    className="flex items-center gap-2 text-gray-300 hover:text-mint hover:underline transition-colors py-0.5"
+                    aria-label="Email Public Relations at esummitpr.pec@gmail.com"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-mint/70 inline-block shrink-0" />
+                    esummitpr.pec@gmail.com
+                  </a>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Bottom copyright line */}
-          <div className="border-mint/20 flex flex-col items-center justify-between gap-4 border-t pt-10 font-mono-data text-xs text-gray-300 sm:flex-row">
+          <div className="border-mint/20 flex flex-col items-center justify-between gap-4 border-t pt-8 pb-16 sm:pb-0 font-mono-data text-xs text-gray-400 sm:flex-row text-center sm:text-left">
             <p>© {new Date().getFullYear()} E-Cell PEC · Punjab Engineering College, Chandigarh</p>
             <p className="font-bold text-mint">PEC E-Summit 2026</p>
           </div>

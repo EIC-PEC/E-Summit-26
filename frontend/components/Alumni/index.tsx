@@ -132,8 +132,9 @@ export default function AlumniSection() {
 
   // Merge: CMS entries (real data) override static entries by index for real names/companies;
   // static fallback entries fill the rest so the carousel always has rich imagery.
-  const displayData: AlumniMember[] = cmsAlumni.length > 0
-    ? ALUMNI_DATA.map((staticEntry, i) => {
+  const displayData: AlumniMember[] =
+    Array.isArray(cmsAlumni) && cmsAlumni.length > 0
+      ? ALUMNI_DATA.map((staticEntry, i) => {
         const cmsEntry: CmsAlumni | undefined = cmsAlumni[i]
         if (!cmsEntry) return staticEntry
         return {
@@ -250,8 +251,9 @@ export default function AlumniSection() {
                             href={person.linkedin}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 rounded-full bg-white/10 hover:bg-mint text-white hover:text-void transition-all border border-white/20 shrink-0"
-                            title="LinkedIn Profile"
+                            className="min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full bg-white/10 hover:bg-mint text-white hover:text-void transition-all border border-white/20 shrink-0 cursor-pointer"
+                            title={`${person.name}'s LinkedIn Profile`}
+                            aria-label={`${person.name}'s LinkedIn Profile`}
                           >
                             <Linkedin className="w-4 h-4" />
                           </a>

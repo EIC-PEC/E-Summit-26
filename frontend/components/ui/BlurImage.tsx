@@ -49,10 +49,10 @@ export default function BlurImage({
         src={src}
         alt={alt}
         fill={fill}
-        className={`transition-all duration-500 ease-out ${
+        className={`transition-opacity transition-transform duration-500 ease-out will-change-[opacity,transform] ${
           isLoaded
-            ? 'scale-100 blur-0 opacity-100'
-            : 'scale-105 blur-sm opacity-60'
+            ? 'scale-100 opacity-100'
+            : 'scale-105 opacity-0'
         } ${className}`}
         onLoad={(e) => {
           setIsLoaded(true)

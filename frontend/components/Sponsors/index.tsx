@@ -80,7 +80,7 @@ export default function Sponsors() {
 
   // Use CMS sponsors if available with logo URLs, otherwise fallback to curated static list
   const sponsorList = React.useMemo(() => {
-    if (cmsSponsors.length > 0) {
+    if (Array.isArray(cmsSponsors) && cmsSponsors.length > 0) {
       const validCms = cmsSponsors.filter((s: CmsSponsor) => s.logoUrl)
       if (validCms.length > 0) {
         return validCms.map((s: CmsSponsor) => ({
@@ -138,10 +138,10 @@ export default function Sponsors() {
                 alt={sponsor.name}
                 width={150}
                 height={44}
+                sizes="(max-width: 640px) 120px, 150px"
                 className={`h-9 sm:h-11 w-auto max-w-[150px] object-contain transition-all duration-300 group-hover:scale-105 ${
                   sponsor.invert ? 'brightness-0 invert' : ''
                 }`}
-                unoptimized
               />
             </motion.a>
           ))}
@@ -162,10 +162,10 @@ export default function Sponsors() {
                 alt={sponsor.name}
                 width={110}
                 height={28}
+                sizes="(max-width: 640px) 90px, 110px"
                 className={`h-6 sm:h-7 w-auto max-w-[110px] object-contain opacity-70 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105 ${
                   sponsor.invert ? 'brightness-0 invert' : ''
                 }`}
-                unoptimized
               />
             </motion.a>
           ))}

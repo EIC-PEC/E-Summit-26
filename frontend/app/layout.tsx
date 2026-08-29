@@ -1,9 +1,19 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, Kanit } from 'next/font/google'
+import dynamic from 'next/dynamic'
+import { Inter, Kanit, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import SmoothScrollProvider from '@/components/Providers/SmoothScrollProvider'
 import ChevronRouteTransition from '@/components/Common/ChevronRouteTransition'
 import SessionProviderWrapper from '@/components/Providers/SessionProviderWrapper'
+import GlobalScrollProgress from '@/components/Common/GlobalScrollProgress'
+import Concierge from '@/components/Concierge'
+import { AuthProvider } from '@/context/AuthContext'
+import ServiceWorkerCleanup from '@/components/Common/ServiceWorkerCleanup'
+
+const AnnouncementBanner = dynamic(
+  () => import('@/components/Common/AnnouncementBanner'),
+  { ssr: false }
+)
 
 const kanit = Kanit({
   subsets: ['latin'],
@@ -15,6 +25,12 @@ const kanit = Kanit({
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
+  display: 'swap',
+})
+
+const jetbrains = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains',
   display: 'swap',
 })
 
@@ -91,18 +107,6 @@ export const metadata: Metadata = {
   },
 }
 
-import dynamic from 'next/dynamic'
-import GlobalScrollProgress from '@/components/Common/GlobalScrollProgress'
-import Concierge from '@/components/Concierge'
-import { AuthProvider } from '@/context/AuthContext'
-
-import ServiceWorkerCleanup from '@/components/Common/ServiceWorkerCleanup'
-
-const AnnouncementBanner = dynamic(
-  () => import('@/components/Common/AnnouncementBanner'),
-  { ssr: false }
-)
-
 const JSON_LD_EVENT_SCHEMA = {
   '@context': 'https://schema.org',
   '@type': 'Event',
@@ -156,13 +160,18 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="dark" className="dark" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://firebase.googleapis.com" />
+        <link rel="dns-prefetch" href="https://firebase.googleapis.com" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_EVENT_SCHEMA) }}
         />
       </head>
       <body
-        className={`noise ${kanit.variable} ${inter.variable} font-body text-primary bg-void`}
+        className={`noise ${kanit.variable} ${inter.variable} ${jetbrains.variable} font-body text-primary bg-void`}
         suppressHydrationWarning
       >
         <ServiceWorkerCleanup />

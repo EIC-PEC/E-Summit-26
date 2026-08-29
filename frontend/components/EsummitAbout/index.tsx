@@ -70,11 +70,13 @@ function GeometricNodesCanvas() {
 
     let mouseTick = false
     const handleMouseMove = (e: MouseEvent) => {
-      if (!mouseTick) {
+      if (!mouseTick && isVisible) {
         requestAnimationFrame(() => {
-          const rect = canvas.getBoundingClientRect()
-          mouseX = e.clientX - rect.left
-          mouseY = e.clientY - rect.top
+          if (canvas) {
+            const rect = canvas.getBoundingClientRect()
+            mouseX = e.clientX - rect.left
+            mouseY = e.clientY - rect.top
+          }
           mouseTick = false
         })
         mouseTick = true

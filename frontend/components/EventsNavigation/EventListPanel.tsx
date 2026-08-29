@@ -34,10 +34,11 @@ export function EventListPanel({
     <div className="h-full flex flex-col overflow-hidden" style={{ background: 'transparent' }}>
       {/* GTA-style Header — no border, just a glassy fade strip */}
       <div
-        className="flex-shrink-0 px-4 py-3 flex items-center justify-between"
+        className="shrink-0 px-4 py-3 flex items-center justify-between"
         style={{
           background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 100%)',
           backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
         }}
       >
         <div className="flex items-center gap-2">
@@ -123,13 +124,14 @@ export function EventListPanel({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="flex-shrink-0 px-3 pb-3 pt-1"
+            className="shrink-0 px-3 pb-3 pt-1"
           >
             <div
               className="rounded-xl px-4 py-3"
               style={{
                 background: 'linear-gradient(135deg, rgba(57,255,20,0.08) 0%, rgba(0,255,136,0.04) 100%)',
                 backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
                 boxShadow: '0 0 20px rgba(57,255,20,0.12), inset 0 0 0 0.5px rgba(57,255,20,0.2)',
               }}
             >

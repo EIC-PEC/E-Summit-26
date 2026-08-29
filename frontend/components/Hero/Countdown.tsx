@@ -44,7 +44,10 @@ function DigitBlock({ value, label }: { value: string; label: string }) {
         {/* Top Gloss Line */}
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-mint/40 via-mint to-mint/40" />
         
-        <span className="font-mono-data text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-none tracking-normal">
+        <span
+          className="font-mono-data text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-none tracking-normal"
+          suppressHydrationWarning
+        >
           {value}
         </span>
       </div>
@@ -94,7 +97,12 @@ export default function Countdown({
 
 
       {/* Countdown timer: four blocks separated by ":" */}
-      <div className="flex items-center gap-2 sm:gap-3.5 lg:gap-4" role="timer" aria-label="Countdown to E-Summit">
+      <div
+        className="flex items-center gap-2 sm:gap-3.5 lg:gap-4"
+        role="timer"
+        aria-label="Countdown to E-Summit"
+        suppressHydrationWarning
+      >
         <DigitBlock value={timeLeft.days} label="DAYS" />
         <span className="font-mono-data text-xl sm:text-3xl lg:text-4xl font-bold text-mint pb-6 select-none animate-pulse">
           :

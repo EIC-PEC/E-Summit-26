@@ -35,19 +35,27 @@ if (typeof window !== 'undefined' || isFirebaseConfigured) {
       googleProvider.setCustomParameters({ prompt: 'select_account' })
 
       if (typeof window !== 'undefined') {
-        isSupported()
-          .then((supported: boolean) => {
-            if (supported && app) {
-              try {
-                analytics = getAnalytics(app)
-              } catch (e: unknown) {
-                console.warn('Firebase Analytics not supported in this storage context:', e)
+        const initAnalytics = () => {
+          isSupported()
+            .then((supported: boolean) => {
+              if (supported && app) {
+                try {
+                  analytics = getAnalytics(app)
+                } catch (e: unknown) {
+                  console.warn('Firebase Analytics not supported in this storage context:', e)
+                }
               }
-            }
-          })
-          .catch((err: unknown) => {
-            console.warn('Firebase Analytics isSupported check bypassed:', err)
-          })
+            })
+            .catch((err: unknown) => {
+              console.warn('Firebase Analytics isSupported check bypassed:', err)
+            })
+        }
+
+        if ('requestIdleCallback' in window) {
+          ;(window as any).requestIdleCallback(initAnalytics, { timeout: 4000 })
+        } else {
+          setTimeout(initAnalytics, 2500)
+        }
       }
     }
   } catch (error) {

@@ -90,11 +90,11 @@ export default function AnnouncementBanner() {
         <button
           type="button"
           onClick={handleDismiss}
-          className="p-1 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition-colors shrink-0 flex items-center gap-1"
+          className="min-h-[44px] min-w-[44px] p-2 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition-colors shrink-0 flex items-center justify-center cursor-pointer"
           title="Dismiss Announcement"
           aria-label="Dismiss Announcement"
         >
-          <X size={13} />
+          <X size={15} />
         </button>
       </div>
     </aside>

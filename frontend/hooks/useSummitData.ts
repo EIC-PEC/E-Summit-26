@@ -157,8 +157,19 @@ export function useSummitData(): UseSummitDataReturn {
     },
   )
 
+  const sanitizedData: CmsBundle = {
+    siteConfig: (data && data.siteConfig) || STATIC_FALLBACK.siteConfig,
+    events: Array.isArray(data?.events) && data.events.length > 0 ? data.events : STATIC_FALLBACK.events,
+    speakers: Array.isArray(data?.speakers) && data.speakers.length > 0 ? data.speakers : STATIC_FALLBACK.speakers,
+    sponsors: Array.isArray(data?.sponsors) && data.sponsors.length > 0 ? data.sponsors : STATIC_FALLBACK.sponsors,
+    alumni: Array.isArray(data?.alumni) && data.alumni.length > 0 ? data.alumni : STATIC_FALLBACK.alumni,
+    faqs: Array.isArray(data?.faqs) && data.faqs.length > 0 ? data.faqs : STATIC_FALLBACK.faqs,
+    scheduleItems: Array.isArray(data?.scheduleItems) ? data.scheduleItems : STATIC_FALLBACK.scheduleItems,
+    gallery: Array.isArray(data?.gallery) ? data.gallery : STATIC_FALLBACK.gallery,
+  }
+
   return {
-    data: data ?? STATIC_FALLBACK,
+    data: sanitizedData,
     isLoading,
     isError: Boolean(error),
     isFallback: !data && Boolean(error),
@@ -169,32 +180,33 @@ export function useSummitData(): UseSummitDataReturn {
 
 export function useSpeakers() {
   const { data, isLoading, isError } = useSummitData()
-  return { speakers: data.speakers, isLoading, isError }
+  return { speakers: Array.isArray(data?.speakers) ? data.speakers : [], isLoading, isError }
 }
 
 export function useEvents() {
   const { data, isLoading, isError } = useSummitData()
-  return { events: data.events, isLoading, isError }
+  return { events: Array.isArray(data?.events) ? data.events : [], isLoading, isError }
 }
 
 export function useSponsors() {
   const { data, isLoading, isError } = useSummitData()
-  return { sponsors: data.sponsors, isLoading, isError }
+  return { sponsors: Array.isArray(data?.sponsors) ? data.sponsors : [], isLoading, isError }
 }
 
 export function useAlumni() {
   const { data, isLoading, isError } = useSummitData()
-  return { alumni: data.alumni, isLoading, isError }
+  return { alumni: Array.isArray(data?.alumni) ? data.alumni : [], isLoading, isError }
 }
 
 export function useFaqs() {
   const { data, isLoading, isError } = useSummitData()
-  return { faqs: data.faqs, isLoading, isError }
+  return { faqs: Array.isArray(data?.faqs) ? data.faqs : [], isLoading, isError }
 }
 
 export function useSchedule(day?: 1 | 2) {
   const { data, isLoading, isError } = useSummitData()
-  const items = day ? data.scheduleItems.filter((i) => i.day === day) : data.scheduleItems
+  const list = Array.isArray(data?.scheduleItems) ? data.scheduleItems : []
+  const items = day ? list.filter((i) => i.day === day) : list
   return { scheduleItems: items, isLoading, isError }
 }
 

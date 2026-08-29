@@ -69,7 +69,7 @@ function FAQItem({ faq, isOpen, onToggle }: {
 
 export default function FAQ() {
   const { faqs: cmsFaqs } = useFaqs()
-  const faqs: FaqItem[] = cmsFaqs.length > 0 ? cmsFaqs : STATIC_FAQS
+  const faqs: FaqItem[] = Array.isArray(cmsFaqs) && cmsFaqs.length > 0 ? cmsFaqs : STATIC_FAQS
 
   const [openId, setOpenId] = useState<string | null>(faqs[0]?.id ?? null)
 

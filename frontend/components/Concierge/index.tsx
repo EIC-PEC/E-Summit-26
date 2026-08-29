@@ -149,6 +149,19 @@ export default function Concierge() {
     toast.success('Removed session from My Plan.', TOAST_STYLE)
   }
 
+  // Escape key listener for chat and plan modals
+  useEffect(() => {
+    if (!open && !planOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (planOpen) setPlanOpen(false)
+        else if (open) setOpen(false)
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [open, planOpen])
+
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 150)
@@ -177,17 +190,17 @@ export default function Concierge() {
           // Drop below loader (z-9999) while it's active so it's physically behind the overlay
           zIndex: isLoaderActive ? 9000 : 10000,
         }}
-        className={`btn-mint-gradient !fixed bottom-14 right-3 sm:right-6 min-h-[38px] sm:min-h-[42px] px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full font-mono-data text-xs font-bold text-void flex items-center gap-2 cursor-pointer transition-all duration-400 shadow-xl ${
+        className={`btn-mint-gradient !fixed bottom-14 right-3 sm:right-6 min-h-[44px] px-4 py-2 rounded-full font-mono-data text-xs font-bold text-void flex items-center gap-2 cursor-pointer transition-all duration-400 shadow-xl ${
           isHidden ? 'opacity-0 scale-75 pointer-events-none translate-y-4' : 'opacity-100 scale-100 pointer-events-auto translate-y-0'
         }`}
         whileHover={{ scale: isHidden ? 0.75 : 1.05 }}
         whileTap={{ scale: isHidden ? 0.75 : 0.95 }}
-        aria-label="Open Summit Assistant"
+        aria-label="Open Summit AI Assistant"
       >
-        <Bot size={16} />
+        <Bot size={18} />
         <span className="hidden sm:inline">Ask Assistant</span>
         {!open && (
-          <span className="w-1.5 h-1.5 rounded-full bg-void" />
+          <span className="w-2 h-2 rounded-full bg-void" />
         )}
       </motion.button>
 
@@ -195,6 +208,9 @@ export default function Concierge() {
       <AnimatePresence>
         {open && (
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="E-Summit PEC AI Assistant"
             className="fixed bottom-[100px] sm:bottom-[108px] right-3 sm:right-6 left-auto z-[10000] w-[360px] max-w-[calc(100vw-24px)] rounded-2xl overflow-hidden flex flex-col shadow-2xl bg-gradient-to-b from-[#0D2218]/95 via-[#081710]/95 to-[#040A07]/95 border border-mint/30 backdrop-blur-2xl"
             style={{ height: 'min(480px, 72vh)' }}
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -232,7 +248,7 @@ export default function Concierge() {
                 )}
                 <button
                   onClick={() => setOpen(false)}
-                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer"
+                  className="min-h-[44px] min-w-[44px] rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer"
                   aria-label="Close Assistant"
                 >
                   <ChevronDown size={18} />
@@ -311,7 +327,7 @@ export default function Concierge() {
             </div>
 
             {/* Input Form Container */}
-            <div className="p-3 bg-white/5 border-t border-white/10">
+            <div className="p-3 bg-white/5 border-t border-white/10 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <form
                 onSubmit={(e) => {
                   e.preventDefault()
@@ -325,7 +341,7 @@ export default function Concierge() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about E-Summit schedule, tracks, speakers..."
-                  className="flex-1 bg-transparent px-3 py-1.5 text-xs sm:text-sm text-white placeholder:text-gray-400 outline-none font-body"
+                  className="flex-1 bg-transparent px-3 py-1.5 text-base sm:text-sm text-white placeholder:text-gray-400 outline-none font-body"
                 />
                 <button
                   type="submit"
@@ -346,6 +362,9 @@ export default function Concierge() {
         {planOpen && (
           <div className="fixed inset-0 z-[12000] flex items-center justify-center bg-black/40 backdrop-blur-md p-4 sm:p-6">
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Personal Itinerary Plan"
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -357,7 +376,11 @@ export default function Concierge() {
                   <Bookmark size={18} className="text-mint fill-mint/20" />
                   <h3 className="font-display text-2xl text-white">My Personal Itinerary</h3>
                 </div>
-                <button onClick={() => setPlanOpen(false)} className="p-2 rounded-lg text-muted hover:text-white">
+                <button
+                  onClick={() => setPlanOpen(false)}
+                  className="min-h-[44px] min-w-[44px] rounded-xl text-muted hover:text-white flex items-center justify-center hover:bg-white/5 transition-colors cursor-pointer"
+                  aria-label="Close Itinerary"
+                >
                   <X size={18} />
                 </button>
               </div>

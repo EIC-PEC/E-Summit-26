@@ -201,12 +201,16 @@ export async function subscribeEmail(email: string): Promise<string> {
     return `That doesn't look like a valid email address. Please try again.`
   }
   if (typeof window !== 'undefined') {
-    const existing: string[] = JSON.parse(localStorage.getItem('pec_summit_subscribers') || '[]')
-    if (existing.includes(email)) {
-      return `${email} is already on the E-Summit PEC updates list!`
+    try {
+      const existing: string[] = JSON.parse(localStorage.getItem('pec_summit_subscribers') || '[]')
+      if (existing.includes(email)) {
+        return `${email} is already on the E-Summit PEC updates list!`
+      }
+      existing.push(email)
+      localStorage.setItem('pec_summit_subscribers', JSON.stringify(existing))
+    } catch {
+      // Non-critical local storage fallback
     }
-    existing.push(email)
-    localStorage.setItem('pec_summit_subscribers', JSON.stringify(existing))
   }
   return `Done! **${email}** has been subscribed to E-Summit PEC 2026 updates.`
 }

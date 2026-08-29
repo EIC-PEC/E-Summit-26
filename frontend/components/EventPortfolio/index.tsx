@@ -16,8 +16,8 @@ export default function EventPortfolioShowcase() {
 
   const { data } = useSummitData()
   const events: PortfolioEvent[] = useMemo(() => {
-    const cmsEvents = data.events || []
-    const portfolioMedia = data.portfolioMedia || []
+    const cmsEvents = Array.isArray(data?.events) ? data.events : []
+    const portfolioMedia = Array.isArray(data?.portfolioMedia) ? data.portfolioMedia : []
     const baseEvents = cmsEvents.length > 0 ? cmsEvents : PORTFOLIO_EVENTS
 
     return baseEvents.map((e, idx) => {
@@ -85,9 +85,12 @@ export default function EventPortfolioShowcase() {
   })
 
   useEffect(() => {
-    const handleResize = () => {
-      if (trackRef.current) {
-        const scrollWidth = trackRef.current.scrollWidth
+    const el = trackRef.current
+    if (!el) return
+
+    const ro = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const scrollWidth = entry.target.scrollWidth
         const viewportWidth = window.innerWidth
         const maxScroll = Math.max(0, scrollWidth - viewportWidth)
         setScrollRange((prev) => {
@@ -95,11 +98,10 @@ export default function EventPortfolioShowcase() {
           return prev[1] === newRange ? prev : ['0px', newRange]
         })
       }
-    }
-    handleResize()
-    setTimeout(handleResize, 100)
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
+    })
+
+    ro.observe(el)
+    return () => ro.disconnect()
   }, [filteredEvents])
 
   const xTranslate = useTransform(smoothProgress, [0, 1], scrollRange)

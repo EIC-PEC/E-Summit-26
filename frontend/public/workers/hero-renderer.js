@@ -109,7 +109,14 @@ const loadSheet = async (s) => {
 const loadSheets = async () => {
   await loadSheet(0) // Sheet 0 first — covers the initial viewport (frames 0-24)
   if (!isActive) return
-  await Promise.all(Array.from({ length: SHEET_COUNT - 1 }, (_, i) => loadSheet(i + 1)))
+  // Defer secondary sheets so initial page load bandwidth is 100% free for critical assets
+  setTimeout(async () => {
+    if (!isActive) return
+    for (let i = 1; i < SHEET_COUNT; i++) {
+      if (!isActive) break
+      await loadSheet(i)
+    }
+  }, 1500)
 }
 
 self.onmessage = ({ data }) => {
@@ -122,8 +129,7 @@ self.onmessage = ({ data }) => {
       ctx.imageSmoothingQuality = isMobile ? 'low' : 'high'
       manifest = data.manifest
 
-      loadLowres()
-      setTimeout(loadSheets, 300)
+      loadSheets()
       self.postMessage({ type: 'ready' })
       break
     }

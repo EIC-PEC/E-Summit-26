@@ -56,10 +56,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {}
 
     if (isFirebaseConfigured && auth) {
-      setPersistence(auth, browserLocalPersistence).catch((err: unknown) => {
-        console.warn('Persistence config error:', err)
-      })
-
       const unsubscribe = onAuthStateChanged(auth, (firebaseUser: User | null) => {
         if (firebaseUser) {
           const userObj: SimpleUser = {

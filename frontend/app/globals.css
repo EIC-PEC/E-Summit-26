@@ -60,6 +60,8 @@ a:hover {
 
 html {
   color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ─── Section Layout ─── */
@@ -113,6 +115,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-overflow-scrolling: touch;
 }
 
 #main-content,
@@ -203,43 +206,61 @@ h1, h2, h3 {
 .text-gradient-white {
   background: linear-gradient(180deg, #FFFFFF 15%, #E2E8F0 60%, #94A3B8 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   display: inline-block;
+  transform: translateZ(0);
 }
 
 .text-gradient-mint, .text-gradient-green {
   background: linear-gradient(180deg, #F4FFD6 0%, var(--accent-mint) 65%, #82BD16 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   display: inline-block;
+  transform: translateZ(0);
 }
 
 .text-gradient-blue, .text-gradient-cyan {
   background: linear-gradient(180deg, #E6F9FF 0%, var(--accent-blue) 65%, #0099DD 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   display: inline-block;
+  transform: translateZ(0);
 }
 
 .text-gradient-coral, .text-gradient-orange, .text-gradient-amber {
   background: linear-gradient(180deg, #FFF0ED 0%, var(--accent-coral) 65%, #CC2616 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   display: inline-block;
+  transform: translateZ(0);
 }
 
 .text-gradient-gold, .text-gradient-yellow {
   background: linear-gradient(180deg, #FFFEEB 0%, #FFD700 65%, #C7A008 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   display: inline-block;
+  transform: translateZ(0);
 }
 
 .text-gradient-silver {
   background: linear-gradient(180deg, #F8FAFC 0%, #CBD5E1 65%, #64748B 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   display: inline-block;
+  transform: translateZ(0);
 }
 
 /* ─── Button base & Unified 3D Gradients ─── */
@@ -499,4 +520,19 @@ a.text-mint, li.text-mint, strong.text-mint, em.text-mint,
 
 .will-change-opacity {
   will-change: opacity;
+}
+
+/* ─── Seamless Infinite Marquee Animations ─── */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 32s linear infinite !important;
+  will-change: transform;
 }

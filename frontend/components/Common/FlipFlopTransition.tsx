@@ -121,11 +121,11 @@ export default function FlipFlopTransition({ slatCount = 10 }: { slatCount?: num
 
   const [loop1, setLoop1] = useState<string[]>(() => {
     const row1 = ALL_IMGS.slice(0, 9)
-    return [...row1, ...row1, ...row1, ...row1]
+    return [...row1, ...row1]
   })
   const [loop2, setLoop2] = useState<string[]>(() => {
     const row2 = ALL_IMGS.slice(9)
-    return [...row2, ...row2, ...row2, ...row2]
+    return [...row2, ...row2]
   })
 
   useEffect(() => {
@@ -133,8 +133,8 @@ export default function FlipFlopTransition({ slatCount = 10 }: { slatCount?: num
     const mid = Math.ceil(shuffled.length / 2)
     const r1 = shuffled.slice(0, mid)
     const r2 = shuffled.slice(mid)
-    setLoop1([...r1, ...r1, ...r1, ...r1])
-    setLoop2([...r2, ...r2, ...r2, ...r2])
+    setLoop1([...r1, ...r1])
+    setLoop2([...r2, ...r2])
   }, [])
 
   const { scrollYProgress } = useScroll({

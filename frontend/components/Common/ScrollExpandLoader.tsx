@@ -63,16 +63,16 @@ export default function ScrollExpandLoader() {
       window.removeEventListener('keydown', noKeys)
     }
 
-    const t1 = setTimeout(() => { if (active) setStage('expanding') }, 2400)
+    const t1 = setTimeout(() => { if (active) setStage('expanding') }, 900)
 
     const t2 = setTimeout(() => {
       if (!active) return
       window.__SCROLL_LOADER_ACTIVE__ = false
       document.body.classList.remove('loader-active')
       window.dispatchEvent(new CustomEvent('scroll-loader-state', { detail: { active: false } }))
-    }, 3200)
+    }, 1300)
 
-    const t3 = setTimeout(unlock, 3800)
+    const t3 = setTimeout(unlock, 1600)
 
     const onHide = () => { if (document.hidden) unlock() }
     document.addEventListener('visibilitychange', onHide)

@@ -3,27 +3,28 @@ import dynamic from 'next/dynamic'
 
 import Nav from '@/components/Nav'
 import NewHero from '@/components/Hero/NewHero'
-import FlipFlopTransition from '@/components/Common/FlipFlopTransition'
-import EsummitAbout from '@/components/EsummitAbout'
-import Vdo2Showcase from '@/components/Vdo2Showcase'
 import LimeTransitionBanner from '@/components/Common/LimeTransitionBanner'
 import LimeEdgeMasks from '@/components/Common/LimeEdgeMasks'
-
 import ScrollExpandLoader from '@/components/Common/ScrollExpandLoader'
-const MasonryShowcase = dynamic(() => import('@/components/MasonryShowcase'), { ssr: false })
+
+// ── Below-the-fold sections loaded asynchronously to protect initial critical bundle ──
+const FlipFlopTransition = dynamic(() => import('@/components/Common/FlipFlopTransition'), { ssr: false })
+const EsummitAbout = dynamic(() => import('@/components/EsummitAbout'), { ssr: false })
 const EventPortfolioShowcase = dynamic(() => import('@/components/EventPortfolio'), { ssr: false })
 const EsummitHighlights = dynamic(() => import('@/components/EsummitSpeakers'), { ssr: false })
-const Sponsors = dynamic(() => import('@/components/Sponsors'))
-const FAQ = dynamic(() => import('@/components/FAQ'))
-const Alumni = dynamic(() => import('@/components/Alumni'))
-const Footer = dynamic(() => import('@/components/Footer'))
-const RegisterCTA = dynamic(() => import('@/components/Footer').then((m) => m.RegisterCTA))
+const MasonryShowcase = dynamic(() => import('@/components/MasonryShowcase'), { ssr: false })
+const Vdo2Showcase = dynamic(() => import('@/components/Vdo2Showcase'), { ssr: false })
+const Alumni = dynamic(() => import('@/components/Alumni'), { ssr: false })
+const Sponsors = dynamic(() => import('@/components/Sponsors'), { ssr: false })
+const RegisterCTA = dynamic(() => import('@/components/Footer').then((m) => m.RegisterCTA), { ssr: false })
+const FAQ = dynamic(() => import('@/components/FAQ'), { ssr: false })
+const Footer = dynamic(() => import('@/components/Footer'), { ssr: false })
 
 import { TOAST_STYLE } from '@/lib/constants'
 
 export default function Home() {
   return (
-    <main id="main-content" className="bg-void overflow-x-clip" suppressHydrationWarning>
+    <main id="main-content" className="bg-void overflow-x-hidden" suppressHydrationWarning>
       {/* Vantage Initial Page Loader */}
       <ScrollExpandLoader />
 

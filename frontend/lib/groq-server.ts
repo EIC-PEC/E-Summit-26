@@ -57,6 +57,7 @@ export class GroqServerClient {
             Authorization: `Bearer ${this.apiKey}`,
           },
           body: JSON.stringify(requestBody),
+          signal: AbortSignal.timeout(10000),
         })
 
         if (!response.ok) {
