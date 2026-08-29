@@ -16,10 +16,10 @@ export const metadata: Metadata = {
     siteName: 'PEC E-Summit 2026',
     images: [
       {
-        url: '/eic-logo.png',
+        url: '/api/og/pass?tier=ALL+ACCESS+DELEGATE+PASS',
         width: 1200,
         height: 630,
-        alt: 'PEC E-Summit 2026 Passes',
+        alt: 'PEC E-Summit 2026 Official Delegate Pass',
       },
     ],
     locale: 'en_US',
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     title: 'PEC E-Summit 2026 Passes — Register Now',
     description:
       'Claim your student, founder, or hacker delegate pass for PEC E-Summit 2026.',
-    images: ['/eic-logo.png'],
+    images: ['/api/og/pass?tier=ALL+ACCESS+DELEGATE+PASS'],
   },
 }
 

@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { Menu, Zap, Ticket } from 'lucide-react'
 import Magnetic from '@/components/Common/Magnetic'
+import { prefetchRegister } from '@/lib/prefetch'
 
 export interface NavHeaderProps {
   showHeader: boolean
@@ -69,6 +70,9 @@ export default function NavHeader({
               <Magnetic strength={0.3}>
                 <Link
                   href="/register"
+                  onMouseEnter={prefetchRegister}
+                  onTouchStart={prefetchRegister}
+                  onFocus={prefetchRegister}
                   className="btn-mint-gradient min-h-[40px] sm:min-h-[44px] h-10 sm:h-11 box-border inline-flex items-center justify-center gap-1.5 px-4 sm:px-6 rounded-full font-mono-data text-[11px] sm:text-xs font-black uppercase tracking-wider leading-none transition-all duration-200 text-void cursor-pointer"
                   id="nav-passes-btn"
                   aria-label="Register for E-Summit Passes"

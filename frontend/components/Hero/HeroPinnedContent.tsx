@@ -4,6 +4,7 @@ import React from 'react'
 import { motion, MotionValue } from 'framer-motion'
 import Link from 'next/link'
 import { Ticket, Sparkles, ArrowUpRight, Play } from 'lucide-react'
+import { prefetchRegister } from '@/lib/prefetch'
 
 export interface HeroPinnedContentProps {
   opacity: MotionValue<number>
@@ -50,6 +51,9 @@ export default function HeroPinnedContent({
         <div className="mb-1 flex w-full flex-wrap items-center justify-center gap-3">
           <Link
             href="/register"
+            onMouseEnter={prefetchRegister}
+            onTouchStart={prefetchRegister}
+            onFocus={prefetchRegister}
             className="btn-mint-gradient group relative inline-flex h-11 items-center justify-center gap-2 overflow-hidden rounded-full px-6 font-mono-data text-xs font-bold uppercase tracking-wider text-void transition-transform hover:scale-105"
           >
             <Ticket size={15} strokeWidth={1.5} />

@@ -31,6 +31,7 @@ import { FEST_META } from '@/lib/data'
 import { TOAST_STYLE } from '@/lib/constants'
 import { useSiteConfig } from '@/hooks/useSummitData'
 import { api } from '@/lib/api'
+import { prefetchRegister } from '@/lib/prefetch'
 
 function EmailCapture() {
   const [email, setEmail] = useState('')
@@ -194,6 +195,9 @@ export function RegisterCTA() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
               href="/passes"
+              onMouseEnter={prefetchRegister}
+              onTouchStart={prefetchRegister}
+              onFocus={prefetchRegister}
               className="btn-mint-gradient flex items-center justify-center gap-2 rounded-full px-10 py-4 text-base font-bold shadow-lg transition-transform hover:scale-105"
               id="footer-register-btn"
               aria-label="Claim Your Pass for E-Summit"
@@ -204,6 +208,9 @@ export function RegisterCTA() {
 
             <Link
               href="/passes"
+              onMouseEnter={prefetchRegister}
+              onTouchStart={prefetchRegister}
+              onFocus={prefetchRegister}
               className="btn-dark-gradient flex items-center justify-center rounded-full px-8 py-4 text-base font-bold text-white transition-transform hover:scale-105"
               id="footer-schedule-btn"
               aria-label="Explore Full Summit Schedule"
