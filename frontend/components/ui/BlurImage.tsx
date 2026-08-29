@@ -7,11 +7,6 @@ interface BlurImageProps extends ImageProps {
   wrapperClassName?: string
 }
 
-/**
- * Big-Tech Style Progressive Blur Image Loader
- * Gracefully handles layout sizing for both filled and fixed images,
- * ensuring cached images load instantly without staying hidden.
- */
 export default function BlurImage({
   src,
   alt,
