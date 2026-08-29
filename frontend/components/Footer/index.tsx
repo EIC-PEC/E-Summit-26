@@ -148,22 +148,111 @@ export function RegisterCTA() {
         }}
       />
 
-      {/* ── Left 3D Perspective Geometric Glass Panel (Steep 3D Tilt) ───────────── */}
+      {/* ── Left 3D Perspective Cyber Blue Delegate Card ───────────── */}
       <motion.div
-        initial={{ opacity: 0, x: -220, rotateY: 42, rotateX: 12, rotateZ: -8, scale: 0.8 }}
-        whileInView={{ opacity: 1, x: 0, rotateY: 28, rotateX: 6, rotateZ: -4, scale: 0.9 }}
+        initial={{ opacity: 0, x: -180, rotateY: 36, rotateX: 10, rotateZ: -6, scale: 0.85 }}
+        whileInView={{ opacity: 1, x: 0, rotateY: 24, rotateX: 6, rotateZ: -3, scale: 1 }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-        className="pointer-events-none absolute -left-16 top-1/2 -translate-y-1/2 hidden xl:block w-[420px] h-[280px] rounded-[36px] border border-white/20 bg-[#0A140F]/90 p-6 shadow-2xl z-0 will-change-transform"
+        className="pointer-events-none absolute -left-12 2xl:left-6 top-1/2 -translate-y-1/2 hidden xl:block w-[380px] h-[250px] rounded-[28px] border border-cyan-400/30 bg-gradient-to-br from-[#0c2438]/95 via-[#061624]/95 to-[#020b12]/95 p-5 shadow-2xl z-0 will-change-transform"
         style={{
           transformStyle: 'preserve-3d',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.15)',
+          boxShadow: '0 30px 60px -12px rgba(6, 182, 212, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)',
         }}
       >
-        <div className="h-full w-full rounded-[24px] border border-white/10 bg-[#040705] relative overflow-hidden flex items-center justify-center gap-4">
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#B5F23D_1px,transparent_1px)] [background-size:16px_16px]" />
-          <div className="h-20 w-20 rounded-2xl border border-mint/20 bg-mint/5" />
-          <div className="h-28 w-28 rounded-full border border-mint/15 bg-mint/[0.04]" />
+        <div className="h-full w-full rounded-[20px] border border-cyan-500/20 bg-[#040f1a]/80 p-4 flex flex-col justify-between relative overflow-hidden backdrop-blur-md">
+          {/* Ambient Glow */}
+          <div className="absolute -top-12 -right-12 w-32 h-32 rounded-full bg-cyan-500/20 blur-2xl pointer-events-none" />
+
+          {/* Card Top Header */}
+          <div className="flex items-center justify-between border-b border-cyan-500/20 pb-2.5">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#22d3ee]" />
+              <span className="font-display text-xs font-black tracking-widest text-cyan-200">E-SUMMIT &apos;26</span>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/30 text-[10px] font-mono-data font-bold text-cyan-300">
+              ALL-ACCESS
+            </span>
+          </div>
+
+          {/* Card Chip & Name */}
+          <div className="flex items-center justify-between my-auto">
+            <div>
+              <span className="text-[10px] font-mono-data uppercase tracking-wider text-cyan-400/80 block">FOUNDER PASS</span>
+              <span className="text-lg font-display font-black text-white tracking-tight">VIP DELEGATE</span>
+              <span className="text-[11px] text-cyan-200/70 block mt-0.5">PEC Chandigarh • March 15–16</span>
+            </div>
+            {/* Holographic Chip */}
+            <div className="w-11 h-9 rounded-lg bg-gradient-to-tr from-amber-400/30 via-cyan-300/40 to-amber-200/30 border border-cyan-300/40 flex items-center justify-center p-1 relative overflow-hidden shadow-inner">
+              <div className="w-full h-0.5 bg-cyan-400/60" />
+            </div>
+          </div>
+
+          {/* Card Barcode Footer */}
+          <div className="flex items-center justify-between pt-2 border-t border-cyan-500/20">
+            <span className="text-[10px] font-mono-data text-cyan-400 tracking-wider">#PEC26-FNDR-0891</span>
+            <div className="flex items-center gap-1 h-3 opacity-60">
+              <div className="w-1 h-full bg-cyan-300" />
+              <div className="w-0.5 h-full bg-cyan-300" />
+              <div className="w-1.5 h-full bg-cyan-300" />
+              <div className="w-0.5 h-full bg-cyan-300" />
+              <div className="w-1 h-full bg-cyan-300" />
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ── Right 3D Perspective Crimson Red Builder Card ───────────── */}
+      <motion.div
+        initial={{ opacity: 0, x: 180, rotateY: -36, rotateX: 10, rotateZ: 6, scale: 0.85 }}
+        whileInView={{ opacity: 1, x: 0, rotateY: -24, rotateX: 6, rotateZ: 3, scale: 1 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        className="pointer-events-none absolute -right-12 2xl:right-6 top-1/2 -translate-y-1/2 hidden xl:block w-[380px] h-[250px] rounded-[28px] border border-rose-500/30 bg-gradient-to-bl from-[#340f16]/95 via-[#1e070c]/95 to-[#0d0205]/95 p-5 shadow-2xl z-0 will-change-transform"
+        style={{
+          transformStyle: 'preserve-3d',
+          boxShadow: '0 30px 60px -12px rgba(244, 63, 94, 0.25), inset 0 1px 1px rgba(255,255,255,0.2)',
+        }}
+      >
+        <div className="h-full w-full rounded-[20px] border border-rose-500/20 bg-[#160408]/80 p-4 flex flex-col justify-between relative overflow-hidden backdrop-blur-md">
+          {/* Ambient Glow */}
+          <div className="absolute -top-12 -left-12 w-32 h-32 rounded-full bg-rose-500/20 blur-2xl pointer-events-none" />
+
+          {/* Card Top Header */}
+          <div className="flex items-center justify-between border-b border-rose-500/20 pb-2.5">
+            <div className="flex items-center gap-2">
+              <div className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
+              <span className="font-display text-xs font-black tracking-widest text-rose-200">E-SUMMIT &apos;26</span>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-400/30 text-[10px] font-mono-data font-bold text-rose-300">
+              BUILDER TIER
+            </span>
+          </div>
+
+          {/* Card Chip & Name */}
+          <div className="flex items-center justify-between my-auto">
+            <div>
+              <span className="text-[10px] font-mono-data uppercase tracking-wider text-rose-400/80 block">HACKATHON PASS</span>
+              <span className="text-lg font-display font-black text-white tracking-tight">HACKER PASS</span>
+              <span className="text-[11px] text-rose-200/70 block mt-0.5">₹15L+ Prize Pool • CSE Block</span>
+            </div>
+            {/* Holographic Chip */}
+            <div className="w-11 h-9 rounded-lg bg-gradient-to-tr from-amber-400/30 via-rose-400/40 to-amber-200/30 border border-rose-300/40 flex items-center justify-center p-1 relative overflow-hidden shadow-inner">
+              <div className="w-full h-0.5 bg-rose-400/60" />
+            </div>
+          </div>
+
+          {/* Card Barcode Footer */}
+          <div className="flex items-center justify-between pt-2 border-t border-rose-500/20">
+            <span className="text-[10px] font-mono-data text-rose-400 tracking-wider">#PEC26-BLDR-4481</span>
+            <div className="flex items-center gap-1 h-3 opacity-60">
+              <div className="w-1.5 h-full bg-rose-300" />
+              <div className="w-0.5 h-full bg-rose-300" />
+              <div className="w-1 h-full bg-rose-300" />
+              <div className="w-0.5 h-full bg-rose-300" />
+              <div className="w-1 h-full bg-rose-300" />
+            </div>
+          </div>
         </div>
       </motion.div>
 
