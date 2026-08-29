@@ -78,20 +78,27 @@ export default function EventPortfolioShowcase() {
     offset: ['start start', 'end end'],
   })
 
-  const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: 85,
-    damping: 22,
-    restDelta: 0.001,
-  })
+  const maxScrollRef = useRef(0)
 
   useEffect(() => {
-    const unsubscribe = smoothProgress.on('change', (progress) => {
-      if (!trackRef.current) return
-      const maxScroll = Math.max(0, trackRef.current.scrollWidth - window.innerWidth)
-      xMotion.set(-progress * maxScroll)
+    const updateMaxScroll = () => {
+      if (trackRef.current) {
+        maxScrollRef.current = Math.max(0, trackRef.current.scrollWidth - window.innerWidth)
+      }
+    }
+
+    updateMaxScroll()
+    window.addEventListener('resize', updateMaxScroll, { passive: true })
+
+    const unsubscribe = scrollYProgress.on('change', (progress) => {
+      xMotion.set(-progress * maxScrollRef.current)
     })
-    return unsubscribe
-  }, [smoothProgress, filteredEvents, xMotion])
+
+    return () => {
+      window.removeEventListener('resize', updateMaxScroll)
+      unsubscribe()
+    }
+  }, [scrollYProgress, filteredEvents, xMotion])
 
   return (
     <section

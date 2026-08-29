@@ -157,15 +157,26 @@ export default function AlumniSection() {
     offset: ['start start', 'end end'],
   })
 
+  const maxScrollRef = useRef(0)
+
   useEffect(() => {
-    // Subscribe directly to scroll progress so we always read the live scrollWidth,
-    // avoiding the stale-closure issue with state-based useTransform
+    const updateMaxScroll = () => {
+      if (trackRef.current) {
+        maxScrollRef.current = Math.max(0, trackRef.current.scrollWidth - window.innerWidth)
+      }
+    }
+
+    updateMaxScroll()
+    window.addEventListener('resize', updateMaxScroll, { passive: true })
+
     const unsubscribe = scrollYProgress.on('change', (progress) => {
-      if (!trackRef.current) return
-      const maxScroll = Math.max(0, trackRef.current.scrollWidth - window.innerWidth)
-      xMotion.set(-progress * maxScroll)
+      xMotion.set(-progress * maxScrollRef.current)
     })
-    return unsubscribe
+
+    return () => {
+      window.removeEventListener('resize', updateMaxScroll)
+      unsubscribe()
+    }
   }, [scrollYProgress, xMotion])
 
   return (
@@ -204,7 +215,7 @@ export default function AlumniSection() {
                 tabIndex={0}
               >
                 <PixelTransition
-                  gridSize={10}
+                  gridSize={6}
                   pixelColor="var(--accent-mint)"
                   animationStepDuration={0.4}
                   aspectRatio="105%"

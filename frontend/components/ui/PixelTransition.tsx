@@ -38,11 +38,9 @@ export default function PixelTransition({
     typeof window !== 'undefined' &&
     ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches)
 
-  useEffect(() => {
+  const populatePixelsIfNeeded = () => {
     const pixelGridEl = pixelGridRef.current
-    if (!pixelGridEl) return
-
-    pixelGridEl.innerHTML = ''
+    if (!pixelGridEl || pixelGridEl.children.length > 0) return
 
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
@@ -58,10 +56,11 @@ export default function PixelTransition({
         pixelGridEl.appendChild(pixel)
       }
     }
-  }, [gridSize, pixelColor])
+  }
 
   const animatePixels = (activate: boolean) => {
     setIsActive(activate)
+    populatePixelsIfNeeded()
 
     const pixelGridEl = pixelGridRef.current
     const activeEl = activeRef.current
