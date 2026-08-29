@@ -136,7 +136,7 @@ export default function EventPortfolioShowcase() {
                 index={index}
                 total={PORTFOLIO_EVENTS.length}
                 onSelect={(evt) => setSelectedEvent(evt)}
-                scrollProgress={smoothProgress}
+                scrollProgress={scrollYProgress}
               />
             ))}
             <FinalCard onViewAll={() => setActiveCategory('All')} />
