@@ -190,17 +190,16 @@ export default function Concierge() {
           // Drop below loader (z-9999) while it's active so it's physically behind the overlay
           zIndex: isLoaderActive ? 9000 : 10000,
         }}
-        className={`bg-[#B5F23D] !fixed bottom-14 right-3 sm:right-6 min-h-[48px] px-5 py-3 rounded-[20px] font-mono-data text-[13px] font-bold text-black flex items-center gap-2.5 cursor-pointer transition-all duration-400 shadow-[0_8px_30px_rgba(181,242,61,0.25)] border border-[#C4F850] hover:brightness-110 hover:shadow-[0_8px_40px_rgba(181,242,61,0.4)] ${
+        className={`bg-mint !fixed bottom-14 right-3 sm:right-6 w-[52px] h-[52px] rounded-full text-void flex items-center justify-center cursor-pointer transition-all duration-400 shadow-[0_8px_30px_rgba(0,245,212,0.25)] border border-[#5CFFE7] hover:brightness-110 hover:shadow-[0_8px_40px_rgba(0,245,212,0.4)] ${
           isHidden ? 'opacity-0 scale-75 pointer-events-none translate-y-4' : 'opacity-100 scale-100 pointer-events-auto translate-y-0'
         }`}
         whileHover={{ scale: isHidden ? 0.75 : 1.05, y: -2 }}
         whileTap={{ scale: isHidden ? 0.75 : 0.95 }}
         aria-label="Open Summit AI Assistant"
       >
-        <Bot size={22} strokeWidth={2} />
-        <span className="hidden sm:inline tracking-wide uppercase">Ask Assistant</span>
+        <Bot size={24} strokeWidth={2} />
         {!open && (
-          <span className="w-2.5 h-2.5 rounded-full bg-black ml-1 animate-pulse" />
+          <span className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-void animate-pulse" />
         )}
       </motion.button>
 
@@ -218,7 +217,7 @@ export default function Concierge() {
             exit={{ opacity: 0, y: 16, scale: 0.95 }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-2.5 shrink-0 bg-[#B5F23D]/10 border-b border-[#B5F23D]/20">
+            <div className="flex items-center justify-between px-4 py-2.5 shrink-0 bg-mint/10 border-b border-mint/20">
               <div className="flex items-center gap-3">
                 <div className="relative w-9 h-9 rounded-2xl bg-mint/20 border border-mint/40 flex items-center justify-center">
                   <Bot size={18} className="text-mint" />

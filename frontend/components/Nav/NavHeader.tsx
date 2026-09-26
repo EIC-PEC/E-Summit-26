@@ -2,7 +2,8 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { Menu, Zap, Ticket } from 'lucide-react'
+import Image from 'next/image'
+import { Menu, Ticket } from 'lucide-react'
 import Magnetic from '@/components/Common/Magnetic'
 import { prefetchRegister } from '@/lib/prefetch'
 
@@ -37,13 +38,17 @@ export default function NavHeader({
         {/* Left: Logo */}
         <Link
           href="/"
-          className="font-display text-xl sm:text-2xl tracking-wider flex items-center gap-1.5 sm:gap-2 shrink-0 group"
-          aria-label="E-Summit '26 — Home"
+          className="flex items-center gap-2 sm:gap-3 shrink-0 group py-1"
+          aria-label="PEC E-Summit '26 — Home"
         >
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-mint/20 border border-mint/40 flex items-center justify-center group-hover:border-mint transition-colors">
-            <Zap size={16} className="text-mint fill-mint sm:w-[18px] sm:h-[18px]" />
-          </div>
-          <span className="font-black tracking-widest text-gradient-white text-xs sm:text-base">E-SUMMIT</span>
+          <Image
+            src="/esummit-logo.png"
+            alt="PEC E-Summit '26 Logo"
+            width={180}
+            height={55}
+            priority
+            className="h-8 sm:h-9 w-auto object-contain drop-shadow-[0_0_12px_rgba(0,245,212,0.25)] group-hover:scale-[1.02] group-hover:brightness-110 transition-all duration-200"
+          />
         </Link>
 
         {/* Center: Push buttons to right */}
@@ -53,20 +58,7 @@ export default function NavHeader({
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {!menuOpen && (
             <>
-              <Magnetic strength={0.3}>
-                <button
-                  onClick={() => window.dispatchEvent(new Event('open-my-plan'))}
-                  className="hidden md:inline-flex btn-dark-gradient min-h-[40px] sm:min-h-[44px] h-10 sm:h-11 box-border items-center justify-center gap-1.5 px-3.5 sm:px-4 rounded-full font-mono-data text-[11px] sm:text-xs font-bold uppercase tracking-wider leading-none transition-all duration-200 cursor-pointer"
-                  aria-label="Open My Plan"
-                >
-                  <span>MY PLAN</span>
-                  {planCount > 0 && (
-                    <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 rounded-full bg-mint text-void font-mono-data text-[10px] font-black leading-none">
-                      {planCount}
-                    </span>
-                  )}
-                </button>
-              </Magnetic>
+
               <Magnetic strength={0.3}>
                 <Link
                   href="/register"

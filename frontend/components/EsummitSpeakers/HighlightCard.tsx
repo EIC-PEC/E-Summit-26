@@ -11,6 +11,7 @@ export interface HighlightCardProps {
   scrollYProgress: MotionValue<number>
   selectedEventId: string | null
   onSelectEvent: (eventId: string) => void
+  onLocateOnMap?: (eventId: string) => void
 }
 
 export default function HighlightCard({
@@ -18,92 +19,106 @@ export default function HighlightCard({
   index,
   selectedEventId,
   onSelectEvent,
+  onLocateOnMap,
 }: HighlightCardProps) {
   return (
     <div
-      className={`w-full lg:sticky ${index > 0 ? 'mt-8 lg:mt-[45vh]' : ''}`}
+      id={`timeline-day-${index}`}
+      className={`w-full lg:sticky ${index > 0 ? 'mt-6 lg:mt-[35vh]' : ''}`}
       style={{
-        top: index === 0 ? '5.5rem' : 'calc(5.5rem + 40px)',
+        top: index === 0 ? '5.5rem' : 'calc(5.5rem + 32px)',
         zIndex: 10 + index,
       }}
     >
       <motion.div
-        className="flex w-full flex-col justify-between rounded-[32px] border-2 p-6 shadow-2xl sm:rounded-[40px] sm:p-8 h-auto lg:h-[calc(100dvh-5.5rem-90px)] lg:overflow-y-auto"
+        className="flex w-full flex-col justify-between rounded-[24px] sm:rounded-[30px] border border-white/15 p-4 sm:p-6 shadow-2xl h-auto lg:h-[min(560px,calc(100dvh-7rem))] lg:overflow-y-auto"
         style={{
-          borderColor: 'rgba(181, 242, 61, 0.35)',
-          background: '#07130F',
+          borderColor: 'rgba(0, 242, 178, 0.25)',
+          background: 'linear-gradient(180deg, #0A1914 0%, #06110D 100%)',
+          boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
         }}
       >
         <div>
           {/* Card Header */}
-          <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-4">
-            <div className="flex items-baseline gap-3">
-              <span className="font-display text-4xl font-black text-gradient-mint sm:text-5xl">
+          <div className="mb-3.5 flex items-center justify-between border-b border-white/10 pb-3">
+            <div className="flex items-baseline gap-2.5">
+              <span className="font-display text-3xl sm:text-4xl font-black text-gradient-mint">
                 {card.day}
               </span>
-              <span className="font-mono-data text-xs font-bold uppercase tracking-wider text-gray-400">
+              <span className="font-mono-data text-[11px] sm:text-xs font-bold uppercase tracking-wider text-gray-400">
                 {card.date}
               </span>
             </div>
-            <span className="font-mono-data text-xs font-bold uppercase tracking-widest text-mint">
+            <span className="font-mono-data text-[11px] font-bold uppercase tracking-widest text-[#00F2B2] bg-[#00F2B2]/10 px-2.5 py-0.5 rounded-full border border-[#00F2B2]/20">
               Phase {card.num}
             </span>
           </div>
 
-          <h3 className="mb-6 font-display text-xl font-bold sm:text-2xl">
+          <h3 className="mb-4 font-display text-lg sm:text-xl font-bold">
             <span className="text-gradient-white">{card.title}</span>
           </h3>
 
           {/* Events List */}
-          <div className="space-y-1 px-1">
+          <div className="space-y-0.5 px-0.5">
             {card.events.map((ev) => {
               const isSelected = selectedEventId === ev.id
               return (
                 <div
                   key={ev.id}
                   onClick={() => onSelectEvent(ev.id)}
-                  className={`group flex cursor-pointer items-start py-3.5 px-2 transition-all duration-200 border-b border-white/5 last:border-b-0 ${
-                    isSelected ? 'text-[#7ED321]' : ''
+                  className={`group flex cursor-pointer items-start py-2.5 px-2.5 rounded-xl transition-all duration-200 border-b border-white/5 last:border-b-0 ${
+                    isSelected
+                      ? 'bg-[#00F2B2]/10 border-[#00F2B2]/30 text-[#00F2B2]'
+                      : 'hover:bg-white/5'
                   }`}
                 >
-                  <div className="flex items-start gap-3 sm:gap-4 min-w-0 w-full">
+                  <div className="flex items-start gap-2.5 sm:gap-3.5 min-w-0 w-full">
                     {/* Left: Time */}
                     <span
-                      className={`shrink-0 pt-0.5 font-mono-data text-xs font-semibold tracking-wider transition-colors ${
-                        isSelected ? 'text-[#7ED321]' : 'text-gray-400 group-hover:text-gray-300'
+                      className={`shrink-0 pt-0.5 font-mono-data text-[11px] sm:text-xs font-semibold tracking-wider transition-colors ${
+                        isSelected ? 'text-[#00F2B2]' : 'text-gray-400 group-hover:text-gray-300'
                       }`}
                     >
                       {ev.time}
                     </span>
 
                     {/* Right: Title & Venue */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full min-w-0 gap-1.5 sm:gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between w-full min-w-0 gap-1 sm:gap-3">
                       <span
-                        className={`font-body text-sm sm:text-base font-medium transition-colors leading-snug ${
+                        className={`font-body text-xs sm:text-sm font-medium transition-colors leading-snug ${
                           isSelected ? 'text-white font-bold' : 'text-gray-300 group-hover:text-white'
                         }`}
                       >
                         {ev.title}
                       </span>
 
-                      {/* Venue */}
-                      <div className="flex shrink-0 items-center gap-2">
+                      {/* Venue button (tappable to locate on map) */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onSelectEvent(ev.id)
+                          if (onLocateOnMap) onLocateOnMap(ev.id)
+                        }}
+                        className="flex shrink-0 items-center gap-1.5 px-2 py-0.5 rounded-md hover:bg-white/10 transition-colors text-left"
+                        title="Locate on map"
+                      >
                         <span
-                          className={`font-mono-data text-[10px] uppercase font-bold tracking-wider transition-colors ${
-                            isSelected ? 'text-[#7ED321]' : 'text-gray-400 group-hover:text-gray-300'
+                          className={`font-mono-data text-[9.5px] uppercase font-bold tracking-wider transition-colors ${
+                            isSelected ? 'text-[#00F2B2]' : 'text-gray-400 group-hover:text-gray-300'
                           }`}
                         >
                           {ev.tag}
                         </span>
                         <MapPin
-                          size={12}
+                          size={11}
                           className={`transition-colors ${
                             isSelected
-                              ? 'fill-[#7ED321] text-[#7ED321]'
-                              : 'text-gray-500 group-hover:text-[#7ED321]'
+                              ? 'fill-[#00F2B2] text-[#00F2B2]'
+                              : 'text-gray-500 group-hover:text-[#00F2B2]'
                           }`}
                         />
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -112,10 +127,10 @@ export default function HighlightCard({
           </div>
         </div>
 
-        {/* Card Footer */}
-        <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 font-mono-data text-xs text-gray-400">
+        {/* Card Footer — Extra pb-14 on mobile to prevent FAB collision */}
+        <div className="mt-4 pb-14 sm:pb-0 flex items-center justify-between border-t border-white/10 pt-3 font-mono-data text-[11px] text-gray-400">
           <span>PEC Sector 12, Chandigarh</span>
-          <span className="text-[#7ED321]">Click event to inspect venue map</span>
+          <span className="text-[#00F2B2] text-[10.5px]">Click event to locate venue</span>
         </div>
       </motion.div>
     </div>

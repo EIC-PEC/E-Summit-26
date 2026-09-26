@@ -16,11 +16,14 @@ interface CardProps {
 }
 
 export function Card({ event, index, total, onSelect }: CardProps) {
+  const isComp = ['hackathon', 'competition', 'quiz', 'auction', 'strategy'].some(keyword => event.category.toLowerCase().includes(keyword))
+  const registerLink = isComp ? (event.registrationUrl || 'https://unstop.com') : '/register'
+
   return (
     <motion.div
       onClick={() => onSelect(event)}
-      whileHover={{ y: -8, scale: 1.02 }}
-      transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
       tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -28,63 +31,101 @@ export function Card({ event, index, total, onSelect }: CardProps) {
           onSelect(event)
         }
       }}
-      className="group relative shrink-0 cursor-pointer overflow-hidden rounded-2xl aspect-[4/3] bg-[#0B1712] focus-visible:ring-2 focus-visible:ring-mint focus:outline-none w-[85vw] sm:w-[320px] md:w-[380px] lg:w-[420px]"
+      className="group relative shrink-0 cursor-pointer overflow-hidden rounded-2xl bg-[#0A1813] border border-white/12 hover:border-[#00F2B2]/50 focus-visible:ring-2 focus-visible:ring-mint focus:outline-none w-full max-w-[380px] h-[420px] sm:h-[440px] flex flex-col justify-between shadow-2xl transition-colors duration-300"
+      style={{
+        boxShadow: '0 20px 45px rgba(0,0,0,0.6)',
+      }}
     >
-      {/* Full-bleed image with progressive blur loading */}
-      <BlurImage
-        src={event.image}
-        alt={event.title}
-        fill
-        sizes="(min-width: 1024px) 280px, 22vw"
-        loading="lazy"
-        className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-      />
+      {/* ── Top: Framed Banner Image ── */}
+      <div className="relative w-full h-48 sm:h-52 overflow-hidden bg-black/40 shrink-0">
+        <BlurImage
+          src={event.image}
+          alt={event.title}
+          fill
+          sizes="(min-width: 1024px) 350px, 320px"
+          loading="lazy"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+        />
 
-      {/* Bottom gradient scrim — primary text zone */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+        {/* Gradient Scrims */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A1813] via-transparent to-black/40" />
 
-      {/* Subtle top vignette so category pill reads cleanly */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent h-1/3" />
+        {/* Top-Left: Category Tag Badge */}
+        <div className="absolute top-3 left-3 z-10">
+          <span className="font-mono-data text-[9px] font-bold uppercase tracking-wider text-[#00F2B2] bg-[#06120E]/85 backdrop-blur-md px-2.5 py-1 rounded-full border border-[#00F2B2]/30 shadow-sm">
+            {event.eyebrow || event.category}
+          </span>
+        </div>
 
-      {/* Index number — large faded watermark */}
-      <span
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display font-black text-white/[0.03] select-none pointer-events-none leading-none"
-        style={{ fontSize: 'clamp(60px, 12vw, 110px)' }}
-        aria-hidden
-      >
-        {String(index + 1).padStart(2, '0')}
-      </span>
-
-
-
-      {/* Top-left: index counter */}
-      <div className="absolute top-3 left-3 z-10">
-        <span className="font-mono-data text-[10px] font-bold text-white/40">
-          {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
-        </span>
+        {/* Top-Right: Index Counter */}
+        <div className="absolute top-3 right-3 z-10">
+          <span className="font-mono-data text-[9.5px] font-bold text-white/80 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
+            {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+          </span>
+        </div>
       </div>
 
-      {/* Bottom content zone */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-5 flex items-end justify-between gap-4">
-        <div className="flex flex-col gap-1.5 flex-1 min-w-0 pr-2">
-          {/* Eyebrow */}
-          <span className="font-mono-data text-[10px] font-bold uppercase tracking-widest text-mint/90 truncate">
-            {event.eyebrow}
+      {/* ── Bottom: Structured Content Body ── */}
+      <div className="p-4 sm:p-5 flex flex-col justify-between flex-1 bg-[#0A1813] border-t border-white/5">
+        <div>
+          {/* Category Subtext */}
+          <span className="font-mono-data text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1 block">
+            {event.category}
           </span>
-          {/* Event name */}
-          <h3 className="font-display text-lg font-semibold uppercase leading-snug tracking-normal text-white group-hover:text-mint transition-colors duration-300 line-clamp-2">
+
+          {/* Event Title */}
+          <h3 className="font-display text-lg sm:text-xl font-bold uppercase tracking-tight text-white group-hover:text-[#00F2B2] transition-colors duration-200 line-clamp-1 leading-snug">
             {event.title}
           </h3>
+
+          {/* Description Teaser */}
+          <p className="font-body text-xs text-gray-300 font-normal line-clamp-2 leading-relaxed mt-2 mb-3">
+            {event.purpose}
+          </p>
+
+          {/* Tags Chips */}
+          {Array.isArray(event.tags) && event.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {event.tags.slice(0, 2).map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="font-mono-data text-[9px] font-semibold text-gray-300 bg-white/5 border border-white/10 px-2 py-0.5 rounded-md"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Arrow CTA */}
-        <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-white transition-all duration-300 group-hover:bg-mint group-hover:border-mint group-hover:text-black shadow-lg">
-          <ArrowUpRight size={18} strokeWidth={2} />
+        {/* Card Footer: Participation & Action Arrow */}
+        <div className="flex items-center justify-between pt-3 border-t border-white/10 mt-auto">
+          <span className="font-mono-data text-[9.5px] font-semibold text-gray-400 truncate max-w-[150px]">
+            {event.expectedParticipation || 'PEC E-Summit 2026'}
+          </span>
+
+          <div className="flex items-center gap-2">
+            {isComp && (
+              <>
+                <a
+                  href={registerLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center justify-center h-7 px-3 rounded bg-mint text-[#0A1813] font-mono-data text-[10px] font-black uppercase tracking-wider hover:brightness-110 hover:scale-105 transition-all"
+                >
+                  Register
+                </a>
+                <div className="flex items-center gap-1.5 font-mono-data text-[10.5px] font-bold text-[#00F2B2] group-hover:translate-x-0.5 transition-transform">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#00F2B2]/15 text-[#00F2B2] group-hover:bg-[#00F2B2] group-hover:text-void transition-colors shadow-xs">
+                    <ArrowUpRight size={14} strokeWidth={2.5} />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
-
-      {/* Mint border reveal on hover */}
-      <div className="absolute inset-0 rounded-2xl border border-mint/0 group-hover:border-mint/40 transition-colors duration-300 pointer-events-none" />
     </motion.div>
   )
 }

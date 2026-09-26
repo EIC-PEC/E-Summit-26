@@ -38,11 +38,13 @@ module.exports = {
         glow: 'var(--border-glow)',
       },
       fontFamily: {
-        display: ['var(--font-kanit)', 'Kanit', 'sans-serif'],
-        kanit: ['var(--font-kanit)', 'Kanit', 'sans-serif'],
+        display: ['var(--font-asimovian)', 'var(--font-kanit)', 'Asimovian', 'sans-serif'],
+        asimovian: ['var(--font-asimovian)', 'Asimovian', 'sans-serif'],
+        kanit: ['var(--font-asimovian)', 'Asimovian', 'sans-serif'],
         body: ['var(--font-inter)', 'sans-serif'],
-        mono: ['var(--font-jetbrains)', 'monospace'],
-        'mono-data': ['var(--font-jetbrains)', 'monospace'],
+        mono: ['var(--font-marcellus)', 'var(--font-jetbrains)', 'Marcellus', 'serif'],
+        'mono-data': ['var(--font-marcellus)', 'var(--font-jetbrains)', 'Marcellus', 'serif'],
+        marcellus: ['var(--font-marcellus)', 'Marcellus', 'serif'],
       },
       animation: {
         'marquee': 'marquee 32s linear infinite',

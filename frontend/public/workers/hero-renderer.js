@@ -107,16 +107,33 @@ const loadSheet = async (s) => {
 }
 
 const loadSheets = async () => {
-  await loadSheet(0) // Sheet 0 first — covers the initial viewport (frames 0-24)
+  // Load sheet 0 first for instant initial paint, then remaining concurrently
+  await loadSheet(0)
   if (!isActive) return
-  // Defer secondary sheets so initial page load bandwidth is 100% free for critical assets
-  setTimeout(async () => {
-    if (!isActive) return
-    for (let i = 1; i < SHEET_COUNT; i++) {
-      if (!isActive) break
-      await loadSheet(i)
-    }
-  }, 1500)
+  Promise.all(Array.from({ length: SHEET_COUNT - 1 }, (_, i) => loadSheet(i + 1)))
+}
+
+let isRendering = false
+let pendingFrame = null
+
+const processFrame = (index) => {
+  currentFrame = index
+  if (!ctx || !manifest || !offscreen) return
+
+  if (isRendering) {
+    pendingFrame = index
+    return
+  }
+
+  isRendering = true
+  renderAndSend(index)
+  isRendering = false
+
+  if (pendingFrame !== null && pendingFrame !== currentFrame) {
+    const next = pendingFrame
+    pendingFrame = null
+    processFrame(next)
+  }
 }
 
 self.onmessage = ({ data }) => {
@@ -135,8 +152,7 @@ self.onmessage = ({ data }) => {
     }
 
     case 'frame': {
-      currentFrame = data.index
-      renderAndSend(currentFrame)
+      processFrame(data.index)
       break
     }
 

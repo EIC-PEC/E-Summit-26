@@ -119,7 +119,7 @@ export default function ScrollExpandLoader() {
             height: '100vh',
             transformOrigin: 'center center',
             willChange: 'transform',
-            boxShadow: '0 0 0 9999px #7ED321',
+            boxShadow: '0 0 0 9999px var(--accent-mint, #00F5D4)',
           }}
           initial={{ scaleX: 0.68, scaleY: 0.62, borderRadius: '24px' }}
           animate={
@@ -129,7 +129,7 @@ export default function ScrollExpandLoader() {
           }
           transition={{ duration: 1.0, ease: [0.76, 0, 0.24, 1] }}
         >
-          {/* Ambient grid on the lime mask */}
+          {/* Ambient grid on the aperture mask */}
           <div
             className="absolute pointer-events-none"
             style={{
@@ -159,7 +159,7 @@ export default function ScrollExpandLoader() {
                 animate={{ scaleX: 1 }}
                 transition={{ duration: 1.2, ease: [0.4, 0, 0.2, 1] }}
                 className="h-full bg-mint rounded-full origin-left"
-                style={{ willChange: 'transform', boxShadow: '0 0 8px #7ED321' }}
+                style={{ willChange: 'transform', boxShadow: '0 0 8px var(--accent-mint, #00F5D4)' }}
               />
             </div>
           </motion.div>

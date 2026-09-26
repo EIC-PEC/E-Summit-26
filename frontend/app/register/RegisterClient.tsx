@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import toast, { Toaster } from 'react-hot-toast'
 const TOAST_STYLE = {
   style: {
@@ -127,10 +128,11 @@ const EVENT_CATEGORIES = [
 ]
 
 export default function RegisterClient() {
+  const router = useRouter()
   const { user, loginWithEmail, registerWithEmail, loginWithGoogle, resetPassword, logout } =
     useAuth()
   const { data: cmsData } = useSummitData()
-  const summitDates = cmsData?.siteConfig?.summitDates || 'September 26–27, 2026'
+  const summitDates = cmsData?.siteConfig?.summitDates || 'November 14–15, 2026'
 
   const [view, setView] = useState<'catalog' | 'checkout' | 'success' | 'passes' | 'auth'>('catalog')
   const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login')
@@ -391,7 +393,7 @@ export default function RegisterClient() {
           currency: 'INR',
           name: 'PEC E-Summit 2026',
           description: `${selectedTier.title} - Official Pass`,
-          image: '/eic-logo.png',
+          image: '/esummit-mark.png',
           order_id: orderData.id.startsWith('order_') ? undefined : orderData.id,
           handler: async function (response: any) {
             await finalizeSuccessfulBooking(response.razorpay_payment_id || `txn_${Date.now()}`)
@@ -402,7 +404,7 @@ export default function RegisterClient() {
             contact: formData.phone || '',
           },
           theme: {
-            color: '#B5F23D',
+            color: '#00F5D4',
           },
           modal: {
             ondismiss: function () {
@@ -497,7 +499,7 @@ export default function RegisterClient() {
     setAuthLoading(false)
     if (res.success) {
       toast.success('Welcome back!', TOAST_STYLE)
-      setView('catalog')
+      router.push('/profile')
     } else {
       toast.error(res.error || 'Invalid credentials.', TOAST_STYLE)
     }
@@ -509,7 +511,7 @@ export default function RegisterClient() {
     setAuthLoading(false)
     if (res.success) {
       toast.success('Signed in with Google!', TOAST_STYLE)
-      setView('catalog')
+      router.push('/profile')
     } else {
       toast.error(res.error || 'Google sign-in failed.', TOAST_STYLE)
     }
@@ -542,14 +544,14 @@ export default function RegisterClient() {
     if (!ctx) return
 
     const bgGradient = ctx.createLinearGradient(0, 0, 0, 1920)
-    bgGradient.addColorStop(0, '#0B1410')
-    bgGradient.addColorStop(0.5, '#13221C')
-    bgGradient.addColorStop(1, '#070A09')
+    bgGradient.addColorStop(0, '#060D0B')
+    bgGradient.addColorStop(0.5, '#0D1C18')
+    bgGradient.addColorStop(1, '#040807')
     ctx.fillStyle = bgGradient
     ctx.fillRect(0, 0, 1080, 1920)
 
     ctx.textAlign = 'center'
-    ctx.fillStyle = '#B5F23D'
+    ctx.fillStyle = '#00F5D4'
     ctx.font = 'bold 36px monospace'
     ctx.fillText('PEC E-SUMMIT 2026', 540, 220)
 
@@ -557,7 +559,7 @@ export default function RegisterClient() {
     ctx.font = '900 84px sans-serif'
     ctx.fillText('OFFICIAL SUMMIT', 540, 320)
 
-    ctx.fillStyle = '#B5F23D'
+    ctx.fillStyle = '#00F5D4'
     ctx.font = '900 84px sans-serif'
     ctx.fillText('ENTRY PASS', 540, 410)
 
@@ -569,23 +571,23 @@ export default function RegisterClient() {
     ctx.save()
     ctx.beginPath()
     ctx.rect(cardX, cardY, cardW, cardH)
-    ctx.fillStyle = '#13221C'
+    ctx.fillStyle = '#0D1C18'
     ctx.fill()
     ctx.lineWidth = 2
-    ctx.strokeStyle = 'rgba(181, 242, 61, 0.3)'
+    ctx.strokeStyle = 'rgba(0, 245, 212, 0.35)'
     ctx.stroke()
     ctx.restore()
 
     const categoryText = currentBadge?.category || 'SUMMIT PASS'
-    ctx.fillStyle = 'rgba(181, 242, 61, 0.15)'
+    ctx.fillStyle = 'rgba(0, 245, 212, 0.15)'
     ctx.beginPath()
     ctx.rect(540 - 180, cardY + 60, 360, 60)
     ctx.fill()
-    ctx.strokeStyle = '#B5F23D'
+    ctx.strokeStyle = '#00F5D4'
     ctx.lineWidth = 1.5
     ctx.stroke()
 
-    ctx.fillStyle = '#B5F23D'
+    ctx.fillStyle = '#00F5D4'
     ctx.font = 'bold 26px monospace'
     ctx.fillText(categoryText.toUpperCase(), 540, cardY + 100)
 
@@ -612,7 +614,7 @@ export default function RegisterClient() {
 
     const finishAndDownload = () => {
       const ticketId = currentBadge?.id || 'PEC-000000'
-      ctx.fillStyle = '#B5F23D'
+      ctx.fillStyle = '#00F5D4'
       ctx.font = 'bold 32px monospace'
       ctx.fillText(ticketId, 540, cardY + 760)
 
@@ -620,7 +622,7 @@ export default function RegisterClient() {
       ctx.font = 'bold 28px sans-serif'
       ctx.fillText(`${summitDates.toUpperCase()}  •  PEC CHANDIGARH`, 540, cardY + 840)
 
-      ctx.fillStyle = '#B5F23D'
+      ctx.fillStyle = '#00F5D4'
       ctx.font = 'bold 32px sans-serif'
       ctx.fillText("I'M ATTENDING PEC E-SUMMIT '26!", 540, 1680)
 
@@ -686,7 +688,7 @@ export default function RegisterClient() {
 
                 <button
                   type="button"
-                  onClick={() => setView(view === 'passes' ? 'catalog' : 'passes')}
+                  onClick={() => router.push('/profile')}
                   className={`px-2 py-0.5 rounded text-[11px] sm:text-xs font-semibold transition-all flex items-center gap-1 shrink-0 ${
                     view === 'passes'
                       ? 'bg-mint text-void font-bold'
@@ -694,7 +696,7 @@ export default function RegisterClient() {
                   }`}
                 >
                   <Ticket size={11} className="shrink-0" />
-                  <span className="hidden sm:inline">My Passes</span>
+                  <span className="hidden sm:inline">My Profile</span>
                   <span>({myRegistrations.length})</span>
                 </button>
 
@@ -1481,7 +1483,7 @@ export default function RegisterClient() {
 
                 <button
                   type="button"
-                  onClick={() => setView('passes')}
+                  onClick={() => router.push('/profile')}
                   className="py-2 px-3 rounded-md border border-white/10 hover:border-white/20 text-neutral-400 hover:text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Ticket size={12} />

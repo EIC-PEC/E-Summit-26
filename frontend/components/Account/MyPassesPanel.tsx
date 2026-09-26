@@ -104,7 +104,7 @@ export default function MyPassesPanel({ onViewBadge, signedOutSlot }: Props) {
             <div className="flex items-center gap-2">
               <p className="truncate font-semibold">{pass.categoryTitle}</p>
               {pass.isCheckedIn && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#7ED321]/15 px-2 py-0.5 text-[10px] font-semibold text-[#7ED321]">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#00F5D4]/15 px-2 py-0.5 text-[10px] font-semibold text-[#00F5D4]">
                   <CheckCircle2 className="h-3 w-3" /> CHECKED IN
                 </span>
               )}

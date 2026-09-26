@@ -34,9 +34,7 @@ export default function PixelTransition({
 
   const [isActive, setIsActive] = useState(false)
 
-  const isTouchDevice =
-    typeof window !== 'undefined' &&
-    ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia('(pointer: coarse)').matches)
+  const isActiveRef = useRef(false)
 
   const populatePixelsIfNeeded = () => {
     const pixelGridEl = pixelGridRef.current
@@ -46,6 +44,8 @@ export default function PixelTransition({
       for (let col = 0; col < gridSize; col++) {
         const pixel = document.createElement('div')
         pixel.classList.add('pixelated-image-card__pixel')
+        pixel.style.position = 'absolute'
+        pixel.style.display = 'none'
         pixel.style.backgroundColor = pixelColor
 
         const size = 100 / gridSize
@@ -59,7 +59,6 @@ export default function PixelTransition({
   }
 
   const animatePixels = (activate: boolean) => {
-    setIsActive(activate)
     populatePixelsIfNeeded()
 
     const pixelGridEl = pixelGridRef.current
@@ -109,36 +108,76 @@ export default function PixelTransition({
   }
 
   const handleEnter = () => {
-    if (!isActive) animatePixels(true)
+    if (!isActiveRef.current) {
+      isActiveRef.current = true
+      setIsActive(true)
+      animatePixels(true)
+    }
   }
+
   const handleLeave = () => {
-    if (isActive && !once) animatePixels(false)
+    if (isActiveRef.current && !once) {
+      isActiveRef.current = false
+      setIsActive(false)
+      animatePixels(false)
+    }
   }
+
   const handleClick = () => {
-    if (!isActive) animatePixels(true)
-    else if (isActive && !once) animatePixels(false)
+    if (!isActiveRef.current) {
+      isActiveRef.current = true
+      setIsActive(true)
+      animatePixels(true)
+    } else if (!once) {
+      isActiveRef.current = false
+      setIsActive(false)
+      animatePixels(false)
+    }
   }
+
+  useEffect(() => {
+    return () => {
+      if (delayedCallRef.current) {
+        delayedCallRef.current.kill()
+      }
+    }
+  }, [])
 
   return (
     <div
       ref={containerRef}
-      className={`pixelated-image-card ${className}`}
+      className={`relative overflow-hidden pixelated-image-card ${className}`}
       style={style}
-      onMouseEnter={!isTouchDevice ? handleEnter : undefined}
-      onMouseLeave={!isTouchDevice ? handleLeave : undefined}
-      onClick={isTouchDevice ? handleClick : undefined}
-      onFocus={!isTouchDevice ? handleEnter : undefined}
-      onBlur={!isTouchDevice ? handleLeave : undefined}
+      onMouseEnter={handleEnter}
+      onMouseLeave={handleLeave}
+      onPointerEnter={handleEnter}
+      onPointerLeave={handleLeave}
+      onClick={handleClick}
+      onFocus={handleEnter}
+      onBlur={handleLeave}
       tabIndex={0}
     >
       <div style={{ paddingTop: aspectRatio }} />
-      <div className="pixelated-image-card__default" aria-hidden={isActive}>
+      <div 
+        className="pixelated-image-card__default absolute inset-0 w-full h-full" 
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+        aria-hidden={isActive}
+      >
         {firstContent}
       </div>
-      <div className="pixelated-image-card__active" ref={activeRef} aria-hidden={!isActive}>
+      <div 
+        className="pixelated-image-card__active absolute inset-0 w-full h-full z-10" 
+        ref={activeRef} 
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 2, display: 'none' }}
+        aria-hidden={!isActive}
+      >
         {secondContent}
       </div>
-      <div className="pixelated-image-card__pixels" ref={pixelGridRef} />
+      <div 
+        className="pixelated-image-card__pixels absolute inset-0 w-full h-full pointer-events-none z-20" 
+        ref={pixelGridRef}
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 3 }}
+      />
     </div>
   )
 }

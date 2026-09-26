@@ -1,7 +1,7 @@
-// lib/groq.ts
-// Browser-side Groq client — all LLM calls go through /api/chat (server proxy).
+// lib/gemini-client.ts
+// Browser-side Gemini client — all LLM calls go through /api/chat (server proxy).
 
-export interface GroqMessage {
+export interface GeminiMessage {
   role: 'user' | 'assistant' | 'system' | 'tool'
   content?: string
   tool_calls?: Array<{
@@ -15,7 +15,7 @@ export interface GroqMessage {
   tool_call_id?: string
 }
 
-export interface GroqFunction {
+export interface GeminiFunction {
   name: string
   description: string
   parameters: {
@@ -25,12 +25,12 @@ export interface GroqFunction {
   }
 }
 
-export interface GroqRequest {
+export interface GeminiRequest {
   model: string
-  messages: GroqMessage[]
+  messages: GeminiMessage[]
   tools?: Array<{
     type: 'function'
-    function: GroqFunction
+    function: GeminiFunction
   }>
   tool_choice?: 'auto' | 'none' | { type: 'function'; function: { name: string } }
   temperature?: number
@@ -39,7 +39,7 @@ export interface GroqRequest {
   stream?: boolean
 }
 
-export interface GroqResponse {
+export interface GeminiResponse {
   choices: Array<{
     message: {
       content: string | null
@@ -63,9 +63,9 @@ export interface GroqResponse {
 }
 
 /** Main conversational model — routed server-side. */
-export const MODEL_MAIN = 'qwen/qwen3.8-27b'
+export const MODEL_MAIN = 'gemini-3.8-flash'
 /** Fast cheap model for summarization — routed server-side. */
-export const MODEL_FAST = 'openai/gpt-oss-120b'
+export const MODEL_FAST = 'gemini-3.8-flash'
 
 interface ProxyResponse {
   text?: string
@@ -73,10 +73,10 @@ interface ProxyResponse {
   error?: string
 }
 
-export class GroqClient {
+export class GeminiClient {
   async generateContent(
-    messages: GroqMessage[],
-    functions: GroqFunction[],
+    messages: GeminiMessage[],
+    functions: GeminiFunction[],
     _systemPrompt?: string,
     maxTokens: number = 512,
     model: string = MODEL_MAIN,
@@ -107,11 +107,11 @@ export class GroqClient {
           }
         }
         if (data.error) {
-          console.warn('[GroqClient] Server returned error:', data.error)
+          console.warn('[GeminiClient] Server returned error:', data.error)
         }
       }
     } catch (err) {
-      console.warn('[GroqClient] Proxy fetch failed:', err)
+      console.warn('[GeminiClient] Proxy fetch failed:', err)
     }
 
     // Resilient fallback: answer from the last user message
@@ -140,11 +140,11 @@ export class GroqClient {
   }
 }
 
-let groqClient: GroqClient | null = null
+let geminiClient: GeminiClient | null = null
 
-export function getGroqClient(): GroqClient {
-  if (!groqClient) {
-    groqClient = new GroqClient()
+export function getGeminiClient(): GeminiClient {
+  if (!geminiClient) {
+    geminiClient = new GeminiClient()
   }
-  return groqClient
+  return geminiClient
 }

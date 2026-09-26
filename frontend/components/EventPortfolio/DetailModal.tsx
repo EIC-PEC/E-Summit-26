@@ -85,8 +85,8 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
         updated = [...saved, event.id]
         setIsSaved(true)
         toast.success(`Added to schedule`, {
-          style: { background: '#07130F', color: '#fff', border: '1px solid #7ED321' },
-          iconTheme: { primary: '#7ED321', secondary: '#040605' },
+          style: { background: '#07130F', color: '#fff', border: '1px solid #00F5D4' },
+          iconTheme: { primary: '#00F5D4', secondary: '#060D0B' },
         })
       }
       localStorage.setItem('pec_my_schedule', JSON.stringify(updated))
@@ -102,6 +102,9 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
     { Icon: Layout, label: 'FORMAT & DELIVERY', text: event.delivery },
     { Icon: Users, label: 'PARTICIPATION & CAPACITY', text: event.expectedParticipation },
   ]
+
+  const isComp = event ? ['hackathon', 'competition', 'quiz', 'auction', 'strategy'].some(keyword => event.category.toLowerCase().includes(keyword)) : false
+  const registerLink = isComp ? (event?.registrationUrl || 'https://unstop.com') : '/register'
 
   return (
     <AnimatePresence>
@@ -126,7 +129,7 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: 15 }}
           transition={{ duration: 0.2, ease: 'easeOut' }}
-          className="relative z-10 w-full h-[100dvh] sm:h-auto sm:max-w-xl lg:max-w-3xl sm:max-h-[85vh] overflow-hidden rounded-none sm:rounded-3xl bg-gradient-to-b from-[#0C1A14] via-[#07120E] to-[#040A08] border-0 sm:border sm:border-mint/30 shadow-[0_0_100px_rgba(0,0,0,0.95),inset_0_1px_1px_rgba(255,255,255,0.1)] flex flex-col"
+          className="relative z-10 w-full h-[100dvh] sm:h-auto sm:max-w-xl lg:max-w-3xl sm:max-h-[85vh] overflow-hidden rounded-none sm:rounded-2xl bg-gradient-to-b from-[#0C1A14] via-[#07120E] to-[#040A08] border-0 sm:border sm:border-mint/30 shadow-[0_0_100px_rgba(0,0,0,0.95),inset_0_1px_1px_rgba(255,255,255,0.1)] flex flex-col"
         >
           {/* Top Bar Header */}
           <div className="flex items-center justify-between px-4 sm:px-5 py-3.5 border-b border-mint/20 bg-[#060D0A]/90 shrink-0 pt-[max(0.8rem,env(safe-area-inset-top))]">
@@ -233,36 +236,31 @@ export function DetailModal({ event, onClose }: DetailModalProps) {
           </div>
 
           {/* Action Footer */}
-          <div className="p-3.5 sm:p-5 border-t border-white/10 bg-[#07100D] flex flex-wrap items-center gap-2.5 shrink-0 pb-[max(0.8rem,env(safe-area-inset-bottom))]">
-            {event.registrationUrl && (
+          <div className="p-3.5 sm:p-5 border-t border-white/10 bg-[#07100D] flex items-center gap-2.5 shrink-0 pb-[max(0.8rem,env(safe-area-inset-bottom))]">
+            {isComp ? (
               <a
-                href={event.registrationUrl}
+                href={registerLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 min-w-32 flex items-center justify-center gap-1.5 h-11 px-3 rounded-xl bg-mint text-[#040806] font-mono-data text-[11px] sm:text-xs font-black uppercase tracking-wider hover:bg-[#8ee430] transition-colors whitespace-nowrap"
+                className="flex-1 flex items-center justify-center gap-1.5 h-11 px-3 rounded-xl bg-mint text-[#040806] font-mono-data text-[11px] sm:text-xs font-black uppercase tracking-wider hover:bg-[#8ee430] transition-colors whitespace-nowrap"
               >
                 <span>Register on Unstop</span>
                 <ExternalLink size={14} className="shrink-0" />
               </a>
+            ) : (
+              <div className="flex-1" />
             )}
 
             <button
               onClick={toggleSchedule}
-              className={`flex-1 min-w-28 flex items-center justify-center gap-1.5 h-11 px-3 rounded-xl font-mono-data text-[11px] sm:text-xs font-bold uppercase tracking-wider border transition-all whitespace-nowrap ${
+              title={isSaved ? 'Remove from Schedule' : 'Save Event'}
+              className={`flex items-center justify-center h-11 w-11 rounded-xl transition-all shrink-0 border ${
                 isSaved
                   ? 'bg-mint/15 border-mint text-mint'
                   : 'bg-white/5 border-white/15 text-white hover:border-mint/50 hover:text-mint'
               }`}
             >
-              {isSaved ? <Check size={15} className="shrink-0" /> : <Bookmark size={15} className="shrink-0" />}
-              <span className="truncate">{isSaved ? 'In Schedule' : 'Save Event'}</span>
-            </button>
-
-            <button
-              onClick={onClose}
-              className="px-4 flex items-center justify-center gap-1.5 h-11 rounded-xl bg-white/10 text-neutral-300 font-mono-data text-[11px] sm:text-xs font-bold uppercase tracking-wider hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
-            >
-              <span>Close</span>
+              {isSaved ? <Check size={18} /> : <Bookmark size={18} />}
             </button>
           </div>
         </motion.div>

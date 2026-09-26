@@ -1,7 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['tabbied'],
   images: {
     formats: ['image/avif', 'image/webp'],
+    qualities: [65, 75, 80],
     remotePatterns: [
       { protocol: 'https', hostname: '**' },
       { protocol: 'http', hostname: 'localhost' },
@@ -42,12 +44,6 @@ const nextConfig = {
   },
   async redirects() {
     return [
-      { source: '/schedule', destination: '/#schedule', permanent: true },
-      { source: '/speakers', destination: '/#speakers', permanent: true },
-      { source: '/sponsors', destination: '/#sponsors', permanent: true },
-      { source: '/faq', destination: '/#faq', permanent: true },
-      { source: '/portfolio', destination: '/#event-portfolio', permanent: true },
-      { source: '/tracks', destination: '/#event-portfolio', permanent: true },
       { source: '/passes', destination: '/register', permanent: true },
     ]
   },

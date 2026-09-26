@@ -2,32 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-h1, h2, h3, h4, h5, h6, .font-display, .font-kanit {
-  font-family: var(--font-kanit), 'Kanit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+h1, h2, h3, h4, h5, h6, .font-display, .font-kanit, .font-asimovian {
+  font-family: var(--font-asimovian), 'Asimovian', -apple-system, BlinkMacSystemFont, sans-serif !important;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: 0.03em;
 }
 
-.font-mono-data {
-  font-family: var(--font-jetbrains), 'JetBrains Mono', monospace !important;
+.font-mono-data, .font-marcellus {
+  font-family: var(--font-marcellus), 'Marcellus', serif !important;
   text-rendering: optimizeLegibility;
+  letter-spacing: 0.04em;
 }
 
 :root {
-  --bg-void: #0B1410;
-  --bg-deep: #0E1A15;
-  --bg-panel: #13221C;
-  --bg-panel-alt: #182A23;
+  --font-kanit: var(--font-asimovian);
+  --font-display: var(--font-asimovian);
+  --font-jetbrains: var(--font-marcellus);
+  --bg-void: #060D0B;
+  --bg-deep: #081310;
+  --bg-panel: #0D1C18;
+  --bg-panel-alt: #12241F;
 
   /* Alternating section background colors */
-  --bg-section-1: #0F241B; /* Darker Forest Green */
-  --bg-section-2: #183327; /* Lighter Forest Green */
+  --bg-section-1: #0A1713; /* Deep Cyber Teal Void */
+  --bg-section-2: #0F221D; /* Elevated Teal Surface */
 
-  --accent-mint: #B5F23D;
-  --accent-green: #B5F23D;
-  --accent-green-dim: rgba(181, 242, 61, 0.15);
-  --accent-green-glow: rgba(181, 242, 61, 0.35);
+  --accent-mint: #00F2B2;
+  --accent-green: #00DC9F;
+  --accent-green-dim: rgba(0, 242, 178, 0.15);
+  --accent-green-glow: rgba(0, 242, 178, 0.35);
 
   --accent-blue: #3DD9FF;
   --accent-coral: #FF4D3D;
@@ -39,7 +44,7 @@ h1, h2, h3, h4, h5, h6, .font-display, .font-kanit {
 
   --border-subtle: rgba(255, 255, 255, 0.10);
   --border-panel: rgba(255, 255, 255, 0.15);
-  --border-glow: rgba(181, 242, 61, 0.3);
+  --border-glow: rgba(0, 242, 178, 0.3);
 
   color-scheme: dark;
 }
@@ -104,14 +109,18 @@ html.lenis, html.lenis body {
   pointer-events: none;
 }
 
+html {
+  overscroll-behavior-y: none;
+}
+
 body {
   background-color: var(--bg-deep);
   color: var(--text-primary);
   font-family: 'Inter', sans-serif;
   overflow-x: hidden;
+  overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  -webkit-overflow-scrolling: touch;
 }
 
 #main-content,
@@ -163,8 +172,13 @@ header {
 
 /* Selection */
 ::selection {
-  background: rgba(181, 242, 61, 0.3);
-  color: var(--text-primary);
+  background: var(--accent-mint);
+  color: var(--bg-void);
+}
+
+::-moz-selection {
+  background: var(--accent-mint);
+  color: var(--bg-void);
 }
 
 /* â”€â”€â”€ Big Headings Font Rule (Kanit) â”€â”€â”€ */
@@ -195,7 +209,7 @@ h1, h2, h3 {
 
 /* â”€â”€â”€ Glow effects â”€â”€â”€ */
 .glow-orange, .glow-volt, .glow-amber, .glow-green {
-  box-shadow: 0 0 24px rgba(181, 242, 61, 0.5), 0 0 48px rgba(181, 242, 61, 0.2);
+  box-shadow: 0 0 24px rgba(0, 242, 178, 0.4), 0 0 48px rgba(0, 242, 178, 0.15);
 }
 
 /* â”€â”€â”€ 3D Metallic Text Gradients â”€â”€â”€ */
@@ -210,7 +224,7 @@ h1, h2, h3 {
 }
 
 .text-gradient-mint, .text-gradient-green {
-  background: linear-gradient(180deg, #F4FFD6 0%, var(--accent-mint) 65%, #82BD16 100%);
+  background: linear-gradient(180deg, #EAFFF9 0%, var(--accent-mint) 65%, #00B885 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -264,16 +278,16 @@ h1, h2, h3 {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(180deg, #D4FF66 0%, #B5F23D 60%, #9FE426 100%);
-  color: #060B08;
+  background: linear-gradient(180deg, #B5FFF0 0%, #00F2B2 60%, #00C895 100%);
+  color: #060D0B;
   font-family: var(--font-jetbrains), monospace;
   font-weight: 700;
-  border: 1px solid #C4F850;
+  border: 1px solid #68FFE0;
   border-radius: 9999px;
   cursor: pointer;
   transition: transform 0.15s ease, filter 0.15s ease;
   overflow: hidden;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.65), 0 2px 8px rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.65), 0 2px 12px rgba(0, 242, 178, 0.35);
 }
 .btn-green:hover, .btn-orange:hover, .btn-volt:hover, .btn-amber:hover, .btn-mint-gradient:hover {
   transform: translateY(-1px);
@@ -340,9 +354,9 @@ h1, h2, h3 {
   box-shadow: none !important;
 }
 .btn-ghost:hover {
-  border-color: #B5F23D;
-  color: #B5F23D;
-  background: rgba(181, 242, 61, 0.08);
+  border-color: #00F5D4;
+  color: #00F5D4;
+  background: rgba(0, 245, 212, 0.08);
 }
 
 /* â”€â”€â”€ Current Line Accent â”€â”€â”€ */
@@ -381,10 +395,10 @@ h1, h2, h3 {
   transform-style: preserve-3d;
 }
 
-/* â”€â”€â”€ Highlight pulse â”€â”€â”€ */
+/* ─── Highlight pulse ─── */
 @keyframes highlightPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(181, 242, 61, 0); }
-  50% { box-shadow: 0 0 0 4px rgba(181, 242, 61, 0.4), 0 0 28px rgba(181, 242, 61, 0.3); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 242, 178, 0); }
+  50% { box-shadow: 0 0 0 4px rgba(0, 242, 178, 0.4), 0 0 28px rgba(0, 242, 178, 0.3); }
 }
 .highlight-active {
   animation: highlightPulse 1.2s ease 3;
@@ -408,10 +422,10 @@ h1, h2, h3 {
   100% { background-position: 300% center; }
 }
 
-/* â”€â”€â”€ Glow pulse ring â”€â”€â”€ */
+/* ─── Glow pulse ring ─── */
 @keyframes glowRing {
-  0%, 100% { box-shadow: 0 0 20px rgba(181, 242, 61,0.3), 0 0 40px rgba(181, 242, 61,0.1); }
-  50% { box-shadow: 0 0 40px rgba(181, 242, 61,0.55), 0 0 80px rgba(181, 242, 61,0.25); }
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 242, 178, 0.3), 0 0 40px rgba(0, 242, 178, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(0, 242, 178, 0.55), 0 0 80px rgba(0, 242, 178, 0.25); }
 }
 .glow-pulse {
   animation: glowRing 3s ease-in-out infinite;

@@ -85,9 +85,9 @@ export function useCampusMap({ containerRef, day, onMapLoad, onError }: UseCampu
       const style = document.createElement("style")
       style.id = "leaflet-campus-styles"
       style.innerHTML =
-        `.leaflet-campus-tooltip{background:#0d1f15;color:#B5F23D;border:1px solid #B5F23D40;font-size:11px;font-weight:700;font-family:monospace;padding:3px 8px;border-radius:6px;box-shadow:none}` +
+        `.leaflet-campus-tooltip{background:#0a1713;color:#00F5D4;border:1px solid #00F5D440;font-size:11px;font-weight:700;font-family:monospace;padding:3px 8px;border-radius:6px;box-shadow:none}` +
         `.leaflet-campus-tooltip::before{display:none}` +
-        `.leaflet-container{background:#0d1f15}`
+        `.leaflet-container{background:#060d0b}`
       document.head.appendChild(style)
     }
 
@@ -113,7 +113,7 @@ export function useCampusMap({ containerRef, day, onMapLoad, onError }: UseCampu
 
       Object.entries(CAMPUS_VENUES).forEach(([id, venue]) => {
         const v = venue as CampusVenue
-        const color = VENUE_TYPE_COLORS[v.type] || "#39FF14"
+        const color = VENUE_TYPE_COLORS[v.type] || "#00F5D4"
         const latLng = toLLArr(v.coordinates as [number, number])
 
         const el = document.createElement("div")

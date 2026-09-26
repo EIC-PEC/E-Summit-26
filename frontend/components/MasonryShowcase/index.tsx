@@ -220,10 +220,10 @@ export default function MasonryShowcase() {
           className="pointer-events-none absolute inset-0 z-30 flex flex-col items-center justify-center px-4 text-center"
         >
           <h2
-            className="font-display font-black uppercase leading-none tracking-tight drop-shadow-[0_10px_35px_rgba(0,0,0,0.95)] select-none"
+            className="font-display font-black uppercase leading-none tracking-wider drop-shadow-[0_10px_35px_rgba(0,0,0,0.95)] select-none"
             style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }}
           >
-            <span className="text-gradient-white">SUMMIT</span> <span className="text-gradient-mint">GALLERY</span>
+            <span className="text-gradient-mint">GALLERY</span>
           </h2>
         </motion.div>
       </div>

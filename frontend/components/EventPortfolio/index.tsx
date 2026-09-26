@@ -1,20 +1,20 @@
 // components/EventPortfolio/index.tsx
 'use client'
 
-import React, { useRef, useState, useMemo, useEffect } from 'react'
-import { motion, useScroll, useTransform, useSpring, useMotionValue, AnimatePresence } from 'framer-motion'
+import React, { useState, useMemo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { PORTFOLIO_EVENTS, PortfolioEvent } from './data'
 import { Card } from './Card'
 import { FinalCard } from './FinalCard'
 import { DetailModal } from './DetailModal'
 import { useSummitData } from '@/hooks/useSummitData'
 import type { CmsEvent } from '@/lib/api-types'
+import PageBanner from '@/components/Common/PageBanner'
+
 
 const MAX_VISIBLE_EVENTS = 8
 
 export default function EventPortfolioShowcase() {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const trackRef = useRef<HTMLDivElement>(null)
 
   const { data } = useSummitData()
   const events: PortfolioEvent[] = useMemo(() => {
@@ -61,7 +61,6 @@ export default function EventPortfolioShowcase() {
 
   const [selectedEvent, setSelectedEvent] = useState<PortfolioEvent | null>(null)
   const [activeCategory, setActiveCategory] = useState<string>('All')
-  const xMotion = useMotionValue(0)
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(events.map((e) => e.category)))
@@ -75,79 +74,45 @@ export default function EventPortfolioShowcase() {
     )
   }, [activeCategory, events])
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  })
-
-  const maxScrollRef = useRef(0)
-
-  useEffect(() => {
-    const updateMaxScroll = () => {
-      if (trackRef.current) {
-        maxScrollRef.current = Math.max(0, trackRef.current.scrollWidth - window.innerWidth)
-      }
-    }
-
-    updateMaxScroll()
-    window.addEventListener('resize', updateMaxScroll, { passive: true })
-
-    const unsubscribe = scrollYProgress.on('change', (progress) => {
-      xMotion.set(-progress * maxScrollRef.current)
-    })
-
-    return () => {
-      window.removeEventListener('resize', updateMaxScroll)
-      unsubscribe()
-    }
-  }, [scrollYProgress, filteredEvents, xMotion])
+  // Vertical layout doesn't require scroll tracking
 
   return (
-    <section
-      ref={containerRef}
-      id="event-portfolio"
-      className={`relative h-[250vh] md:h-[480vh] w-full bg-section-2 text-white rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 border-t border-[#7ED321]/20 transition-all ${
-        selectedEvent ? 'z-[12000]' : 'z-10'
-      }`}
-      aria-label="Event Portfolio Showcase"
-    >
-      {/* Pinned Sticky Section during vertical scroll */}
-      <div className="sticky top-0 flex h-screen w-full flex-col items-center justify-center overflow-hidden">
-
-        {/* Big centered section title — matches site-wide pattern */}
-        <div className="pointer-events-none absolute top-16 left-0 right-0 flex justify-center z-20">
-          <h2
-            className="font-display font-black uppercase leading-none tracking-tight text-center drop-shadow-[0_10px_35px_rgba(0,0,0,0.95)] select-none"
-            style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }}
-          >
-            <span className="text-gradient-mint">EVENTS</span>
-          </h2>
+    <>
+      <PageBanner 
+        title="EVENTS" 
+      />
+      <section
+        id="event-portfolio"
+        className={`relative w-full bg-section-2 text-white transition-all pt-12 sm:pt-16 md:pt-20 pb-24 ${
+          selectedEvent ? 'z-[12000]' : 'z-10'
+        }`}
+        aria-label="Event Portfolio Showcase"
+      >
+        {/* Background Section */}
+        <div className="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none bg-[#07130F]">
+          {/* Subtle vertical vignette scrim */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0F221D]/75 via-transparent to-[#0F221D]/85" />
         </div>
 
-        {/* ── Main Horizontally Scrolling Track Container ── */}
-        <div className="relative z-10 flex w-full items-center pt-12 sm:pt-20 md:pt-32">
-          <motion.div
-            ref={trackRef}
-            style={{ x: xMotion, willChange: 'transform' }}
-            className="flex items-center gap-6 sm:gap-8 px-6 sm:px-12 md:px-16 cursor-grab active:cursor-grabbing w-max"
-          >
-            {filteredEvents.map((event, index) => (
-              <Card
-                key={event.id}
-                event={event}
-                index={index}
-                total={PORTFOLIO_EVENTS.length}
-                onSelect={(evt) => setSelectedEvent(evt)}
-                scrollProgress={scrollYProgress}
-              />
-            ))}
-            <FinalCard onViewAll={() => setActiveCategory('All')} />
-          </motion.div>
+      {/* ── Main Grid Container ── */}
+      <div className="relative z-10 w-full px-6 sm:px-12 md:px-16 max-w-[1400px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 justify-items-center">
+          {filteredEvents.map((event, index) => (
+            <Card
+              key={event.id}
+              event={event}
+              index={index}
+              total={PORTFOLIO_EVENTS.length}
+              onSelect={(evt) => setSelectedEvent(evt)}
+            />
+          ))}
+          <FinalCard onViewAll={() => setActiveCategory('All')} />
         </div>
       </div>
 
       {/* ── Interactive Event Detail Modal ── */}
       <DetailModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />
     </section>
+    </>
   )
 }

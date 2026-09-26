@@ -67,6 +67,8 @@ function FAQItem({ faq, isOpen, onToggle }: {
   )
 }
 
+import PageBanner from '@/components/Common/PageBanner'
+
 export default function FAQ() {
   const { faqs: cmsFaqs } = useFaqs()
   const faqs: FaqItem[] = Array.isArray(cmsFaqs) && cmsFaqs.length > 0 ? cmsFaqs : STATIC_FAQS
@@ -74,28 +76,25 @@ export default function FAQ() {
   const [openId, setOpenId] = useState<string | null>(faqs[0]?.id ?? null)
 
   return (
-    <section
-      id="faq"
-      className="py-24 lg:py-32 relative bg-section-1 text-white rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 z-10 overflow-hidden border-t border-white/10"
-      aria-labelledby="faq-heading"
-    >
-      <div className="section-container relative z-10">
-        {/* Centered Large Section Title */}
-        <div className="mb-12 flex flex-col items-center justify-center text-center">
-          <h2
-            id="faq-heading"
-            className="font-display font-black uppercase leading-none tracking-tight text-center mb-4 select-none"
-            style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }}
-          >
-            <span className="text-gradient-mint">FAQ</span>
-          </h2>
-          <p className="font-body text-sm sm:text-base leading-relaxed text-gray-300 max-w-lg">
-            If you don&apos;t find your answer here, our Concierge agent (bottom right) can assist — or email us directly at{' '}
-            <a href="mailto:info@ecellpec.in" className="text-mint underline underline-offset-4 font-semibold">
-              info@ecellpec.in
-            </a>
-          </p>
-        </div>
+    <>
+      <PageBanner 
+        title="FAQ" 
+        subtitle="Frequently Asked Questions"
+      />
+      <section
+        id="faq"
+        className="pt-12 pb-24 lg:pb-32 relative bg-section-1 text-white z-10 overflow-hidden"
+        aria-labelledby="faq-heading"
+      >
+        <div className="section-container relative z-10">
+          <div className="mb-12 flex flex-col items-center justify-center text-center">
+            <p className="font-body text-sm sm:text-base leading-relaxed text-gray-300 max-w-lg">
+              If you don&apos;t find your answer here, our Concierge agent (bottom right) can assist — or email us directly at{' '}
+              <a href="mailto:info@ecellpec.in" className="text-mint underline underline-offset-4 font-semibold">
+                info@ecellpec.in
+              </a>
+            </p>
+          </div>
 
         <div className="max-w-4xl mx-auto">
 
@@ -119,5 +118,6 @@ export default function FAQ() {
         </div>
       </div>
     </section>
+    </>
   )
 }

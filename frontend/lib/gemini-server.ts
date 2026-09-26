@@ -1,22 +1,30 @@
-// lib/groq-server.ts
-// Server-only Groq client — API key never exposed to the browser.
+// lib/gemini-server.ts
+// Server-only Gemini client using OpenAI-compatible endpoint
+// API key is rotated from a pool to maximize efficiency and bypass rate limits.
 
-import type { GroqFunction, GroqMessage, GroqRequest, GroqResponse } from './groq'
+import type { GeminiFunction, GeminiMessage, GeminiRequest, GeminiResponse } from './gemini-client'
 
-export const MODEL_MAIN = 'qwen/qwen3.8-27b'
-export const MODEL_FAST = 'openai/gpt-oss-120b'
+export const MODEL_MAIN = 'gemini-3.8-flash'
+export const MODEL_FAST = 'gemini-3.8-flash'
 
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions'
 const MAX_RETRIES = 2
 
-export class GroqServerClient {
-  private apiKey: string
+export class GeminiServerClient {
+  private apiKeys: string[]
 
-  constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.GROQ_API_KEY || ''
-    if (!this.apiKey) {
-      throw new Error('GROQ_API_KEY is not configured on the server')
+  constructor() {
+    const keysRaw = process.env.GEMINI_API_KEYS || ''
+    this.apiKeys = keysRaw.split(',').map(k => k.trim()).filter(Boolean)
+    
+    if (this.apiKeys.length === 0) {
+      throw new Error('GEMINI_API_KEYS is not configured on the server')
     }
+  }
+
+  private getRandomApiKey(): string {
+    const randomIndex = Math.floor(Math.random() * this.apiKeys.length)
+    return this.apiKeys[randomIndex]
   }
 
   private async sleep(ms: number): Promise<void> {
@@ -24,23 +32,23 @@ export class GroqServerClient {
   }
 
   async generateContent(
-    messages: GroqMessage[],
-    functions: GroqFunction[],
+    messages: GeminiMessage[],
+    functions: GeminiFunction[],
     systemPrompt?: string,
     maxTokens: number = 512,
     model: string = MODEL_MAIN,
   ): Promise<{ text: string; functionCalls?: Array<{ name: string; args: Record<string, unknown> }> }> {
-    const allMessages: GroqMessage[] = []
+    const allMessages: GeminiMessage[] = []
     if (systemPrompt) {
       allMessages.push({ role: 'system', content: systemPrompt })
     }
     allMessages.push(...messages.filter(m => m.role !== 'system'))
 
-    const requestBody: GroqRequest = {
+    const requestBody: GeminiRequest = {
       model,
       messages: allMessages,
       tools: functions.length > 0 ? functions.map(f => ({ type: 'function', function: f })) : undefined,
-      tool_choice: functions.length > 0 ? 'auto' : 'none',
+      tool_choice: functions.length > 0 ? 'auto' : undefined, // Gemini OpenAI endpoint may prefer undefined instead of 'none' when tools is absent
       temperature: 0.5,
       max_tokens: maxTokens,
       top_p: 0.9,
@@ -50,26 +58,27 @@ export class GroqServerClient {
 
     for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const response = await fetch(GROQ_API_URL, {
+        const apiKey = this.getRandomApiKey()
+        const response = await fetch(GEMINI_API_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiKey}`,
+            Authorization: `Bearer ${apiKey}`,
           },
           body: JSON.stringify(requestBody),
-          signal: AbortSignal.timeout(10000),
+          signal: AbortSignal.timeout(15000), // Wait up to 15s
         })
 
         if (!response.ok) {
           const errorText = await response.text()
-          throw new Error(`Groq API error: ${response.status} — ${errorText}`)
+          throw new Error(`Gemini API error: ${response.status} — ${errorText}`)
         }
 
-        const data: GroqResponse = await response.json()
+        const data: GeminiResponse = await response.json()
         const choice = data.choices?.[0]
 
         if (!choice?.message) {
-          throw new Error('Empty response from Groq')
+          throw new Error('Empty response from Gemini')
         }
 
         if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
@@ -116,11 +125,11 @@ export class GroqServerClient {
   }
 }
 
-let groqServerClient: GroqServerClient | null = null
+let geminiServerClient: GeminiServerClient | null = null
 
-export function getGroqServerClient(): GroqServerClient {
-  if (!groqServerClient) {
-    groqServerClient = new GroqServerClient()
+export function getGeminiServerClient(): GeminiServerClient {
+  if (!geminiServerClient) {
+    geminiServerClient = new GeminiServerClient()
   }
-  return groqServerClient
+  return geminiServerClient
 }

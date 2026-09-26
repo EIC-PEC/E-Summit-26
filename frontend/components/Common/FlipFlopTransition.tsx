@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 
 
+
 const ALL_IMGS = [
   '/gallery/pec_admin_building.jpg',
   '/gallery/pec_centenary_hall.jpg',
@@ -107,7 +108,7 @@ function CleanStripSlat({
       >
         <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
         <motion.div
-          className="absolute bottom-0 left-0 right-0 h-[2px] bg-mint shadow-[0_0_20px_#7ed321]"
+          className="absolute bottom-0 left-0 right-0 h-[2px] bg-mint shadow-[0_0_20px_#00F5D4]"
           initial={{ opacity: 0 }}
           style={{ opacity: laserOpacity }}
         />

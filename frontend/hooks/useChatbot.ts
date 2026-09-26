@@ -11,11 +11,11 @@
 //     hit the API at all.
 //
 //  2. RESPONSE CACHE
-//     An in-session Map<normalizedMessage, responseText> caches Groq answers.
+//     An in-session Map<normalizedMessage, responseText> caches Gemini answers.
 //     Asking the same question twice costs 0 additional tokens.
 //
 //  3. SLIDING WINDOW HISTORY
-//     Only the last HISTORY_WINDOW messages are sent to Groq. Older messages
+//     Only the last HISTORY_WINDOW messages are sent to Gemini. Older messages
 //     remain visible in the UI (React state) but are never included in API
 //     requests. This caps history cost at a constant value regardless of
 //     conversation length.
@@ -40,14 +40,14 @@
 //     worst-case token amplification.
 //
 //  8. TOKEN LOGGING
-//     Groq client now logs prompt/completion/total tokens + estimated cost
+//     Gemini client now logs prompt/completion/total tokens + estimated cost
 //     to the browser console for every API call.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { executeFunction } from '@/lib/chatbot-tools'
-import { getGroqClient, MODEL_FAST } from '@/lib/groq'
-import type { GroqMessage } from '@/lib/groq'
+import { getGeminiClient, MODEL_FAST } from '@/lib/gemini-client'
+import type { GeminiMessage } from '@/lib/gemini-client'
 import { localAnswer } from '@/lib/local-answers'
 import { selectTools } from '@/lib/tool-selector'
 import { getTokenBudget, SUMMARY_MAX_TOKENS } from '@/lib/token-budget'
@@ -55,7 +55,7 @@ import { getTokenBudget, SUMMARY_MAX_TOKENS } from '@/lib/token-budget'
 // ── Config ────────────────────────────────────────────────────────────────────
 
 /**
- * How many recent messages to include in each Groq request.
+ * How many recent messages to include in each Gemini request.
  * Older messages stay in UI state but are never sent to the API.
  * 6 messages = 3 full conversation turns (user + assistant × 3).
  */
@@ -155,11 +155,11 @@ export function useChatbot(options: UseChatbotOptions = {}) {
 
   // ── History windowing helper ───────────────────────────────────────────────
   /**
-   * Convert a ChatMessage array to GroqMessage[] format,
+   * Convert a ChatMessage array to GeminiMessage[] format,
    * and apply the sliding window (last HISTORY_WINDOW messages only).
    * Summary messages are always kept regardless of their position.
    */
-  const buildGroqHistory = (msgs: ChatMessage[]): GroqMessage[] => {
+  const buildGeminiHistory = (msgs: ChatMessage[]): GeminiMessage[] => {
     // Separate summaries (always include) from regular messages
     const summaries = msgs.filter(m => m.isSummary)
     const regular = msgs.filter(m => !m.isSummary)
@@ -192,21 +192,21 @@ export function useChatbot(options: UseChatbotOptions = {}) {
           }],
         }
       }
-      // Skip internal system messages; the system prompt is injected by GroqClient
+      // Skip internal system messages; the system prompt is injected by GeminiClient
       if (msg.role === 'system') return null
       return {
         role: msg.role as 'user' | 'assistant',
         content: msg.content,
       }
-    }).filter(Boolean) as GroqMessage[]
+    }).filter(Boolean) as GeminiMessage[]
   }
 
   // ── Auto-summarization ────────────────────────────────────────────────────
   /**
-   * When the conversation grows too long, call Groq with a cheap 8B model
+   * When the conversation grows too long, call Gemini with a cheap 8B model
    * to compress the oldest messages into a single summary. The summary is
    * stored as a special ChatMessage (isSummary: true) and always included
-   * in subsequent Groq requests so context is preserved.
+   * in subsequent Gemini requests so context is preserved.
    *
    * Cost: ~100–200 tokens (8B model, 150 completion tokens) vs. the thousands
    * of tokens the full history would consume per request going forward.
@@ -230,8 +230,8 @@ export function useChatbot(options: UseChatbotOptions = {}) {
     const summaryPrompt = `Summarize this chat in 3–5 bullet points (max 120 words). Keep all key facts (events, decisions, venues, names). Drop filler.\n\n${historyText}`
 
     try {
-      const groq = getGroqClient()
-      const summaryText = await groq.generateText(
+      const gemini = getGeminiClient()
+      const summaryText = await gemini.generateText(
         summaryPrompt,
         'You are a precise summarizer. Output only bullet points. No preamble.',
         SUMMARY_MAX_TOKENS,
@@ -270,7 +270,7 @@ export function useChatbot(options: UseChatbotOptions = {}) {
     const cacheKey = trimmed.toLowerCase().replace(/\s+/g, ' ')
     if (responseCache.current.has(cacheKey)) {
       const cached = responseCache.current.get(cacheKey)!
-      console.info('[useChatbot] Cache hit — skipping Groq call')
+      console.info('[useChatbot] Cache hit — skipping Gemini call')
 
 
       const userMsg: ChatMessage = { id: generateId(), role: 'user', content: trimmed, timestamp: new Date() }
@@ -290,7 +290,7 @@ export function useChatbot(options: UseChatbotOptions = {}) {
     setIsLoading(true)
     setError(null)
 
-    // ── 3. Try local answer (no Groq call) ──────────────────────────────────
+    // ── 3. Try local answer (no Gemini call) ──────────────────────────────────
     const local = localAnswer(trimmed)
     if (local) {
       // Cache the local answer too (helps when user re-asks)
@@ -322,9 +322,9 @@ export function useChatbot(options: UseChatbotOptions = {}) {
         currentMessages = maybeCompressed
       }
 
-      // ── 5. Build windowed history for Groq ─────────────────────────────
+      // ── 5. Build windowed history for Gemini ─────────────────────────────
       // Include the just-added user message in the window
-      const messagesForGroq = buildGroqHistory([...currentMessages, userMessage])
+      const messagesForGemini = buildGeminiHistory([...currentMessages, userMessage])
 
       // ── 6. Select only relevant tools ───────────────────────────────────
       const tools = selectTools(trimmed)
@@ -332,17 +332,17 @@ export function useChatbot(options: UseChatbotOptions = {}) {
       // ── 7. Get dynamic completion budget ────────────────────────────────
       const maxTokens = getTokenBudget(trimmed)
 
-      const groq = getGroqClient()
+      const gemini = getGeminiClient()
 
       // Start with the windowed history for the function-call loop
-      let conversationMessages = messagesForGroq
+      let conversationMessages = messagesForGemini
       let pendingItinerary: ChatMessage['itinerary'] | undefined
 
       // ── 8. Function-calling loop (max 2 iterations) ─────────────────────
       for (let iteration = 0; iteration < 2; iteration++) {
         if (abortControllerRef.current?.signal.aborted) break
 
-        const result = await groq.generateContent(
+        const result = await gemini.generateContent(
           conversationMessages,
           tools,
           undefined,
@@ -446,7 +446,7 @@ export function useChatbot(options: UseChatbotOptions = {}) {
     if (lastUserMsg) {
       const lastUserIdx = messages.findIndex(m => m.id === lastUserMsg.id)
       if (lastUserIdx >= 0) {
-        // Remove cached entry so retry actually calls Groq
+        // Remove cached entry so retry actually calls Gemini
         const cacheKey = lastUserMsg.content.toLowerCase().replace(/\s+/g, ' ')
         responseCache.current.delete(cacheKey)
         setMessages(messages.slice(0, lastUserIdx))

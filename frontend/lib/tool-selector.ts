@@ -9,7 +9,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import { TOOL_DEFINITIONS } from './chatbot-tools'
-import type { GroqFunction } from './groq'
+import type { GeminiFunction } from './gemini-client'
 
 // ── Intent → tool-name mapping ────────────────────────────────────────────────
 
@@ -82,7 +82,7 @@ function normalize(text: string): string {
 // ── Main export ───────────────────────────────────────────────────────────────
 
 /**
- * Given a user message, return the minimal set of GroqFunction definitions
+ * Given a user message, return the minimal set of GeminiFunction definitions
  * that are likely to be needed. Falls back to all tools if no intent is matched
  * (preserves correctness at the cost of more tokens — only for truly ambiguous
  * queries).
@@ -93,7 +93,7 @@ function normalize(text: string): string {
  *   2 tools       ≈ 170 tokens   → saves 680 tokens
  *   3 tools       ≈ 255 tokens   → saves 595 tokens
  */
-export function selectTools(userMessage: string): GroqFunction[] {
+export function selectTools(userMessage: string): GeminiFunction[] {
   const normalized = normalize(userMessage)
 
   // Collect matched tool names (use a Set to deduplicate)
@@ -108,23 +108,23 @@ export function selectTools(userMessage: string): GroqFunction[] {
   }
 
   if (matched.size === 0) {
-    // No clear intent — send all tools so Groq can decide.
+    // No clear intent — send all tools so Gemini can decide.
     // Log so we can find unhandled intents and add rules.
     console.info('[ToolSelector] No intent matched — sending all tools')
-    return allGroqFunctions()
+    return allGeminiFunctions()
   }
 
-  const selected = allGroqFunctions().filter(f => matched.has(f.name))
-  console.info(`[ToolSelector] Selected ${selected.length}/${allGroqFunctions().length} tools:`, Array.from(matched))
+  const selected = allGeminiFunctions().filter(f => matched.has(f.name))
+  console.info(`[ToolSelector] Selected ${selected.length}/${allGeminiFunctions().length} tools:`, Array.from(matched))
   return selected
 
 }
 
-/** Convert TOOL_DEFINITIONS to GroqFunction[] (strips the wrapper object). */
-function allGroqFunctions(): GroqFunction[] {
+/** Convert TOOL_DEFINITIONS to GeminiFunction[] (strips the wrapper object). */
+function allGeminiFunctions(): GeminiFunction[] {
   return TOOL_DEFINITIONS.map(t => ({
     name: t.name,
     description: t.description,
-    parameters: t.parameters as GroqFunction['parameters'],
+    parameters: t.parameters as GeminiFunction['parameters'],
   }))
 }

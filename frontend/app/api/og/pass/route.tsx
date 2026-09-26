@@ -20,13 +20,13 @@ export async function GET(request: NextRequest) {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            backgroundColor: '#07130F',
+            backgroundColor: '#060D0B',
             backgroundImage:
-              'radial-gradient(circle at 80% 20%, rgba(126, 211, 33, 0.18) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(26, 77, 50, 0.4) 0%, transparent 60%)',
+              'radial-gradient(circle at 80% 20%, rgba(0, 245, 212, 0.18) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(13, 74, 66, 0.4) 0%, transparent 60%)',
             padding: '48px 56px',
             color: '#FFFFFF',
             fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-            border: '2px solid rgba(126, 211, 33, 0.25)',
+            border: '2px solid rgba(0, 245, 212, 0.25)',
           }}
         >
           {/* Header Row */}
@@ -46,8 +46,8 @@ export async function GET(request: NextRequest) {
                   width: '14px',
                   height: '14px',
                   borderRadius: '50%',
-                  backgroundColor: '#7ED321',
-                  boxShadow: '0 0 16px #7ED321',
+                  backgroundColor: '#00F5D4',
+                  boxShadow: '0 0 16px #00F5D4',
                 }}
               />
               <span
@@ -66,13 +66,13 @@ export async function GET(request: NextRequest) {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                backgroundColor: 'rgba(126, 211, 33, 0.12)',
-                border: '1px solid rgba(126, 211, 33, 0.35)',
+                backgroundColor: 'rgba(0, 245, 212, 0.12)',
+                border: '1px solid rgba(0, 245, 212, 0.35)',
                 borderRadius: '8px',
                 padding: '6px 16px',
                 fontSize: '14px',
                 fontWeight: 700,
-                color: '#7ED321',
+                color: '#00F5D4',
                 letterSpacing: '0.2em',
               }}
             >
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
               style={{
                 fontSize: '13px',
                 fontWeight: 700,
-                color: '#7ED321',
+                color: '#00F5D4',
                 letterSpacing: '0.25em',
                 textTransform: 'uppercase',
               }}
@@ -126,14 +126,14 @@ export async function GET(request: NextRequest) {
               alignItems: 'center',
               justifyContent: 'space-between',
               width: '100%',
-              backgroundColor: 'rgba(15, 38, 28, 0.6)',
+              backgroundColor: 'rgba(13, 28, 24, 0.6)',
               borderRadius: '16px',
               padding: '18px 24px',
               border: '1px solid rgba(255, 255, 255, 0.08)',
             }}
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <span style={{ fontSize: '11px', color: '#7ED321', letterSpacing: '0.15em', fontWeight: 700 }}>
+              <span style={{ fontSize: '11px', color: '#00F5D4', letterSpacing: '0.15em', fontWeight: 700 }}>
                 PASS CATEGORY
               </span>
               <span style={{ fontSize: '18px', fontWeight: 800, color: '#FFFFFF' }}>
@@ -146,7 +146,7 @@ export async function GET(request: NextRequest) {
                 DATE &amp; VENUE
               </span>
               <span style={{ fontSize: '16px', fontWeight: 600, color: '#E5E7EB' }}>
-                SEPTEMBER 26–27, 2026 • PEC CHANDIGARH
+                NOVEMBER 14–15, 2026 • PEC CHANDIGARH
               </span>
             </div>
 
@@ -159,7 +159,7 @@ export async function GET(request: NextRequest) {
                   fontSize: '15px',
                   fontWeight: 700,
                   fontFamily: 'monospace',
-                  color: '#7ED321',
+                  color: '#00F5D4',
                 }}
               >
                 #{passId}

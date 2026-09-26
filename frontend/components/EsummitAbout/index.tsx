@@ -1,33 +1,42 @@
 'use client'
-// components/EsummitAbout/index.tsx
-// High-end About section with interactive geometric node canvas, clean typography,
-// and cursor-tracking spotlight pillar cards.
 
 import { useRef, useEffect } from 'react'
 import FadeIn from '@/components/ui/FadeIn'
 import AnimatedText from '@/components/ui/AnimatedText'
 import RegisterButton from '@/components/ui/RegisterButton'
-import { Rocket, ShieldCheck, Users } from 'lucide-react'
+import { Rocket, Users, BookOpen, Mic, Trophy, Network } from 'lucide-react'
 import { useSummitData } from '@/hooks/useSummitData'
-
-const ABOUT_TEXT =
-  'PEC E-Summit is the flagship entrepreneurship summit of E-Cell Punjab Engineering College, bringing together student founders, seasoned venture capitalists, and technology leaders. From competitive pitching and a 24-hour hackathon to curated investor roundtables — it is North India\'s premier launchpad where ideas meet capital and build the future. Join us September 26–27, 2026.'
 
 const PILLARS = [
   {
-    icon: Rocket,
-    title: '₹15L+ Prize & Grant Pool',
-    desc: 'Non-dilutive cash grants, cloud infrastructure credits, and incubation support for top student pitches.',
-  },
-  {
     icon: Users,
-    title: '3,000+ Attendees & VCs',
-    desc: 'Direct networking across student builders, active angel syndicates, and leading venture funds.',
+    title: '5K+ TOTAL FOOTFALL',
+    desc: 'Record-breaking attendance from student builders, innovators, and industry leaders.',
   },
   {
-    icon: ShieldCheck,
-    title: '7th Edition of PEC E-Summit',
-    desc: 'A decade-long legacy of nurturing high-growth technology and engineering ventures at PEC.',
+    icon: Rocket,
+    title: '50+ STARTUPS ATTENDED',
+    desc: 'Emerging ventures and deep-tech startups showcasing their products and raising capital.',
+  },
+  {
+    icon: BookOpen,
+    title: '50+ WORKSHOPS',
+    desc: 'Hands-on learning sessions on validation, pitching, finance, and emerging tech.',
+  },
+  {
+    icon: Mic,
+    title: '30+ SPEAKER SESSIONS',
+    desc: 'Insights from founders, market leaders, and VCs sharing non-textbook lessons.',
+  },
+  {
+    icon: Trophy,
+    title: '3K+ EVENT PARTICIPATION',
+    desc: 'Massive engagement in hackathons, B-quizzes, IPL auctions, and pitch competitions.',
+  },
+  {
+    icon: Network,
+    title: '1K+ ALUMNI SUPPORT',
+    desc: 'Backed by a formidable network of PEC alumni acting as mentors and angel investors.',
   },
 ]
 
@@ -69,6 +78,7 @@ function GeometricNodesCanvas() {
     let mouseY = height / 2
 
     let mouseTick = false
+    let isVisible = true
     const handleMouseMove = (e: MouseEvent) => {
       if (!mouseTick && isVisible) {
         requestAnimationFrame(() => {
@@ -84,7 +94,6 @@ function GeometricNodesCanvas() {
     }
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
 
-    let isVisible = true
     const observer = new IntersectionObserver(
       ([entry]) => {
         isVisible = entry.isIntersecting
@@ -99,16 +108,15 @@ function GeometricNodesCanvas() {
 
     const maxDistSq = 140 * 140
     const mouseRadiusSq = 180 * 180
-    const PI2 = Math.PI * 2 // Memoize Math.PI * 2
+    const PI2 = Math.PI * 2
 
     const draw = () => {
       if (!isVisible) return
 
       ctx.clearRect(0, 0, width, height)
 
-      // Batch all connection lines into 1 single stroke call
       ctx.beginPath()
-      ctx.strokeStyle = 'rgba(126, 211, 33, 0.12)'
+      ctx.strokeStyle = 'rgba(0, 242, 178, 0.12)'
       ctx.lineWidth = 1
 
       const len = nodes.length
@@ -126,9 +134,8 @@ function GeometricNodesCanvas() {
       }
       ctx.stroke()
 
-      // Batch all node circles into 1 single fill call
       ctx.beginPath()
-      ctx.fillStyle = 'rgba(126, 211, 33, 0.5)'
+      ctx.fillStyle = 'rgba(0, 242, 178, 0.5)'
 
       for (let i = 0; i < len; i++) {
         const node = nodes[i]
@@ -166,7 +173,6 @@ function GeometricNodesCanvas() {
     }
   }, [])
 
-
   return (
     <canvas
       ref={canvasRef}
@@ -177,7 +183,7 @@ function GeometricNodesCanvas() {
 
 export default function EsummitAbout() {
   const { data } = useSummitData()
-  const summitDates = data?.siteConfig?.summitDates || 'September 26–27, 2026'
+  const summitDates = data?.siteConfig?.summitDates || 'November 14–15, 2026'
   const dynamicAboutText = `PEC E-Summit is the flagship entrepreneurship summit of E-Cell Punjab Engineering College, bringing together 3,000+ student founders, seasoned venture capitalists, and technology leaders. From competitive pitching and an overnight hackathon to curated investor roundtables — it is North India's premier launchpad where ideas meet capital and build the future. Join us ${summitDates}.`
 
   const handleSpotlight = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -197,16 +203,16 @@ export default function EsummitAbout() {
       {/* Interactive geometric node canvas background */}
       <GeometricNodesCanvas />
 
-      {/* Decorative ambient green radial glow */}
+      {/* Decorative ambient mint radial glow */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full pointer-events-none z-0"
-        style={{ background: 'radial-gradient(circle, rgba(181,242,61,0.05) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(circle, rgba(0,242,178,0.06) 0%, transparent 70%)' }}
       />
 
       {/* Top section divider line */}
       <div
         className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-        style={{ background: 'linear-gradient(90deg, transparent, rgba(181,242,61,0.3) 50%, transparent)' }}
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(0,242,178,0.3) 50%, transparent)' }}
       />
 
       {/* ── Central content ── */}
@@ -215,7 +221,7 @@ export default function EsummitAbout() {
         <FadeIn delay={0.05}>
           <h2
             id="esummit-about-heading"
-            className="font-display font-black uppercase leading-none tracking-tight text-center select-none"
+            className="font-display font-black uppercase leading-none tracking-wider text-center select-none"
             style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }}
           >
             <span className="text-gradient-mint">ABOUT</span>
@@ -237,10 +243,10 @@ export default function EsummitAbout() {
           {PILLARS.map((pillar, idx) => {
             const Icon = pillar.icon
             return (
-              <FadeIn key={pillar.title} delay={0.15 + idx * 0.1}>
+              <FadeIn key={pillar.title} delay={0.15 + idx * 0.1} className="h-full">
                 <div
                   onMouseMove={handleSpotlight}
-                  className="relative group rounded-2xl p-6 sm:p-8 bg-panel transition-all duration-300 overflow-hidden shadow-xl"
+                  className="relative group rounded-2xl p-6 sm:p-8 bg-panel transition-all duration-300 overflow-hidden shadow-xl h-full"
                 >
                   {/* Mouse spotlight overlay */}
                   <div
@@ -278,7 +284,7 @@ export default function EsummitAbout() {
       {/* Bottom section divider line */}
       <div
         className="absolute bottom-0 left-0 right-0 h-px pointer-events-none"
-        style={{ background: 'linear-gradient(90deg, transparent, rgba(126,211,33,0.4) 50%, transparent)' }}
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(0,242,178,0.35) 50%, transparent)' }}
       />
     </section>
   )

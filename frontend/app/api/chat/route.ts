@@ -3,8 +3,8 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { buildSystemPrompt, buildEventContext } from '@/lib/chatbot-context'
-import { getGroqServerClient, MODEL_FAST, MODEL_MAIN } from '@/lib/groq-server'
-import type { GroqFunction, GroqMessage } from '@/lib/groq'
+import { getGeminiServerClient, MODEL_FAST, MODEL_MAIN } from '@/lib/gemini-server'
+import type { GeminiFunction, GeminiMessage } from '@/lib/gemini-client'
 import { localAnswer } from '@/lib/local-answers'
 
 export const runtime = 'nodejs'
@@ -39,16 +39,16 @@ function checkRateLimit(ip: string): boolean {
 }
 
 interface ChatRequestBody {
-  messages: GroqMessage[]
-  tools?: GroqFunction[]
+  messages: GeminiMessage[]
+  tools?: GeminiFunction[]
   maxTokens?: number
   model?: string
   mode?: 'chat' | 'summarize'
 }
 
-function isValidMessage(msg: unknown): msg is GroqMessage {
+function isValidMessage(msg: unknown): msg is GeminiMessage {
   if (!msg || typeof msg !== 'object') return false
-  const m = msg as GroqMessage
+  const m = msg as GeminiMessage
   return ['user', 'assistant', 'system', 'tool'].includes(m.role)
 }
 
@@ -83,20 +83,17 @@ export async function POST(request: NextRequest) {
   // Cap history size to prevent abuse
   const windowedMessages = messages.slice(-12)
 
-  // 1. If GROQ_API_KEY is configured on the server, use Groq Llama 3.3 / 3.1
-  const groqApiKey = process.env.GROQ_API_KEY
-
-  if (groqApiKey && groqApiKey !== 'your_groq_api_key_here' && groqApiKey.startsWith('gsk_')) {
+  // 1. Check for Gemini keys and use them for generation
+  const geminiApiKeys = process.env.GEMINI_API_KEYS
+  if (geminiApiKeys) {
     try {
-      const groq = getGroqServerClient()
+      const gemini = getGeminiServerClient()
       const eventContext = buildEventContext()
       const systemPrompt = buildSystemPrompt(eventContext)
 
-      const resolvedModel =
-        model ||
-        (mode === 'summarize' ? MODEL_FAST : MODEL_MAIN)
+      const resolvedModel = mode === 'summarize' ? MODEL_FAST : MODEL_MAIN
 
-      const result = await groq.generateContent(
+      const result = await gemini.generateContent(
         windowedMessages,
         tools,
         systemPrompt,
@@ -106,7 +103,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(result)
     } catch (error) {
-      console.warn('[api/chat] Groq upstream failed, falling back to local assistant:', error)
+      console.warn('[api/chat] Gemini upstream failed, falling back to local assistant:', error)
     }
   }
 

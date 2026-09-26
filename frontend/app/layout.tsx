@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import dynamic from 'next/dynamic'
-import { Inter, JetBrains_Mono, Kanit } from 'next/font/google'
+import localFont from 'next/font/local'
+import { Inter, Marcellus } from 'next/font/google'
 import './globals.css'
 import SmoothScrollProvider from '@/components/Providers/SmoothScrollProvider'
 import ChevronRouteTransition from '@/components/Common/ChevronRouteTransition'
@@ -11,10 +12,9 @@ import { AuthProvider } from '@/context/AuthContext'
 import ServiceWorkerCleanup from '@/components/Common/ServiceWorkerCleanup'
 import AnnouncementBanner from '@/components/Common/AnnouncementBanner'
 
-const kanit = Kanit({
-  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
-  subsets: ['latin'],
-  variable: '--font-kanit',
+const asimovian = localFont({
+  src: '../public/fonts/Asimovian-Regular.ttf',
+  variable: '--font-asimovian',
   display: 'swap',
 })
 
@@ -24,23 +24,24 @@ const inter = Inter({
   display: 'swap',
 })
 
-const jetbrains = JetBrains_Mono({
+const marcellus = Marcellus({
+  weight: '400',
   subsets: ['latin'],
-  variable: '--font-jetbrains',
+  variable: '--font-marcellus',
   display: 'swap',
 })
 
 export const viewport: Viewport = {
-  themeColor: '#07130F',
+  themeColor: '#060D0B',
 }
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://esummit.pec.ac.in'),
   manifest: '/manifest.json',
   icons: {
-    icon: '/eic-logo.png',
-    shortcut: '/eic-logo.png',
-    apple: '/eic-logo.png',
+    icon: '/esummit-mark.png',
+    shortcut: '/favicon.ico',
+    apple: '/icon-192.png',
   },
   appleWebApp: {
     capable: true,
@@ -79,7 +80,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: 'E-Cell PEC', url: 'https://esummit.pec.ac.in' }],
   openGraph: {
-    title: 'PEC E-Summit 2026 — September 26–27',
+    title: 'PEC E-Summit 2026 — November 14–15',
     description:
       'The flagship entrepreneurship summit of E-Cell PEC, Chandigarh. Pitches, panels, expo, hackathon, and VIP investor networking.',
     url: 'https://esummit.pec.ac.in',
@@ -144,7 +145,7 @@ const JSON_LD_EVENT_SCHEMA = {
     '@type': 'Organization',
     name: 'EIC - Entrepreneurship & Incubation Cell, PEC',
     url: 'https://esummit.pec.ac.in',
-    logo: 'https://esummit.pec.ac.in/eic-logo.png',
+    logo: 'https://esummit.pec.ac.in/esummit-logo.png',
   },
 }
 
@@ -164,7 +165,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`noise ${kanit.variable} ${inter.variable} ${jetbrains.variable} font-body text-primary bg-void`}
+        className={`noise ${asimovian.variable} ${inter.variable} ${marcellus.variable} font-body text-primary bg-void`}
         suppressHydrationWarning
       >
         <ServiceWorkerCleanup />

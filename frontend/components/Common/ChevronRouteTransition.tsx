@@ -123,9 +123,14 @@ export default function ChevronRouteTransition({ children }: { children: React.R
           window.history.pushState(null, '', window.location.pathname)
         } else if (customEvt.detail?.targetId) {
           const id = customEvt.detail.targetId
-          if (!scrollToTarget(id)) {
-            setTimeout(() => scrollToTarget(id), 100)
+          let retries = 0
+          const tryScroll = () => {
+            if (!scrollToTarget(id) && retries < 30) {
+              retries++
+              setTimeout(tryScroll, 100)
+            }
           }
+          tryScroll()
           window.history.pushState(null, '', `#${id}`)
         }
         setPhase('exit')
@@ -161,11 +166,11 @@ export default function ChevronRouteTransition({ children }: { children: React.R
             style={{
               willChange: 'transform',
               background: `linear-gradient(to bottom, 
-                #B8F068 0%, #B8F068 20%, 
-                #7ED321 20%, #7ED321 40%, 
-                #1A4D32 40%, #1A4D32 60%, 
-                #0F3022 60%, #0F3022 80%, 
-                #07130F 80%, #07130F 100%
+                #00F5D4 0%, #00F5D4 20%, 
+                #00DFBA 20%, #00DFBA 40%, 
+                #0D4A42 40%, #0D4A42 60%, 
+                #0A2A26 60%, #0A2A26 80%, 
+                #060D0B 80%, #060D0B 100%
               )`,
             }}
           />

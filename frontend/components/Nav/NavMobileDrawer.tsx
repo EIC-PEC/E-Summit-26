@@ -2,7 +2,8 @@
 
 import React, { useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Zap, ArrowUpRight } from 'lucide-react'
+import { X, ArrowUpRight } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { FEST_META } from '@/lib/data'
 
@@ -85,7 +86,7 @@ export default function NavMobileDrawer({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-            className="fixed top-0 right-0 bottom-0 w-full lg:w-[380px] z-[11001] bg-mint text-void shadow-[0_0_60px_rgba(0,229,153,0.4)] flex flex-col justify-between p-6 sm:p-8 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto border-l-4 border-void"
+            className="fixed top-0 right-0 bottom-0 w-full lg:w-[380px] z-[11001] bg-mint text-void shadow-[0_0_60px_rgba(0,245,212,0.4)] flex flex-col justify-between p-6 sm:p-8 pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] overflow-y-auto border-l-4 border-void"
             role="dialog"
             aria-modal="true"
             aria-label="Navigation Menu Drawer"
@@ -93,8 +94,16 @@ export default function NavMobileDrawer({
             {/* Drawer Top Header */}
             <div>
               <div className="flex items-center justify-between pb-5 border-b-2 border-void/20 mb-8">
-                <div className="flex items-center gap-2">
-                  <Zap size={22} className="text-void fill-void" />
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-void flex items-center justify-center p-1 shadow-inner">
+                    <Image
+                      src="/esummit-mark.png"
+                      alt="PEC E-Summit Emblem"
+                      width={28}
+                      height={28}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                   <span className="font-mono-data text-xs font-black uppercase tracking-[0.25em] text-void">
                     E-SUMMIT &apos;26
                   </span>

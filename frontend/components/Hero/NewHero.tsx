@@ -55,20 +55,36 @@ export default function NewHero() {
             priority
             fetchPriority="high"
             className="object-cover"
+            style={{ filter: 'saturate(0.9) contrast(1.04)' }}
           />
         </div>
 
         <canvas
           ref={canvasRef}
           className="absolute inset-0 z-0 h-full w-full"
-          style={{ transform: 'translate3d(0,0,0)', touchAction: 'pan-y' }}
+          style={{
+            transform: 'translate3d(0,0,0)',
+            touchAction: 'pan-y',
+            filter: 'saturate(0.9) contrast(1.04)',
+          }}
         />
 
-        {/* Scrim Overlay */}
+        {/* Subtle Seafoam Mint color grading overlay */}
         <div
-          className="z-1 pointer-events-none absolute inset-0"
+          className="pointer-events-none absolute inset-0 z-1"
           style={{
-            background: 'radial-gradient(ellipse at center, rgba(7,11,8,0.45) 0%, rgba(7,11,8,0.88) 100%)',
+            background:
+              'linear-gradient(135deg, rgba(0, 242, 178, 0.12) 0%, rgba(6, 13, 11, 0.35) 50%, rgba(0, 220, 159, 0.10) 100%)',
+            mixBlendMode: 'color',
+          }}
+        />
+
+        {/* Ambient Brand Aura & Obsidian Scrim — balanced center contrast */}
+        <div
+          className="pointer-events-none absolute inset-0 z-1"
+          style={{
+            background:
+              'radial-gradient(ellipse at 50% 45%, rgba(0, 242, 178, 0.07) 0%, rgba(6, 13, 11, 0.52) 55%, rgba(6, 13, 11, 0.94) 100%)',
           }}
         />
 

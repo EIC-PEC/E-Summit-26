@@ -1,164 +1,135 @@
 'use client'
 
 import React from 'react'
-import Image from 'next/image'
-import { motion } from 'framer-motion'
-
 import Link from 'next/link'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Sparkles, Building2, Handshake, Download } from 'lucide-react'
 
-interface SponsorDisplayItem {
-  name: string
-  logoUrl: string
-  url: string
-  invert?: boolean
-  tier?: string
-}
-
-// ── Authentic Brochure Partners & Previous Sponsors ─────────────────────────
-const BORDERLESS_SPONSORS: SponsorDisplayItem[] = [
-  { name: 'Finvasia', logoUrl: 'https://cdn.simpleicons.org/f-secure/white', url: '#' },
-  { name: 'SBI', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/cc/SBI-Logo.svg', url: '#' },
-  { name: 'Fireside Ventures', logoUrl: 'https://cdn.simpleicons.org/firefoxbrowser/white', url: '#' },
-  { name: 'Amar Ujala', logoUrl: 'https://cdn.simpleicons.org/newsblur/white', url: '#' },
-  { name: 'CII', logoUrl: 'https://cdn.simpleicons.org/civic/white', url: '#' },
-  { name: 'uTrade', logoUrl: 'https://cdn.simpleicons.org/trademarked/white', url: '#' },
-  { name: 'Monster Energy', logoUrl: 'https://cdn.simpleicons.org/monster/white', url: '#' },
-  { name: 'Vivo', logoUrl: 'https://cdn.simpleicons.org/vivo/white', url: '#' },
-  { name: 'Chiratae Ventures', logoUrl: 'https://cdn.simpleicons.org/chartdotjs/white', url: '#' },
-  { name: 'Shree Ganesh', logoUrl: 'https://cdn.simpleicons.org/googlehangouts/white', url: '#' },
-  { name: 'Shoutlo', logoUrl: 'https://cdn.simpleicons.org/speakerdeck/white', url: '#' },
-  { name: 'Young Indians (Yi)', logoUrl: 'https://cdn.simpleicons.org/youtubekids/white', url: '#' },
-  { name: 'Dainik Bhaskar', logoUrl: 'https://cdn.simpleicons.org/dailymotion/white', url: '#' },
-  { name: 'CityWoofer', logoUrl: 'https://cdn.simpleicons.org/woocommerce/white', url: '#' },
-  { name: 'Venture Wolf', logoUrl: 'https://cdn.simpleicons.org/wolfram/white', url: '#' },
-  { name: "Victoria's Cafe", logoUrl: 'https://cdn.simpleicons.org/vlcmediaplayer/white', url: '#' },
-  { name: 'JAL', logoUrl: 'https://cdn.simpleicons.org/japanairlines/white', url: '#' },
-  { name: 'CITCO', logoUrl: 'https://cdn.simpleicons.org/cisco/white', url: '#' },
-  { name: 'Smaaash', logoUrl: 'https://cdn.simpleicons.org/smashdotgg/white', url: '#' },
-  { name: 'Decathlon Play', logoUrl: 'https://cdn.simpleicons.org/decathlon/white', url: '#' },
-  { name: 'Shoonya', logoUrl: 'https://cdn.simpleicons.org/shazam/white', url: '#' },
-  { name: 'Rebel Foods', logoUrl: 'https://cdn.simpleicons.org/foodpanda/white', url: '#' },
-]
-
-import { useSponsors } from '@/hooks/useSummitData'
-import type { CmsSponsor } from '@/lib/api-types'
+import PageBanner from '@/components/Common/PageBanner'
 
 export default function Sponsors() {
-  const { sponsors: cmsSponsors } = useSponsors()
-
-  // Use CMS sponsors if available with logo URLs, otherwise fallback to curated static list
-  const sponsorList: SponsorDisplayItem[] = React.useMemo(() => {
-    if (Array.isArray(cmsSponsors) && cmsSponsors.length > 0) {
-      const validCms = cmsSponsors.filter((s: CmsSponsor) => s.logoUrl)
-      if (validCms.length > 0) {
-        return validCms.map((s: CmsSponsor) => ({
-          name: s.name,
-          logoUrl: s.logoUrl!,
-          url: s.websiteUrl || '#',
-          invert: false,
-          tier: s.tier,
-        }))
-      }
-    }
-    return BORDERLESS_SPONSORS
-  }, [cmsSponsors])
-
-  const strategic = sponsorList.filter(s => ['Google Cloud', 'AWS', 'Sequoia'].includes(s.name) || ('tier' in s && s.tier === 'title'))
-  const ecosystem = sponsorList.filter(s => !strategic.includes(s))
-
   return (
-    <section
-      id="sponsors"
-      className="relative bg-section-1 text-white py-24 sm:py-32 px-4 sm:px-6 md:px-12 overflow-hidden rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 md:-mt-14 z-10 border-t border-white/10"
-      aria-labelledby="sponsors-heading"
-    >
-      <div className="max-w-6xl mx-auto relative z-10">
-        {/* Headline */}
-        <div className="text-center mb-20">
-          <h2
-            id="sponsors-heading"
-            className="font-display font-black uppercase tracking-tight text-center leading-none select-none"
-            style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }}
+    <>
+      <PageBanner 
+        title="SPONSORS" 
+        subtitle="POWERED BY GLOBAL TECH & VENTURE INSTITUTIONS"
+      />
+      <section
+        id="sponsors"
+        className="relative bg-section-1 text-white pt-12 pb-20 sm:pb-24 px-4 sm:px-6 md:px-12 overflow-hidden z-10 scroll-mt-20 sm:scroll-mt-24"
+        aria-labelledby="sponsors-heading"
+      >
+        <div className="max-w-3xl mx-auto relative z-10">
+
+        {/* Coming Soon Glassmorphic Showcase */}
+        <div
+          className="relative rounded-3xl bg-[#071711]/90 border border-mint/20 p-6 sm:p-8 md:p-10 text-center shadow-2xl overflow-hidden backdrop-blur-xl"
+        >
+          {/* Subtle Ambient Glow */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-40 bg-mint/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Status Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-mint/10 border border-mint/30 text-mint font-mono-data text-[10px] font-bold uppercase tracking-wider mb-4 shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-mint opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-mint" />
+            </span>
+            <span>Partnership Directory</span>
+          </div>
+
+          {/* Main Title */}
+          <h3
+            className="font-display font-black uppercase tracking-wider text-white mb-3 leading-tight"
+            style={{ fontSize: 'clamp(1.5rem, 3.2vw, 2.25rem)' }}
           >
-            <span className="text-gradient-mint">SPONSORS</span>
-          </h2>
-          <p className="font-mono-data text-xs sm:text-sm text-gray-400 uppercase tracking-[0.25em] mt-4">
-            POWERED BY GLOBAL TECH &amp; VENTURE INSTITUTIONS
-          </p>
-        </div>
+            COMING SOON
+          </h3>
 
-        {/* United Apple-Style Mesh Grid (Zero Gap) */}
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] gap-[1px] bg-white/10 border border-white/10 rounded-3xl overflow-hidden max-w-5xl mx-auto shadow-2xl">
-          
-          {/* Strategic Partners (Top Row - Prominent) */}
-          {strategic.map((sponsor, idx) => (
-            <motion.a
-              key={sponsor.name}
-              href={sponsor.url}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.05 }}
-              className="col-span-1 sm:col-span-2 flex items-center justify-center p-10 sm:p-14 bg-[#091a12] hover:bg-[#0e271c] transition-colors duration-300 relative group"
-            >
-              <Image
-                src={sponsor.logoUrl}
-                alt={sponsor.name}
-                width={150}
-                height={44}
-                sizes="(max-width: 640px) 120px, 150px"
-                style={{ width: 'auto', height: 'auto' }}
-                unoptimized={true}
-                className={`h-9 sm:h-11 w-auto max-w-[150px] object-contain transition-all duration-300 group-hover:scale-105 ${
-                  sponsor.invert ? 'brightness-0 invert' : ''
-                }`}
-              />
-            </motion.a>
-          ))}
-
-          {/* Ecosystem Partners (Secondary Rows) */}
-          {ecosystem.map((sponsor, idx) => (
-            <motion.a
-              key={sponsor.name}
-              href={sponsor.url}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: idx * 0.04 }}
-              className="col-span-1 sm:col-span-2 last:col-span-2 sm:last:col-span-2 flex items-center justify-center p-8 sm:p-10 bg-section-1 hover:bg-[#0b2015] transition-colors duration-300 relative group"
-            >
-              <Image
-                src={sponsor.logoUrl}
-                alt={sponsor.name}
-                width={110}
-                height={28}
-                sizes="(max-width: 640px) 90px, 110px"
-                style={{ width: 'auto', height: 'auto' }}
-                unoptimized={true}
-                className={`h-6 sm:h-7 w-auto max-w-[110px] object-contain opacity-70 group-hover:opacity-100 transition-all duration-300 group-hover:scale-105 ${
-                  sponsor.invert ? 'brightness-0 invert' : ''
-                }`}
-              />
-            </motion.a>
-          ))}
-
-        </div>
-
-        {/* ── Minimalist Partner CTA Link ──────────────────────────────────── */}
-        <div className="mt-20 sm:mt-24 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          <p className="font-mono-data text-xs text-gray-400">
-            Interested in partnering with E-Summit 2026?
+          {/* Description */}
+          <p className="text-xs sm:text-[13px] text-gray-300 font-body max-w-lg mx-auto leading-relaxed mb-6">
+            We are finalizing strategic alliances with global tech enterprises, venture capital institutions, and ecosystem enablers. The official 2026 partner directory will be unveiled shortly.
           </p>
 
-          <Link
-            href="/sponsors"
-            className="inline-flex items-center gap-1.5 font-mono-data text-xs font-bold uppercase tracking-widest text-mint hover:text-white transition-colors"
-          >
-            Become a Partner <ArrowUpRight size={14} />
-          </Link>
+          {/* Highlights / Badges */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 max-w-xl mx-auto mb-7">
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
+              <div className="flex items-center justify-center gap-1.5 text-mint mb-0.5">
+                <Handshake size={14} />
+                <span className="font-mono-data text-[11px] font-bold uppercase tracking-wider">Tier-1 Partners</span>
+              </div>
+              <p className="text-[10px] text-gray-400 font-body">Global Tech &amp; Cloud Giants</p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
+              <div className="flex items-center justify-center gap-1.5 text-mint mb-0.5">
+                <Building2 size={14} />
+                <span className="font-mono-data text-[11px] font-bold uppercase tracking-wider">Venture Funds</span>
+              </div>
+              <p className="text-[10px] text-gray-400 font-body">Leading Seed &amp; Series A VCs</p>
+            </div>
+
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center">
+              <div className="flex items-center justify-center gap-1.5 text-mint mb-0.5">
+                <Sparkles size={14} />
+                <span className="font-mono-data text-[11px] font-bold uppercase tracking-wider">10,000+ Reach</span>
+              </div>
+              <p className="text-[10px] text-gray-400 font-body">Nationwide Delegation</p>
+            </div>
+          </div>
+
+          {/* Call to Action */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              href="/sponsors"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#00F2B2] text-[#06110D] font-mono-data text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-black transition-all shadow-[0_0_20px_rgba(0,242,178,0.25)] hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <span>Partner With Us</span>
+              <ArrowUpRight size={14} strokeWidth={2.5} />
+            </Link>
+
+            <a
+              href="/e-summit-brochure.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-mono-data text-xs font-bold uppercase tracking-wider border border-white/20 transition-all hover:border-[#00F2B2] cursor-pointer"
+            >
+              <Download size={14} strokeWidth={2.5} />
+              <span>Download Brochure</span>
+            </a>
+          </div>
+        </div>
+
+        {/* Sponsorship Roles from Brochure */}
+        <div className="mt-16 sm:mt-24 relative z-10">
+          <div className="text-center mb-10">
+            <h3 className="font-display font-black uppercase tracking-wider text-white mb-2" style={{ fontSize: 'clamp(1.25rem, 2.5vw, 1.75rem)' }}>
+              SPONSORSHIP <span className="text-gradient-mint">ROLES</span>
+            </h3>
+            <p className="font-mono-data text-[11px] text-gray-400 uppercase tracking-widest">
+              Partnerships shaped around your objectives
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+            {[
+              { role: 'PRESENTING PARTNER', desc: 'Summit-wide association and highest-visibility integration.' },
+              { role: 'PROGRAMME PARTNER', desc: 'Own a defined property such as capital, talent or workshops.' },
+              { role: 'ECOSYSTEM PARTNER', desc: 'Participate through networks, expertise, mentoring or venture access.' },
+              { role: 'EXPERIENCE PARTNER', desc: 'Create a useful product, culture or attendee experience.' },
+              { role: 'MEDIA PARTNER', desc: 'Extend stories and visibility before, during and after the summit.' },
+            ].map((item, idx) => (
+              <div key={idx} className="p-5 sm:p-6 rounded-2xl bg-[#07130F] border border-white/5 hover:border-mint/30 transition-all flex flex-col justify-center">
+                <h4 className="font-mono-data text-xs font-bold text-mint uppercase tracking-wider mb-2">
+                  {item.role}
+                </h4>
+                <p className="text-sm text-gray-300 font-body leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
+    </>
   )
 }

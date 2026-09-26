@@ -123,12 +123,12 @@ const SOCIAL_LINKS = [
 
 const QUICK_LINKS = [
   { label: 'Home', href: '/' },
-  { label: 'About', href: '#about' },
-  { label: 'Tracks', href: '#tracks' },
-  { label: 'Speakers', href: '#speakers' },
-  { label: 'Schedule', href: '#schedule' },
-  { label: 'Sponsors', href: '#sponsors' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'About', href: '/#about' },
+  { label: 'Tracks', href: '/events' },
+  { label: 'Speakers', href: '/speakers' },
+  { label: 'Schedule', href: '/timeline' },
+  { label: 'Sponsors', href: '/sponsors' },
+  { label: 'FAQ', href: '/faq' },
   { label: 'Register', href: '/register' },
 ]
 
@@ -136,67 +136,18 @@ export function RegisterCTA() {
   return (
     <div
       id="register"
-      className="relative z-10 -mt-10 overflow-hidden rounded-t-[40px] bg-section-2 text-white sm:-mt-12 sm:rounded-t-[50px] md:rounded-t-[60px] border-t border-[#7ED321]/20 pt-28 pb-44 sm:pt-36 sm:pb-56 md:pb-64"
+      className="relative z-10 -mt-10 overflow-hidden rounded-t-[40px] bg-section-2 text-white sm:-mt-12 sm:rounded-t-[50px] md:rounded-t-[60px] border-t border-[#00F5D4]/20 pt-28 pb-44 sm:pt-36 sm:pb-56 md:pb-64"
       aria-labelledby="footer-cta-heading"
     >
-      {/* Pure lime radial wash — no off-brand purple */}
+      {/* Pure teal radial wash */}
       <div
         className="pointer-events-none absolute inset-0 z-0 opacity-30"
         style={{
           background:
-            'radial-gradient(circle at 50% 50%, rgba(181, 242, 61, 0.10) 0%, transparent 65%)',
+            'radial-gradient(circle at 50% 50%, rgba(0, 245, 212, 0.10) 0%, transparent 65%)',
         }}
       />
 
-      {/* ── Left 3D Perspective Delegate Card (Minimal Emerald) ───────────── */}
-      <motion.div
-        initial={{ opacity: 0, x: -180, rotateY: 36, rotateX: 10, rotateZ: -6, scale: 0.85 }}
-        whileInView={{ opacity: 1, x: 0, rotateY: 24, rotateX: 6, rotateZ: -3, scale: 1 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-        className="pointer-events-none absolute -left-12 2xl:left-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col justify-between w-[360px] h-[220px] rounded-[24px] border border-emerald-500/20 bg-gradient-to-br from-[#0a2016]/95 to-[#030a07]/95 p-6 shadow-2xl z-0 will-change-transform"
-        style={{
-          transformStyle: 'preserve-3d',
-          boxShadow: '0 30px 60px -12px rgba(16, 185, 129, 0.15), inset 0 1px 1px rgba(255,255,255,0.1)',
-        }}
-      >
-        <div className="flex items-center justify-between">
-          <span className="font-display text-sm font-bold tracking-wider text-emerald-200">E-SUMMIT &apos;26</span>
-          <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-bold text-emerald-300 tracking-wide uppercase">
-            All-Access
-          </span>
-        </div>
-        <div>
-          <span className="text-xs uppercase tracking-widest text-emerald-400/60 block mb-1">Founder Pass</span>
-          <span className="text-2xl font-display font-black text-white tracking-tight">VIP DELEGATE</span>
-          <span className="text-xs text-emerald-200/50 block mt-1">PEC Chandigarh • Sept 26–27</span>
-        </div>
-      </motion.div>
-
-      {/* ── Right 3D Perspective Attendee Card (Minimal Lime) ───────────── */}
-      <motion.div
-        initial={{ opacity: 0, x: 180, rotateY: -36, rotateX: 10, rotateZ: 6, scale: 0.85 }}
-        whileInView={{ opacity: 1, x: 0, rotateY: -24, rotateX: 6, rotateZ: 3, scale: 1 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-        className="pointer-events-none absolute -right-12 2xl:right-6 top-1/2 -translate-y-1/2 hidden xl:flex flex-col justify-between w-[360px] h-[220px] rounded-[24px] border border-[#B5F23D]/20 bg-gradient-to-bl from-[#1c280b]/95 to-[#080d03]/95 p-6 shadow-2xl z-0 will-change-transform"
-        style={{
-          transformStyle: 'preserve-3d',
-          boxShadow: '0 30px 60px -12px rgba(181, 242, 61, 0.15), inset 0 1px 1px rgba(255,255,255,0.1)',
-        }}
-      >
-        <div className="flex items-center justify-between">
-          <span className="font-display text-sm font-bold tracking-wider text-[#B5F23D]/80">E-SUMMIT &apos;26</span>
-          <span className="px-3 py-1 rounded-full bg-[#B5F23D]/10 border border-[#B5F23D]/20 text-[10px] font-bold text-[#B5F23D] tracking-wide uppercase">
-            Standard
-          </span>
-        </div>
-        <div>
-          <span className="text-xs uppercase tracking-widest text-[#B5F23D]/60 block mb-1">General Access</span>
-          <span className="text-2xl font-display font-black text-white tracking-tight">ATTENDEE PASS</span>
-          <span className="text-xs text-[#B5F23D]/50 block mt-1">Full 2-Day Event Access</span>
-        </div>
-      </motion.div>
 
 
       {/* ── Center Content Block ──────────────────────────────────────────────── */}
@@ -275,8 +226,15 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
       {!hideCTA && <RegisterCTA />}
 
       {/* Corporate EIC / PEC Footer */}
-      <div className="border-mint/20 relative z-10 border-t bg-section-2 py-12 text-white shadow-inner">
-        <div className="section-container">
+      <div 
+        className="border-mint/20 relative z-10 border-t py-12 text-white shadow-inner overflow-hidden"
+        style={{
+          backgroundColor: '#071511',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='105' viewBox='0 0 80 105'%3E%3Cg fill-rule='evenodd'%3E%3Cg id='death-star' fill='%2300F2B2' fill-opacity='0.06'%3E%3Cpath d='M20 10a5 5 0 0 1 10 0v50a5 5 0 0 1-10 0V10zm15 35a5 5 0 0 1 10 0v50a5 5 0 0 1-10 0V45zM20 75a5 5 0 0 1 10 0v20a5 5 0 0 1-10 0V75zm30-65a5 5 0 0 1 10 0v50a5 5 0 0 1-10 0V10zm0 65a5 5 0 0 1 10 0v20a5 5 0 0 1-10 0V75zM35 10a5 5 0 0 1 10 0v20a5 5 0 0 1-10 0V10zM5 45a5 5 0 0 1 10 0v50a5 5 0 0 1-10 0V45zm0-35a5 5 0 0 1 10 0v20a5 5 0 0 1-10 0V10zm60 35a5 5 0 0 1 10 0v50a5 5 0 0 1-10 0V45zm0-35a5 5 0 0 1 10 0v20a5 5 0 0 1-10 0V10z' /%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#071511]/30 via-transparent to-[#071511]/60" />
+        <div className="section-container relative z-10">
           {/* Top Social Bar */}
           <div className="border-mint/20 mb-10 flex flex-col items-center justify-between gap-4 border-b pb-8 sm:flex-row">
             <p className="font-body text-base font-medium text-gray-200">
@@ -305,23 +263,35 @@ export default function Footer({ hideCTA = false }: { hideCTA?: boolean }) {
           <div className="grid grid-cols-1 gap-12 md:grid-cols-4 lg:gap-16">
             {/* Column 1 & 2: Branding and Description */}
             <div className="md:col-span-2">
-              <div className="mb-6 flex items-center gap-6">
-                <Image
-                  src="/pec-logo.png"
-                  alt="Punjab Engineering College Logo"
-                  width={120}
-                  height={80}
-                  style={{ width: 'auto', height: 'auto' }}
-                  className="brightness-120 object-contain drop-shadow-md"
-                />
-                <Image
-                  src="/eic-logo.png"
-                  alt="EIC Logo"
-                  width={90}
-                  height={90}
-                  style={{ width: 'auto', height: 'auto' }}
-                  className="brightness-120 object-contain drop-shadow-md"
-                />
+              <div className="mb-6 flex flex-col gap-4">
+                <Link href="/" className="inline-block" aria-label="PEC E-Summit '26 — Home">
+                  <Image
+                    src="/esummit-logo.png"
+                    alt="PEC E-Summit '26 - Legacies Beyond Time"
+                    width={240}
+                    height={75}
+                    className="h-12 sm:h-14 w-auto object-contain drop-shadow-[0_0_20px_rgba(0,245,212,0.25)] hover:scale-[1.02] transition-transform"
+                  />
+                </Link>
+                <div className="flex items-center gap-5 pt-1">
+                  <Image
+                    src="/pec-logo.png"
+                    alt="Punjab Engineering College Logo"
+                    width={110}
+                    height={70}
+                    style={{ width: 'auto', height: 'auto' }}
+                    className="brightness-120 object-contain drop-shadow-md opacity-85 hover:opacity-100 transition-opacity"
+                  />
+                  <div className="h-6 w-px bg-white/15" />
+                  <Image
+                    src="/eic-logo.png"
+                    alt="EIC Logo"
+                    width={80}
+                    height={80}
+                    style={{ width: 'auto', height: 'auto' }}
+                    className="brightness-120 object-contain drop-shadow-md opacity-85 hover:opacity-100 transition-opacity"
+                  />
+                </div>
               </div>
               <p className="max-w-md font-body text-sm leading-relaxed text-gray-300">
                 Entrepreneurship and Incubation Cell at PEC operates under the Ministry of

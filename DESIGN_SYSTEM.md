@@ -12,21 +12,22 @@ The design system is built on CSS custom properties defined in `app/globals.css`
 
 | Token | CSS Variable | Value | Usage |
 |---|---|---|---|
-| Void | `--bg-void` | `#060B08` | Primary page background |
-| Panel | `--bg-panel` | `#0B150E` | Card and panel backgrounds |
-| Panel Alt | `--bg-panel-alt` | `#0F1A12` | Elevated surface backgrounds |
-| Accent Mint | `--accent-mint` | `#7ED321` | Brand primary, CTAs, highlights |
-| Accent Green | `--accent-green` | `#4CAF50` | Secondary accent |
-| Accent Blue | `--accent-blue` | `#3DD9FF` | Info, cool contrast accent |
-| Accent Coral | `--accent-coral` | `#FF4D3D` | Warm accent, pitch track color |
-| Mint Glow | `--accent-green-dim` | `rgba(126,211,33,0.3)` | Radial glow, shadow effects |
-| Gold | — | `#FFD700` | Navbar PASSES button only |
-| Text Primary | `--text-primary` | `#F5F5F0` | Body text |
+| Void | `--bg-void` | `#060D0B` | Deep obsidian teal page canvas |
+| Deep | `--bg-deep` | `#081310` | Recessed backgrounds |
+| Panel | `--bg-panel` | `#0D1C18` | Card and panel backgrounds |
+| Panel Alt | `--bg-panel-alt` | `#12241F` | Elevated surface backgrounds |
+| Cyber Teal (Mint) | `--accent-mint` | `#00F5D4` | Official brand primary, CTAs, electric highlights |
+| Emerald Aqua | `--accent-green` | `#00DFBA` | Secondary neon accent |
+| Accent Blue | `--accent-blue` | `#3DD9FF` | Cool contrast accent |
+| Accent Coral | `--accent-coral` | `#FF4D3D` | Pitch competition warm accent |
+| Teal Glow | `--accent-green-dim` | `rgba(0, 245, 212, 0.15)` | Radial glow, shadow effects |
+| Gold | — | `#FFD700` | Highlight accents |
+| Text Primary | `--text-primary` | `#FFFFFF` | Body text |
 | Text Secondary | `--text-secondary` | `#94A3B8` | Subtitles, secondary labels |
 | Text Muted | `--text-muted` | `#64748B` | Captions, placeholders |
-| Border Subtle | `--border-subtle` | `rgba(255,255,255,0.08)` | Default card borders |
-| Border Panel | `--border-panel` | `rgba(255,255,255,0.12)` | Panel dividers |
-| Border Glow | `--border-glow` | `rgba(126,211,33,0.3)` | Active / hover borders |
+| Border Subtle | `--border-subtle` | `rgba(255, 255, 255, 0.10)` | Default card borders |
+| Border Panel | `--border-panel` | `rgba(255, 255, 255, 0.15)` | Panel dividers |
+| Border Glow | `--border-glow` | `rgba(0, 245, 212, 0.3)` | Active / hover borders |
 
 ### Light / Olive Mode
 
@@ -61,7 +62,7 @@ Three font families are configured. All are loaded in `app/layout.tsx` and expos
 
 | Type | Tailwind Classes | Usage |
 |---|---|---|
-| Primary CTA | `bg-mint text-void font-bold shadow-[0_0_25px_rgba(126,211,33,0.4)]` | Hero register, pitch CTA, main actions |
+| Primary CTA | `bg-mint text-void font-bold shadow-[0_0_25px_rgba(0,245,212,0.4)]` | Hero register, pitch CTA, main actions |
 | Passes (Nav) | `bg-[#FFD700] text-black font-black` | Navbar PASSES button only |
 | Secondary | `bg-panel text-primary border border-border-subtle` | Explore Tracks, secondary actions |
 | Ghost Outline | `border border-mint text-mint hover:bg-mint/10` | Card triggers, drawer opens |
@@ -103,6 +104,6 @@ Each event track has an assigned accent color used for card borders and icon tin
 |---|---|
 | Pitch Competition | `#FF4D3D` |
 | Panel Discussions | `#3DD9FF` |
-| Startup Expo | `#7ED321` |
+| Startup Expo | `#00F5D4` |
 | Hackathon | `#A855F7` |
 | Investor Networking | `#F59E0B` |

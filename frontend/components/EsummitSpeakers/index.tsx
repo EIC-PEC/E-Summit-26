@@ -3,6 +3,7 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react'
 import { useScroll, useMotionValueEvent } from 'framer-motion'
 import dynamic from 'next/dynamic'
+import { Calendar, MapPin } from 'lucide-react'
 import { useSchedule, useSummitData } from '@/hooks/useSummitData'
 import { CARDS, DayCard } from './types'
 import HighlightCard from './HighlightCard'
@@ -20,6 +21,7 @@ export default function EsummitHighlights() {
   const containerRef = useRef<HTMLDivElement>(null)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [activeDayIndex, setActiveDayIndex] = useState(0)
+  const [mobileView, setMobileView] = useState<'schedule' | 'map'>('schedule')
   const [isNearViewport, setIsNearViewport] = useState(false)
 
   // Only mount Leaflet and download map tiles when timeline is within 600px of viewport
@@ -41,7 +43,7 @@ export default function EsummitHighlights() {
 
   const { scheduleItems } = useSchedule()
   const { data: summitBundle } = useSummitData()
-  const globalDates = summitBundle?.siteConfig?.summitDates || 'SEPTEMBER 26–27, 2026'
+  const globalDates = summitBundle?.siteConfig?.summitDates || 'NOVEMBER 14–15, 2026'
 
   // Transform CMS schedule items into DayCard format
   const cmsCards: DayCard[] = useMemo(() => {
@@ -87,10 +89,12 @@ export default function EsummitHighlights() {
   })
 
   useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    if (latest < 0.5) {
-      if (activeDayIndex !== 0) setActiveDayIndex(0)
-    } else {
-      if (activeDayIndex !== 1) setActiveDayIndex(1)
+    if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+      if (latest < 0.5) {
+        if (activeDayIndex !== 0) setActiveDayIndex(0)
+      } else {
+        if (activeDayIndex !== 1) setActiveDayIndex(1)
+      }
     }
   })
 
@@ -109,25 +113,90 @@ export default function EsummitHighlights() {
     setSelectedEventId((prev) => (prev === id ? null : id))
   }, [])
 
+  const handleLocateOnMap = useCallback((id: string) => {
+    setSelectedEventId(id)
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setMobileView('map')
+    }
+  }, [])
+
   return (
     <section
       id="timeline"
       ref={containerRef}
-      className="esummit-section rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 md:-mt-14 z-10 relative px-5 sm:px-8 md:px-10 py-20 sm:py-24 md:py-32 bg-section-1 text-white"
+      className="esummit-section z-10 relative px-4 sm:px-8 md:px-10 pt-28 sm:pt-36 md:pt-44 pb-14 sm:pb-18 md:pb-20 bg-section-1 text-white"
       aria-labelledby="timeline-heading"
     >
+      {/* Title */}
       <h2
         id="timeline-heading"
-        className="font-display font-black uppercase leading-none tracking-tight text-center mb-12 sm:mb-20 md:mb-24 select-none"
-        style={{ fontSize: 'clamp(2rem, 6vw, 4.5rem)' }}
+        className="font-display font-black uppercase leading-none tracking-wider text-center mb-6 sm:mb-8 select-none"
+        style={{ fontSize: 'clamp(1.75rem, 5vw, 3.5rem)' }}
       >
         <span className="text-gradient-mint">TIMELINE</span>
       </h2>
 
+      {/* Day Selector Pills */}
+      <div className="flex items-center justify-center gap-2 mb-5 sm:mb-7">
+        {cards.map((c, idx) => (
+          <button
+            key={c.num}
+            onClick={() => {
+              setActiveDayIndex(idx)
+              if (typeof window !== 'undefined' && window.innerWidth >= 1024) {
+                const cardEl = document.getElementById(`timeline-day-${idx}`)
+                if (cardEl) {
+                  cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                }
+              }
+            }}
+            className={`px-4 sm:px-5 py-2 rounded-full font-mono-data text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              activeDayIndex === idx
+                ? 'bg-[#00F2B2] text-void font-black shadow-lg shadow-[#00F2B2]/25 scale-[1.02]'
+                : 'bg-white/5 text-gray-400 border border-white/10 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            {c.day} • {c.date.split('(')[0].trim()}
+          </button>
+        ))}
+      </div>
+
+      {/* Mobile Segmented Toggle (Schedule vs Campus Map) */}
+      <div className="lg:hidden flex items-center justify-center mb-6">
+        <div className="flex bg-[#0A1612] p-1 rounded-full border border-white/10 shadow-lg">
+          <button
+            onClick={() => setMobileView('schedule')}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full font-mono-data text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              mobileView === 'schedule'
+                ? 'bg-white/15 text-white border border-[#00F2B2]/40 shadow-[0_0_15px_rgba(0,242,178,0.2)]'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <Calendar size={12} className={mobileView === 'schedule' ? 'text-[#00F2B2]' : ''} />
+            <span>Schedule</span>
+          </button>
+          <button
+            onClick={() => setMobileView('map')}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full font-mono-data text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              mobileView === 'map'
+                ? 'bg-white/15 text-white border border-[#00F2B2]/40 shadow-[0_0_15px_rgba(0,242,178,0.2)]'
+                : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            <MapPin size={12} className={mobileView === 'map' ? 'text-[#00F2B2]' : ''} />
+            <span>Campus Map</span>
+          </button>
+        </div>
+      </div>
+
       {/* 2-Column Responsive Layout */}
-      <div className="relative flex flex-col lg:flex-row gap-8 items-start min-h-[150vh]">
+      <div className="relative flex flex-col lg:flex-row gap-6 sm:gap-8 items-start min-h-[auto] lg:min-h-[140vh]">
         {/* Left Column: Leaflet Map */}
-        <div className="w-full lg:w-1/2 h-[320px] sm:h-[420px] lg:h-[80vh] relative lg:sticky lg:top-28 z-30 overflow-hidden rounded-[28px] sm:rounded-[32px]">
+        <div
+          className={`w-full lg:w-1/2 h-[380px] sm:h-[440px] lg:h-[min(560px,calc(100dvh-7rem))] relative lg:sticky lg:top-24 z-30 overflow-hidden rounded-[24px] sm:rounded-[28px] border border-white/10 shadow-2xl ${
+            mobileView === 'map' ? 'block' : 'hidden lg:block'
+          }`}
+        >
           {isNearViewport ? (
             <HighlightsCampusMap
               selectedEvent={selectedEvent}
@@ -143,18 +212,41 @@ export default function EsummitHighlights() {
           )}
         </div>
 
-        {/* Right: Day Cards */}
-        <div className="w-full lg:w-1/2 relative">
-          {cards.map((card, index) => (
-            <HighlightCard
-              key={card.num}
-              card={card}
-              index={index}
-              scrollYProgress={scrollYProgress}
-              selectedEventId={selectedEventId}
-              onSelectEvent={handleSelectEvent}
-            />
-          ))}
+        {/* Right Column: Schedule Cards */}
+        <div
+          className={`w-full lg:w-1/2 relative ${
+            mobileView === 'schedule' ? 'block' : 'hidden lg:block'
+          }`}
+        >
+          {/* Mobile Single Active Card View */}
+          <div className="lg:hidden">
+            {cards[activeDayIndex] && (
+              <HighlightCard
+                key={cards[activeDayIndex].num}
+                card={cards[activeDayIndex]}
+                index={activeDayIndex}
+                scrollYProgress={scrollYProgress}
+                selectedEventId={selectedEventId}
+                onSelectEvent={handleSelectEvent}
+                onLocateOnMap={handleLocateOnMap}
+              />
+            )}
+          </div>
+
+          {/* Desktop Dual Sticky Stack View */}
+          <div className="hidden lg:block">
+            {cards.map((card, index) => (
+              <HighlightCard
+                key={card.num}
+                card={card}
+                index={index}
+                scrollYProgress={scrollYProgress}
+                selectedEventId={selectedEventId}
+                onSelectEvent={handleSelectEvent}
+                onLocateOnMap={handleLocateOnMap}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

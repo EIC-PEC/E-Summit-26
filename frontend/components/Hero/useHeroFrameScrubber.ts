@@ -56,9 +56,9 @@ export function useHeroFrameScrubber({
   const dimensionsRef = useRef({ w: 0, h: 0 })
 
   const targetFrameRef = useRef(0)
-  const displayFrameRef = useRef(0)
-  const springVelRef = useRef(0)
   const lastDispatchedRef = useRef(-1)
+  const isWorkerBusyRef = useRef(false)
+  const pendingWorkerFrameRef = useRef<number | null>(null)
   const rafRef = useRef<number | null>(null)
 
   const nearestLowres = useCallback((target: number): ImageBitmap | null => {
@@ -166,8 +166,20 @@ export function useHeroFrameScrubber({
     usingWorkerRef.current = true
 
     worker.onmessage = ({ data }) => {
-      if (data.type === 'frame_bitmap' && bitmapCtxRef.current) {
-        bitmapCtxRef.current.transferFromImageBitmap(data.bitmap)
+      if (data.type === 'frame_bitmap') {
+        if (bitmapCtxRef.current) {
+          bitmapCtxRef.current.transferFromImageBitmap(data.bitmap)
+        }
+        isWorkerBusyRef.current = false
+        if (pendingWorkerFrameRef.current !== null) {
+          const next = pendingWorkerFrameRef.current
+          pendingWorkerFrameRef.current = null
+          if (next !== currentFrameRef.current) {
+            isWorkerBusyRef.current = true
+            currentFrameRef.current = next
+            workerRef.current?.postMessage({ type: 'frame', index: next })
+          }
+        }
       }
     }
 
@@ -243,19 +255,8 @@ export function useHeroFrameScrubber({
       await loadSheet(0)
       if (!isMounted) return
 
-      // Defer loading remaining sheets until browser idle to prioritize FCP and LCP
-      const loadRemaining = () => {
-        if (!isMounted) return
-        for (let i = 1; i < SHEET_COUNT; i++) {
-          loadSheet(i)
-        }
-      }
-
-      if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-        ;(window as any).requestIdleCallback(loadRemaining, { timeout: 3500 })
-      } else {
-        setTimeout(loadRemaining, 2000)
-      }
+      // Load remaining sheets concurrently so every frame is ready instantly
+      Promise.all(Array.from({ length: SHEET_COUNT - 1 }, (_, i) => loadSheet(i + 1)))
     }
 
     initFallback()
@@ -294,7 +295,7 @@ export function useHeroFrameScrubber({
     return () => window.removeEventListener('resize', handleResize)
   }, [canvasRef, renderFrameFallback])
 
-  // Direct 1:1 frame dispatch loop
+  // Direct 1:1 frame dispatch loop with zero-backlog queue guard
   useEffect(() => {
     if (isUltraLowEndDevice()) return
     const isMobile = window.innerWidth < 768
@@ -310,10 +311,16 @@ export function useHeroFrameScrubber({
 
         if (frame !== lastDispatchedRef.current) {
           lastDispatchedRef.current = frame
-          currentFrameRef.current = frame
           if (usingWorkerRef.current && workerRef.current) {
-            workerRef.current.postMessage({ type: 'frame', index: frame })
+            if (isWorkerBusyRef.current) {
+              pendingWorkerFrameRef.current = frame
+            } else {
+              isWorkerBusyRef.current = true
+              currentFrameRef.current = frame
+              workerRef.current.postMessage({ type: 'frame', index: frame })
+            }
           } else {
+            currentFrameRef.current = frame
             renderFrameFallback(frame)
           }
         }

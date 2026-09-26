@@ -3,7 +3,7 @@
 // Dynamic max_tokens calculator.
 //
 // The previous implementation hard-coded max_tokens: 2048 on every request.
-// That means Groq always *reserves* 2,048 completion tokens even when the
+// That means Gemini always *reserves* 2,048 completion tokens even when the
 // answer is two sentences. This wastes capacity and pushes TPD limits faster.
 //
 // This module assigns a tight, intentional budget per query type:
@@ -14,7 +14,7 @@
 //   Complex / multi-part query   →  800 tokens  (safe upper bound)
 //   Internal summarization call  →  150 tokens
 //
-// Note: Groq does NOT charge you for unused tokens within max_tokens — but the
+// Note: Gemini does NOT charge you for unused tokens within max_tokens — but the
 // token *counter* (TPD) at the model level CAN include reserved capacity in some
 // configurations, so keeping budgets tight helps regardless.
 // ─────────────────────────────────────────────────────────────────────────────

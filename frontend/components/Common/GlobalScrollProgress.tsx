@@ -7,14 +7,8 @@ const SECTIONS = [
   { id: 'esummit-hero', name: 'HERO' },
   { id: 'flip-flop-transition', name: 'WELCOME' },
   { id: 'esummit-about', name: 'ABOUT' },
-  { id: 'event-portfolio', name: 'EVENTS' },
-  { id: 'timeline', name: 'SPEAKERS' },
-  { id: 'gallery', name: 'GALLERY' },
-  { id: 'passes', name: 'PASSES' },
   { id: 'alumni', name: 'ALUMNI' },
-  { id: 'sponsors', name: 'PARTNERS' },
   { id: 'register', name: 'REGISTER' },
-  { id: 'faq', name: 'FAQ' },
   { id: 'footer', name: 'FOOTER' }
 ]
 

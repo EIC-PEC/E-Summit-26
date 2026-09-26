@@ -12,14 +12,10 @@ import ScrollExpandLoader from '@/components/Common/ScrollExpandLoader'
 // ── Below-the-fold sections loaded asynchronously to protect initial critical bundle ──
 const FlipFlopTransition = dynamic(() => import('@/components/Common/FlipFlopTransition'), { ssr: false })
 const EsummitAbout = dynamic(() => import('@/components/EsummitAbout'), { ssr: false })
-const EventPortfolioShowcase = dynamic(() => import('@/components/EventPortfolio'), { ssr: false })
-const EsummitHighlights = dynamic(() => import('@/components/EsummitSpeakers'), { ssr: false })
-const MasonryShowcase = dynamic(() => import('@/components/MasonryShowcase'), { ssr: false })
-const Vdo2Showcase = dynamic(() => import('@/components/Vdo2Showcase'), { ssr: false })
 const Alumni = dynamic(() => import('@/components/Alumni'), { ssr: false })
-const Sponsors = dynamic(() => import('@/components/Sponsors'), { ssr: false })
+const ZoomParallaxSection = dynamic(() => import('@/components/ZoomParallaxSection'), { ssr: false })
+const MasonryShowcase = dynamic(() => import('@/components/MasonryShowcase'), { ssr: false })
 const RegisterCTA = dynamic(() => import('@/components/Footer').then((m) => m.RegisterCTA), { ssr: false })
-const FAQ = dynamic(() => import('@/components/FAQ'), { ssr: false })
 const Footer = dynamic(() => import('@/components/Footer'), { ssr: false })
 
 import { TOAST_STYLE } from '@/lib/constants'
@@ -55,31 +51,19 @@ export default function Home() {
       {/* ── 3. ABOUT — Mission, vision & core pillars ── */}
       <EsummitAbout />
 
-      {/* ── 4. COMPETITIONS & TRACKS — Event portfolio ── */}
-      <EventPortfolioShowcase />
-
-      {/* ── 5. SPEAKERS — Keynote guests ── */}
-      <EsummitHighlights />
-
-      {/* ── 6. MASONRY GALLERY — 5-column vertical scroll gallery kept in place ── */}
-      <MasonryShowcase />
-
-      {/* ── 7. VIDEO SCRUBBER — Market surge video ── */}
-      <Vdo2Showcase />
-
-      {/* ── 8. ALUMNI — Wall of fame ── */}
+      {/* ── 4. ALUMNI — Wall of fame ── */}
       <Alumni />
 
-      {/* ── 9. SPONSORS — Ecosystem & title partners ── */}
-      <Sponsors />
+      {/* ── 5. ZOOM PARALLAX — Glimpses ── */}
+      <ZoomParallaxSection />
 
-      {/* ── 10. REGISTER CTA — Conversion banner ── */}
+      {/* ── 6. GALLERY — Masonry Showcase ── */}
+      <MasonryShowcase />
+
+      {/* ── 7. REGISTER CTA — Conversion banner ── */}
       <RegisterCTA />
 
-      {/* ── 11. FAQ — Attendee questions ── */}
-      <FAQ />
-
-      {/* ── 12. FOOTER ── */}
+      {/* ── 7. FOOTER ── */}
       <Footer hideCTA={true} />
     </main>
   )

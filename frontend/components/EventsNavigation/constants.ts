@@ -29,15 +29,15 @@ export const VENUE_TYPE_COLORS = {
   expo: '#FF8C42',       // Neon orange
   seminar: '#3DD9FF',    // Cyan
   admin: '#9B5CFF',      // Violet
-  lab: '#39FF14',        // Neon green
-  social: '#00FF88',     // Mint
-  entrance: '#C8FF00',   // Lime
+  lab: '#00F5D4',        // Cyber Aqua
+  social: '#00DFBA',     // Mint
+  entrance: '#00F5D4',   // Teal
 } as const
 
 export const ROUTE_COLOR = '#4285F4' // Google Maps Blue
 export const ROUTE_GLOW_COLOR = 'rgba(66, 133, 244, 0.4)'
-export const DESTINATION_COLOR = '#00FF88'
-export const USER_DOT_COLOR = '#39FF14'
+export const DESTINATION_COLOR = '#00F5D4'
+export const USER_DOT_COLOR = '#00F5D4'
 export const ROUTE_WIDTH = 8
 
 export const ANIMATION_CONFIG = {

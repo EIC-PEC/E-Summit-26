@@ -34,16 +34,16 @@ export default function HeroPinnedContent({
     >
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-4 sm:gap-6 text-center">
         <h2
-          className="mb-2 max-w-4xl font-display font-black uppercase leading-[1.12] sm:leading-[1.18] tracking-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] text-center text-balance select-none"
+          className="mb-2 max-w-4xl font-display font-black uppercase leading-[1.18] sm:leading-[1.24] tracking-normal sm:tracking-wide drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)] text-center text-balance select-none"
           style={{ fontSize: 'clamp(1.35rem, 3.4vw, 2.85rem)' }}
         >
-          <span className="inline-block whitespace-normal sm:whitespace-nowrap">
-            <span className="text-gradient-white">WHERE IDEAS MEET </span>
-            <span className="text-gradient-mint">CAPITAL</span>
+          <span className="inline-block whitespace-normal sm:whitespace-nowrap mr-2 sm:mr-4">
+            <span className="text-gradient-white">WHERE IDEAS MEET</span>
+            <span className="text-gradient-mint ml-2.5 sm:ml-3.5">CAPITAL</span>
           </span>
-          <span className="inline-block ml-1.5 sm:ml-3 whitespace-normal sm:whitespace-nowrap">
-            <span className="text-gradient-white">&amp; BUILD THE </span>
-            <span className="text-gradient-mint">FUTURE</span>
+          <span className="inline-block whitespace-normal sm:whitespace-nowrap">
+            <span className="text-gradient-white">&amp; BUILD THE</span>
+            <span className="text-gradient-mint ml-2.5 sm:ml-3.5">FUTURE</span>
           </span>
         </h2>
 

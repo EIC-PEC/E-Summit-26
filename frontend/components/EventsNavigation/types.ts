@@ -52,9 +52,9 @@ export const VENUE_TYPE_COLORS: Record<CampusVenue['type'], string> = {
   expo: '#FF8C42',
   seminar: '#3DD9FF',
   admin: '#9B5CFF',
-  lab: '#7ED321',
-  social: '#00D4AA',
-  entrance: '#7ED321',
+  lab: '#00F5D4',
+  social: '#00DFBA',
+  entrance: '#00F5D4',
 }
 
 export const VENUE_TYPE_LABELS: Record<CampusVenue['type'], string> = {
