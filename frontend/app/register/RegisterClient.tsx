@@ -57,8 +57,14 @@ export { PASS_TIERS, INTEREST_TRACKS, EVENT_CATEGORIES }
 
 // Maps tier.title → backend passType — must mirror PASS_TYPE_MAP in registrations.ts
 const PASS_TITLE_TO_TYPE: Record<string, string> = {
-  'Student Pass': 'STUDENT_GENERAL',
+  'Free Delegate Pass': 'STUDENT_GENERAL',
+  'All-Access Pass': 'STUDENT_GENERAL',
   'Hackathon Pass': 'HACKATHON_BUILDER',
+  'Ultimate Combo Pass': 'HACKATHON_BUILDER',
+  'Student Pass': 'STUDENT_GENERAL',
+  'Student Delegate Pass': 'STUDENT_GENERAL',
+  'Student General Pass': 'STUDENT_GENERAL',
+  'Hackathon Builder Pass': 'HACKATHON_BUILDER',
   'Pitch Pass': 'FOUNDER_PITCH',
   'Ambassador': 'CAMPUS_AMBASSADOR',
   'Silver Pass': 'STARTUP_SILVER',
@@ -69,6 +75,10 @@ const PASS_TITLE_TO_TYPE: Record<string, string> = {
 // Normalise a stored category string to its canonical backend type
 const normaliseCategory = (cat: string): string => {
   const BACKEND_MAP: Record<string, string> = {
+    'Free Delegate Pass': 'STUDENT_GENERAL',
+    'All-Access Pass': 'STUDENT_GENERAL',
+    'Hackathon Pass': 'HACKATHON_BUILDER',
+    'Ultimate Combo Pass': 'HACKATHON_BUILDER',
     'STUDENT_GENERAL': 'STUDENT_GENERAL',
     'HACKATHON_BUILDER': 'HACKATHON_BUILDER',
     'FOUNDER_PITCH': 'FOUNDER_PITCH',
@@ -79,7 +89,6 @@ const normaliseCategory = (cat: string): string => {
     'Student Pass': 'STUDENT_GENERAL',
     'Student Delegate Pass': 'STUDENT_GENERAL',
     'Student Delegate': 'STUDENT_GENERAL',
-    'Hackathon Pass': 'HACKATHON_BUILDER',
     '24-Hour Hackathon Pass': 'HACKATHON_BUILDER',
     'Pitch Pass': 'FOUNDER_PITCH',
     'Startup Pitch Pass': 'FOUNDER_PITCH',
@@ -107,7 +116,7 @@ export default function RegisterClient() {
 
   const [view, setView] = useState<'catalog' | 'checkout' | 'success' | 'passes' | 'auth'>('catalog')
   const [authMode, setAuthMode] = useState<'login' | 'signup' | 'forgot'>('login')
-  const [selectedPassId, setSelectedPassId] = useState('silver')
+  const [selectedPassId, setSelectedPassId] = useState('free-delegate')
   const [activeCategory, setActiveCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [eventsList, setEventsList] = useState<EventItem[]>(MASTER_EVENTS)
@@ -125,13 +134,24 @@ export default function RegisterClient() {
     setMounted(true)
   }, [])
 
-  // Auto-switch tier from query parameters (e.g. /register?tier=gold or ?tier=diamond)
+  // Auto-switch tier from query parameters (e.g. /register?tier=all-access or ?tier=hackathon)
   useEffect(() => {
     const tierParam = searchParams?.get('tier')?.toLowerCase()
     if (!tierParam) return
 
-    if (['silver', 'gold', 'diamond'].includes(tierParam)) {
-      setSelectedPassId(tierParam)
+    const tierMap: Record<string, string> = {
+      'free-delegate': 'free-delegate',
+      'free': 'free-delegate',
+      'delegate': 'free-delegate',
+      'all-access': 'all-access',
+      'allaccess': 'all-access',
+      'hackathon': 'hackathon',
+      'ultimate-combo': 'ultimate-combo',
+      'combo': 'ultimate-combo',
+    }
+
+    if (tierMap[tierParam]) {
+      setSelectedPassId(tierMap[tierParam])
     }
   }, [searchParams])
 
@@ -352,7 +372,7 @@ export default function RegisterClient() {
     }
     
     const isAlreadyOwned = myRegistrations.some(
-      (r) => normaliseCategory(r.category) === PASS_TITLE_TO_TYPE[selectedTier.title]
+      (r) => r.category === selectedTier.title || (r.tracks && r.tracks.includes(selectedTier.title))
     )
     if (isAlreadyOwned) {
       toast.error(`You have already claimed the ${selectedTier.title}.`, TOAST_STYLE)
@@ -822,8 +842,7 @@ export default function RegisterClient() {
               className="max-w-sm mx-auto space-y-5 pt-6"
             >
               <div className="text-center space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mint/10 border border-mint/20 text-mint text-[10px] font-bold tracking-wider uppercase font-mono">
-                  <span className="h-1.5 w-1.5 rounded-full bg-mint animate-pulse" />
+                <div className="text-[11px] font-bold tracking-wider uppercase font-mono text-mint">
                   Step 1 of 2: Sign In
                 </div>
                 <h1 className="text-xl font-bold text-white tracking-tight">
@@ -1017,10 +1036,9 @@ export default function RegisterClient() {
             >
               {/* Header Info */}
               <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-[#13221C] border border-white/10 text-[11px] font-medium text-neutral-300">
-                  <span className="w-1.5 h-1.5 rounded-full bg-mint animate-pulse" />
-                  <span>{summitDates} • PEC Chandigarh</span>
-                </div>
+                <span className="text-[11px] font-mono text-mint tracking-wider uppercase block">
+                  {summitDates} • PEC Chandigarh
+                </span>
                 <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
                   Get Your Summit Pass
                 </h1>
@@ -1042,11 +1060,11 @@ export default function RegisterClient() {
                     <span className="text-[11px] text-neutral-500">All passes include summit ID &amp; kit</span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     {PASS_TIERS.map((tier) => {
                       const isSelected = selectedPassId === tier.id
                       const isAlreadyOwned = myRegistrations.some(
-                        (r) => normaliseCategory(r.category) === PASS_TITLE_TO_TYPE[tier.title]
+                        (r) => r.category === tier.title || (r.tracks && r.tracks.includes(tier.title))
                       )
                       const TierIcon = tier.icon
 

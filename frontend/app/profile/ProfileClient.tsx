@@ -13,6 +13,15 @@ import {
   X,
   Settings,
   Sparkles,
+  Briefcase,
+  Building2,
+  TrendingUp,
+  ExternalLink,
+  Copy,
+  Check,
+  Clock,
+  DollarSign,
+  FileText,
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -44,13 +53,130 @@ import {
 
 export type { AttendeeProfile }
 
+export interface StartupPassApplication {
+  _id?: string
+  applicationId: string
+  passTier?: string
+  passTierName?: string
+  passPrice?: string
+  userId?: string
+  email: string
+  founderName: string
+  phone: string
+  founderLinkedIn?: string
+  startupName: string
+  websiteUrl?: string
+  dpiitNumber?: string
+  stage?: string
+  sector?: string
+  revenueStage?: string
+  totalFundingRaised?: string
+  currentAsk?: string
+  preMoneyValuation?: string
+  committedCapital?: string
+  pitchDeckUrl?: string
+  demoVideoUrl?: string
+  mouComfortable?: string
+  status: string
+  reviewNotes?: string
+  internalRating?: number
+  createdAt: string
+  updatedAt?: string
+}
+
+export function getPassStatusInfo(status?: string) {
+  switch (status?.toUpperCase()) {
+    case 'PENDING_REVIEW':
+      return {
+        label: 'Pending Screening',
+        color: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+        dot: 'bg-amber-400 animate-pulse',
+        description: 'Your application has been received and queued for initial screening by the investment committee.',
+        nextStep: 'Screening usually takes 24–48 hours. Keep an eye on your email & WhatsApp for updates.',
+      }
+    case 'UNDER_REVIEW':
+      return {
+        label: 'Under Committee Review',
+        color: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+        dot: 'bg-blue-400 animate-pulse',
+        description: 'Your pitch deck and startup metrics are currently being evaluated by our VC panel.',
+        nextStep: 'The investment team may reach out to request clarification or revenue validation.',
+      }
+    case 'SHORTLISTED':
+      return {
+        label: 'Shortlisted for Pitch',
+        color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+        dot: 'bg-emerald-400',
+        description: 'Congratulations! Your startup has been shortlisted to pitch live before institutional investors.',
+        nextStep: 'Please check your registered inbox for the participation MoU agreement and schedule.',
+      }
+    case 'MOU_SENT':
+      return {
+        label: 'MoU Agreement Sent',
+        color: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+        dot: 'bg-purple-400',
+        description: 'Participation MoU has been dispatched to your email for signing.',
+        nextStep: 'Sign and return the MoU agreement to lock in your conclave pitching slot.',
+      }
+    case 'MOU_ACCEPTED':
+      return {
+        label: 'MoU Accepted',
+        color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
+        dot: 'bg-cyan-400',
+        description: 'Your signed MoU has been verified by the organizing committee.',
+        nextStep: 'Pass payment instructions have been sent to your email.',
+      }
+    case 'PAYMENT_CONFIRMED':
+      return {
+        label: 'Pass Confirmed & Locked',
+        color: 'text-mint bg-mint/15 border-mint/30',
+        dot: 'bg-mint shadow-[0_0_8px_#00F5D4]',
+        description: 'Pass payment confirmed! Your Founder passes and Conclave pitching slot are locked.',
+        nextStep: 'Present your Application Reference ID at the registration desk on March 19th at PEC.',
+      }
+    case 'REJECTED':
+      return {
+        label: 'Not Shortlisted',
+        color: 'text-red-400 bg-red-500/10 border-red-500/20',
+        dot: 'bg-red-400',
+        description: 'Due to conclave pitch slot capacity, we are unable to advance this application.',
+        nextStep: 'You can still attend student events, keynotes, and workshops by registering on the events page.',
+      }
+    default:
+      return {
+        label: 'Application Submitted',
+        color: 'text-neutral-300 bg-white/5 border-white/10',
+        dot: 'bg-neutral-400',
+        description: 'Application submitted successfully and recorded in our system.',
+        nextStep: 'Our team will review your pitch deck and reach out via email / WhatsApp.',
+      }
+  }
+}
+
+function formatDateSafe(dateStr?: string) {
+  if (!dateStr) return 'Recently'
+  try {
+    const d = new Date(dateStr)
+    if (isNaN(d.getTime())) return 'Recently'
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  } catch {
+    return 'Recently'
+  }
+}
+
 export default function ProfileClient() {
   const { user, logout, loading: authLoading } = useAuth()
   const router = useRouter()
   
   const [myRegistrations, setMyRegistrations] = useState<RegistrationRecord[]>([])
+  const [passApplications, setPassApplications] = useState<StartupPassApplication[]>([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'passes' | 'account'>('passes')
+  const [activeTab, setActiveTab] = useState<'passes' | 'startup_passes' | 'account'>('passes')
+  const [copiedAppId, setCopiedAppId] = useState<string | null>(null)
   
   const [currentBadge, setCurrentBadge] = useState<RegistrationRecord | null>(null)
   const [editingPass, setEditingPass] = useState<RegistrationRecord | null>(null)
@@ -88,16 +214,84 @@ export default function ProfileClient() {
     }
   }, [user])
 
+  const fetchPassApplications = useCallback(async () => {
+    // 1. Read from local cache first for zero-latency instant rendering
+    let localList: StartupPassApplication[] = []
+    try {
+      const cached = localStorage.getItem('pec_user_pass_applications')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          localList = parsed
+          setPassApplications(localList)
+        }
+      }
+    } catch {
+      // non-fatal local cache
+    }
+
+    // 2. Query live from server with user credentials to fetch real-time organizer reviews
+    const queryEmail = user?.email || profile.email || localList[0]?.email
+    const queryUserId = user?.uid || localList[0]?.userId
+
+    if (!queryEmail && !queryUserId) return
+
+    try {
+      const params = new URLSearchParams()
+      if (queryEmail) params.set('email', queryEmail)
+      if (queryUserId) params.set('userId', queryUserId)
+
+      const res = await fetch(`/api/funding-conclave/apply?${params.toString()}`)
+      if (res.ok) {
+        const json = await res.json()
+        if (json.success && Array.isArray(json.applications)) {
+          const serverApps: StartupPassApplication[] = json.applications
+
+          // Create map of server applications
+          const serverMap = new Map<string, StartupPassApplication>()
+          serverApps.forEach((app) => {
+            if (app.applicationId) serverMap.set(app.applicationId, app)
+          })
+
+          // Merge: server items + any local items not yet reflected on server
+          const merged: StartupPassApplication[] = [...serverApps]
+          localList.forEach((local) => {
+            if (local.applicationId && !serverMap.has(local.applicationId)) {
+              merged.push(local)
+            }
+          })
+
+          setPassApplications(merged)
+          try {
+            localStorage.setItem('pec_user_pass_applications', JSON.stringify(merged))
+          } catch {}
+        }
+      }
+    } catch {
+      // non-fatal network error, fallback to localList
+    }
+  }, [user, profile.email])
+
   useEffect(() => {
     if (authLoading) return
     const local = typeof window !== 'undefined' ? localStorage.getItem('pec_summit_registrations') : null
     const hasLocal = local && JSON.parse(local).length > 0
-    if (!user && !hasLocal) {
+    const localPassApps = typeof window !== 'undefined' ? localStorage.getItem('pec_user_pass_applications') : null
+    const hasLocalPassApps = localPassApps && JSON.parse(localPassApps).length > 0
+
+    if (!user && !hasLocal && !hasLocalPassApps) {
       router.push('/register')
       return
     }
+
     fetchRegistrations()
-  }, [user, authLoading, router, fetchRegistrations])
+    fetchPassApplications()
+
+    // Automatically default to startup_passes tab if user only has startup pass requests
+    if (!hasLocal && hasLocalPassApps) {
+      setActiveTab('startup_passes')
+    }
+  }, [user, authLoading, router, fetchRegistrations, fetchPassApplications])
 
   useEffect(() => {
     try {
@@ -212,6 +406,12 @@ export default function ProfileClient() {
     }
   }
 
+  const handleCopyAppId = (id: string) => {
+    navigator.clipboard.writeText(id)
+    setCopiedAppId(id)
+    toast.success(`Application ID ${id} copied!`, TOAST_STYLE)
+    setTimeout(() => setCopiedAppId(null), 2000)
+  }
 
   if (authLoading || loading) {
     return (
@@ -246,10 +446,10 @@ export default function ProfileClient() {
           </Link>
           <div className="flex items-center gap-3">
             <Link 
-              href="/register"
+              href="/events"
               className="text-xs font-semibold uppercase tracking-wider text-neutral-400 hover:text-white transition-colors"
             >
-              Book Passes
+              Explore Events
             </Link>
             <button
               onClick={handleLogout}
@@ -272,7 +472,7 @@ export default function ProfileClient() {
               Attendee Profile
             </h1>
             <p className="text-sm text-neutral-400">
-              Welcome back, <span className="text-white font-bold">{profile.name || user?.displayName || myRegistrations[0]?.name || 'Delegate'}</span>!
+              Welcome back, <span className="text-white font-bold">{profile.name || user?.displayName || myRegistrations[0]?.name || 'Student'}</span>!
             </p>
           </div>
 
@@ -294,20 +494,33 @@ export default function ProfileClient() {
             <button
               type="button"
               onClick={() => setActiveTab('passes')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                 activeTab === 'passes'
                   ? 'bg-mint text-void shadow-[0_0_15px_rgba(0,242,178,0.3)]'
                   : 'bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10'
               }`}
             >
               <Ticket size={14} />
-              <span>Summit Passes ({myRegistrations.length})</span>
+              <span>Registered Events ({myRegistrations.length})</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab('startup_passes')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
+                activeTab === 'startup_passes'
+                  ? 'bg-mint text-void shadow-[0_0_15px_rgba(0,242,178,0.3)]'
+                  : 'bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Briefcase size={14} />
+              <span>Startup Passes ({passApplications.length})</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('account')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer shrink-0 ${
                 activeTab === 'account'
                   ? 'bg-mint text-void shadow-[0_0_15px_rgba(0,242,178,0.3)]'
                   : 'bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10'
@@ -443,6 +656,245 @@ export default function ProfileClient() {
                 userDisplayName={user?.displayName}
               />
             </motion.div>
+          ) : activeTab === 'startup_passes' ? (
+            <motion.div
+              key="startup-passes-view"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="space-y-6"
+            >
+              {passApplications.length === 0 ? (
+                <div className="text-center py-14 sm:py-16 border border-dashed border-white/10 rounded-3xl p-6 sm:p-10 bg-white/[0.01] w-full">
+                  <div className="max-w-md mx-auto space-y-4">
+                    <Briefcase size={44} className="mx-auto text-neutral-600 mb-1 stroke-1" />
+                    <div>
+                      <h3 className="text-xl font-bold text-white mb-1.5 font-display uppercase tracking-wider">
+                        No Startup Pass Requests Yet
+                      </h3>
+                      <p className="text-xs sm:text-sm text-neutral-400">
+                        Have a venture looking to raise seed or growth capital? Apply for the Funding Conclave to pitch in front of 25+ institutional venture funds and angel networks.
+                      </p>
+                    </div>
+                    <div className="pt-2">
+                      <Link
+                        href="/passes"
+                        className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-mint text-void font-bold text-xs uppercase tracking-wider hover:brightness-110 shadow-[0_0_15px_rgba(0,242,178,0.25)] transition-all"
+                      >
+                        <span>Apply for Startup Pass</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/[0.02] border border-white/5 p-4 rounded-2xl">
+                    <div>
+                      <h3 className="text-base font-bold text-white uppercase tracking-wider font-display">
+                        Funding Conclave Applications ({passApplications.length})
+                      </h3>
+                      <p className="text-xs text-neutral-400">
+                        Track the live screening status, committee evaluation, and pitch slot confirmation for your startup pass requests.
+                      </p>
+                    </div>
+                    <Link
+                      href="/passes"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-mint/30 bg-mint/10 hover:bg-mint/20 text-mint text-xs font-mono font-bold uppercase tracking-wider transition-colors self-start sm:self-auto"
+                    >
+                      <span>New Application</span>
+                    </Link>
+                  </div>
+
+                  <div className="space-y-5">
+                    {passApplications.map((app) => {
+                      const statusInfo = getPassStatusInfo(app.status)
+                      return (
+                        <div
+                          key={app.applicationId || app._id}
+                          className="rounded-3xl border border-white/10 bg-[#0B1512] p-6 sm:p-7 shadow-2xl relative overflow-hidden transition-all hover:border-mint/30 group"
+                        >
+                          {/* Ambient subtle glow */}
+                          <div className="absolute top-0 right-0 w-64 h-64 bg-mint/5 rounded-full blur-[80px] pointer-events-none" />
+
+                          {/* Top Row: Tier, Pricing, Date, Status */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4 relative z-10">
+                            <div className="flex items-center gap-2.5 flex-wrap">
+                              <span className="text-[11px] font-mono font-bold px-3 py-1 rounded-full bg-mint/10 text-mint border border-mint/20 tracking-wider uppercase">
+                                {app.passTierName || 'GOLD PASS'}
+                              </span>
+                              {app.passPrice && (
+                                <span className="text-xs font-mono text-neutral-400">
+                                  {app.passPrice}
+                                </span>
+                              )}
+                              <span className="text-[11px] font-mono text-neutral-500">
+                                • {formatDateSafe(app.createdAt)}
+                              </span>
+                            </div>
+
+                            {/* Status badge */}
+                            <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${statusInfo.color}`}>
+                              <span className={`w-2 h-2 rounded-full ${statusInfo.dot}`} />
+                              {statusInfo.label}
+                            </span>
+                          </div>
+
+                          {/* Title & Reference ID */}
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 relative z-10">
+                            <div>
+                              <span className="text-[10px] uppercase font-mono tracking-widest text-neutral-400 block mb-1">
+                                Venture / Startup
+                              </span>
+                              <h3 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight font-display group-hover:text-mint transition-colors">
+                                {app.startupName}
+                              </h3>
+                            </div>
+
+                            <div className="flex items-center gap-2.5 bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl self-start sm:self-auto">
+                              <div className="text-left">
+                                <span className="text-[9px] uppercase font-mono text-neutral-400 block tracking-wider">Reference ID</span>
+                                <span className="text-xs sm:text-sm font-mono font-bold text-mint tracking-wider">{app.applicationId}</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleCopyAppId(app.applicationId)}
+                                className="p-1.5 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white transition-colors cursor-pointer"
+                                title="Copy Reference ID"
+                              >
+                                {copiedAppId === app.applicationId ? <Check size={14} className="text-mint" /> : <Copy size={14} />}
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Details Grid */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 pt-3 relative z-10">
+                            {/* Founder & Contact */}
+                            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                              <span className="text-[10px] uppercase font-mono text-neutral-400 tracking-wider flex items-center gap-1.5">
+                                <Building2 size={12} className="text-mint" /> Founder Details
+                              </span>
+                              <p className="text-sm font-bold text-white truncate">{app.founderName}</p>
+                              <p className="text-xs text-neutral-400 truncate">{app.email}</p>
+                              <p className="text-xs text-neutral-400 truncate">{app.phone}</p>
+                              {app.founderLinkedIn && (
+                                <a
+                                  href={app.founderLinkedIn}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-[11px] text-mint hover:underline pt-1"
+                                >
+                                  <span>Founder Profile</span>
+                                  <ExternalLink size={10} />
+                                </a>
+                              )}
+                            </div>
+
+                            {/* Stage & Sector */}
+                            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                              <span className="text-[10px] uppercase font-mono text-neutral-400 tracking-wider flex items-center gap-1.5">
+                                <TrendingUp size={12} className="text-mint" /> Stage & Sector
+                              </span>
+                              <p className="text-sm font-bold text-white">{app.stage || 'Early Stage'}</p>
+                              <p className="text-xs text-neutral-300 font-medium">{app.sector || 'General'}</p>
+                              {app.dpiitNumber && (
+                                <p className="text-[11px] font-mono text-neutral-400 pt-1">
+                                  DPIIT: <span className="text-white font-semibold">{app.dpiitNumber}</span>
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Target Ask & Valuation */}
+                            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+                              <span className="text-[10px] uppercase font-mono text-neutral-400 tracking-wider flex items-center gap-1.5">
+                                <DollarSign size={12} className="text-mint" /> Ask & Valuation
+                              </span>
+                              <div>
+                                <span className="text-[10px] text-neutral-400 block">Target Ask</span>
+                                <p className="text-sm font-bold text-mint">{app.currentAsk || 'Undisclosed'}</p>
+                              </div>
+                              {app.preMoneyValuation && (
+                                <div>
+                                  <span className="text-[10px] text-neutral-400 block">Pre-Money Valuation</span>
+                                  <p className="text-xs font-semibold text-neutral-300">{app.preMoneyValuation}</p>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Materials */}
+                            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-2 flex flex-col justify-between">
+                              <div>
+                                <span className="text-[10px] uppercase font-mono text-neutral-400 tracking-wider flex items-center gap-1.5 mb-1.5">
+                                  <FileText size={12} className="text-mint" /> Pitch Deck
+                                </span>
+                                {app.pitchDeckUrl ? (
+                                  <a
+                                    href={app.pitchDeckUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-white hover:text-mint transition-colors"
+                                  >
+                                    <FileText size={13} />
+                                    <span>Open Deck</span>
+                                    <ExternalLink size={11} />
+                                  </a>
+                                ) : (
+                                  <span className="text-xs text-neutral-500 italic">No deck submitted</span>
+                                )}
+                              </div>
+
+                              {app.websiteUrl && (
+                                <a
+                                  href={app.websiteUrl.startsWith('http') ? app.websiteUrl : `https://${app.websiteUrl}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 text-[11px] text-neutral-400 hover:text-white transition-colors"
+                                >
+                                  <span>Website</span>
+                                  <ExternalLink size={10} />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Current Status Box & Next Steps */}
+                          <div className="rounded-2xl border border-white/10 bg-[#07100D] p-4 space-y-2 relative z-10 mt-2">
+                            <div className="flex items-start gap-3">
+                              <div className={`mt-0.5 p-1.5 rounded-lg border ${statusInfo.color}`}>
+                                <Clock size={14} />
+                              </div>
+                              <div className="space-y-1 flex-1">
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-white">
+                                  Status: {statusInfo.label}
+                                </h4>
+                                <p className="text-xs text-neutral-300 leading-relaxed">
+                                  {statusInfo.description}
+                                </p>
+                                <p className="text-xs text-neutral-400 font-mono pt-1">
+                                  <span className="text-mint font-semibold">Next Action: </span>
+                                  {statusInfo.nextStep}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Committee review note if organizer left notes */}
+                            {app.reviewNotes && (
+                              <div className="mt-3 pt-3 border-t border-white/10">
+                                <span className="text-[10px] uppercase font-mono tracking-wider text-mint block font-bold mb-1">
+                                  Committee Feedback
+                                </span>
+                                <p className="text-xs text-neutral-200 bg-white/5 p-3 rounded-xl border border-white/10 font-mono italic">
+                                  &ldquo;{app.reviewNotes}&rdquo;
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </motion.div>
           ) : (
             <motion.div
               key="dashboard-view"
@@ -450,22 +902,46 @@ export default function ProfileClient() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
             >
+              {passApplications.length > 0 && (
+                <div className="mb-6 p-4 rounded-2xl border border-mint/20 bg-mint/5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-mint/10 text-mint border border-mint/20">
+                      <Briefcase size={16} />
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm font-bold text-white">
+                        You have {passApplications.length} Startup Pass Request{passApplications.length > 1 ? 's' : ''} in review
+                      </p>
+                      <p className="text-[11px] text-neutral-400">
+                        Track live status, committee evaluation, and pitch slot updates.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('startup_passes')}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-mint text-void text-xs font-mono font-bold uppercase tracking-wider hover:brightness-110 transition-all self-start sm:self-auto cursor-pointer"
+                  >
+                    <span>View Startup Requests</span>
+                  </button>
+                </div>
+              )}
               {myRegistrations.length === 0 ? (
                 <div className="text-center py-14 sm:py-16 border border-dashed border-white/10 rounded-3xl p-6 sm:p-10 bg-white/[0.01] w-full">
                   <div className="max-w-md mx-auto space-y-4">
                     <Ticket size={44} className="mx-auto text-neutral-600 mb-1 stroke-1" />
                     <div>
-                      <h3 className="text-xl font-bold text-white mb-1.5 font-display uppercase tracking-wider">No Passes Booked</h3>
+                      <h3 className="text-xl font-bold text-white mb-1.5 font-display uppercase tracking-wider">No Events Registered</h3>
                       <p className="text-xs sm:text-sm text-neutral-400">
-                        You haven&apos;t registered for any summit passes yet. Book your delegate pass or update your profile details.
+                        You haven&apos;t registered for any summit events, hackathons, or workshops yet.
                       </p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                       <Link
-                        href="/register"
+                        href="/events"
                         className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-mint text-void font-bold text-xs uppercase tracking-wider hover:brightness-110 shadow-[0_0_15px_rgba(0,242,178,0.25)] transition-all"
                       >
-                        <span>Get Your Pass Now</span>
+                        <span>Explore &amp; Register Events</span>
                       </Link>
                       <button
                         type="button"

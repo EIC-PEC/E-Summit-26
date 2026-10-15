@@ -19,7 +19,6 @@ import {
   Sparkles,
   Inbox,
   ArrowUpDown,
-  Plus,
   Gem,
   Crown,
   Shield,
@@ -118,50 +117,6 @@ export default function Home() {
     }
   }
 
-  // Create sample test entry
-  const createSampleApplication = async () => {
-    try {
-      const sample = {
-        passTier: 'diamond',
-        passTierName: 'DIAMOND PASS',
-        passPrice: '₹8,000 + GST',
-        email: 'founder.demo@pecsummit.com',
-        founderName: 'Aarav Sharma',
-        phone: '9876543210',
-        founderLinkedIn: 'https://linkedin.com/in/aarav-sharma-demo',
-        startupName: 'NexusAI Health',
-        websiteUrl: 'https://nexusai-health.io',
-        dpiitNumber: 'DIPP98762',
-        stage: 'Early revenue',
-        sector: 'AI / HealthTech',
-        revenueStage: '₹10 lakh–₹50 lakh annual revenue',
-        totalFundingRaised: '₹25,00,000 (Angel Seed)',
-        currentAsk: '₹1.5 Crore for 8% equity',
-        preMoneyValuation: '₹18 Crore',
-        committedCapital: '₹30 Lakh committed',
-        pitchDeckUrl: 'https://drive.google.com/file/d/sample-pitch-deck/view',
-        demoVideoUrl: 'https://youtube.com/watch?v=sample-demo',
-        mouComfortable:
-          'Yes, I am comfortable with the fee for my selected option and can proceed after reviewing the MoU.',
-      }
-
-      const res = await fetch('http://localhost:3000/api/funding-conclave/apply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sample),
-      })
-
-      if (res.ok) {
-        toast.success('Sample application created in MongoDB')
-        fetchApplications()
-      } else {
-        toast.error('Failed to create sample application')
-      }
-    } catch {
-      toast.error('Could not connect to submission endpoint')
-    }
-  }
-
   return (
     <div className="min-h-screen bg-[#060D0B] text-white selection:bg-[#00F5D4]/20 selection:text-[#00F5D4]">
       {/* Top Header */}
@@ -185,17 +140,6 @@ export default function Home() {
             <p className="font-mono-data text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-widest mt-3">
               SCREENING • INVESTOR FIT • MOU WORKFLOW • OFFLINE DIRECT PAYMENTS
             </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={createSampleApplication}
-              className="btn-dark-gradient min-h-[42px] px-5 rounded-full font-mono-data text-xs font-bold uppercase tracking-wider text-white hover:border-mint transition-all"
-            >
-              <Plus size={14} className="text-mint stroke-[2.5]" />
-              <span>TEST ENTRY</span>
-            </button>
           </div>
         </div>
 
@@ -282,15 +226,24 @@ export default function Home() {
         <div className="rounded-3xl bg-[#081310] border border-white/10 overflow-hidden shadow-2xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
+              <colgroup>
+                <col className="w-[23%] min-w-[210px]" />
+                <col className="w-[20%] min-w-[180px]" />
+                <col className="w-[14%] min-w-[130px]" />
+                <col className="w-[14%] min-w-[130px]" />
+                <col className="w-[15%] min-w-[140px]" />
+                <col className="w-[9%] min-w-[110px]" />
+                <col className="w-[5%] min-w-[90px]" />
+              </colgroup>
               <thead>
-                <tr className="border-b border-white/10 bg-[#0D1C18] text-[11px] font-mono-data font-black text-gray-400 uppercase tracking-[0.15em]">
-                  <th className="py-4 px-5 font-bold">STARTUP &amp; PASS TIER</th>
-                  <th className="py-4 px-5 font-bold">PRIMARY FOUNDER</th>
-                  <th className="py-4 px-5 font-bold">STAGE &amp; SECTOR</th>
-                  <th className="py-4 px-5 font-bold">FUNDRAISE ASK</th>
-                  <th className="py-4 px-5 font-bold">MOU READINESS</th>
-                  <th className="py-4 px-5 font-bold">STATUS</th>
-                  <th className="py-4 px-5 font-bold text-right">ACTIONS</th>
+                <tr className="border-b border-white/10 bg-[#0D1C18] text-[10px] font-mono-data font-bold text-[#7C978D] uppercase tracking-[0.18em]">
+                  <th className="py-4 px-5 align-middle">STARTUP &amp; PASS TIER</th>
+                  <th className="py-4 px-5 align-middle">PRIMARY FOUNDER</th>
+                  <th className="py-4 px-5 align-middle">STAGE &amp; SECTOR</th>
+                  <th className="py-4 px-5 align-middle">FUNDRAISE ASK</th>
+                  <th className="py-4 px-5 align-middle">MOU READINESS</th>
+                  <th className="py-4 px-5 align-middle text-center whitespace-nowrap">STATUS</th>
+                  <th className="py-4 px-5 align-middle text-right whitespace-nowrap">ACTIONS</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-xs">
@@ -313,7 +266,7 @@ export default function Home() {
                       <p className="text-xs text-gray-400 font-mono-data max-w-sm mx-auto">
                         {search || statusFilter !== 'ALL' || stageFilter !== 'ALL' || tierFilter !== 'ALL'
                           ? 'TRY ADJUSTING SEARCH CRITERIA OR RESETTING STATUS FILTERS.'
-                          : 'NO STARTUP PASS APPLICATIONS SUBMITTED YET. USE "TEST ENTRY" ABOVE TO CREATE ONE.'}
+                          : 'NO STARTUP PASS APPLICATIONS SUBMITTED YET.'}
                       </p>
                     </td>
                   </tr>
@@ -325,17 +278,17 @@ export default function Home() {
                       onClick={() => setSelectedApp(app)}
                     >
                       {/* Startup & ID & Pass Tier */}
-                      <td className="py-4 px-5">
-                        <div className="font-display font-black text-white text-base group-hover:text-mint transition-colors flex items-center gap-2">
+                      <td className="py-4 px-5 align-middle">
+                        <div className="font-display font-black text-white text-base group-hover:text-mint transition-colors">
                           {app.startupName}
                         </div>
-                        <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
                           <span className="font-mono-data text-[10px] text-mint font-bold tracking-wider">
                             {app.applicationId}
                           </span>
                           {app.passTierName && (
                             <span
-                              className={`px-2 py-0.5 rounded-full text-[9px] font-mono-data font-bold uppercase tracking-wider border ${
+                              className={`px-2 py-0.5 rounded-full text-[9px] font-mono-data font-bold uppercase tracking-wider border whitespace-nowrap ${
                                 app.passTier === 'diamond'
                                   ? 'bg-purple-500/15 text-purple-300 border-purple-500/30'
                                   : app.passTier === 'silver'
@@ -350,30 +303,32 @@ export default function Home() {
                       </td>
 
                       {/* Founder */}
-                      <td className="py-4 px-5">
+                      <td className="py-4 px-5 align-middle">
                         <div className="text-white font-medium text-sm">{app.founderName}</div>
-                        <div className="text-[11px] text-gray-400 font-mono-data mt-0.5">{app.email}</div>
-                        <div className="text-[10px] text-gray-500 font-mono-data">{app.phone}</div>
+                        <div className="text-[11px] text-[#7C978D] font-mono-data truncate mt-0.5">{app.email}</div>
+                        <div className="text-[10px] text-gray-500 font-mono-data mt-0.5">{app.phone}</div>
                       </td>
 
                       {/* Stage & Sector */}
-                      <td className="py-4 px-5">
-                        <span className="px-2.5 py-0.5 rounded-md bg-white/5 text-white border border-white/10 text-[11px] font-medium block w-fit mb-1">
+                      <td className="py-4 px-5 align-middle">
+                        <span className="inline-block px-2.5 py-0.5 rounded-md bg-white/5 text-white border border-white/10 text-[10px] font-mono-data font-semibold whitespace-nowrap">
                           {app.stage}
                         </span>
-                        <span className="text-[11px] text-gray-400 font-mono-data">{app.sector}</span>
+                        <div className="text-[11px] text-[#7C978D] font-medium mt-1 truncate">{app.sector}</div>
                       </td>
 
                       {/* Ask & Valuation */}
-                      <td className="py-4 px-5 font-mono-data">
-                        <span className="text-mint font-bold text-sm block">{app.currentAsk}</span>
-                        <span className="text-[10px] text-gray-400">
-                          Pre-money: {app.preMoneyValuation || 'N/A'}
-                        </span>
+                      <td className="py-4 px-5 align-middle font-mono-data">
+                        <span className="text-mint font-bold text-sm block tracking-wide whitespace-nowrap">{app.currentAsk}</span>
+                        {app.preMoneyValuation ? (
+                          <span className="text-[10px] text-[#7C978D] block whitespace-nowrap mt-0.5">
+                            Valuation: {app.preMoneyValuation}
+                          </span>
+                        ) : null}
                       </td>
 
                       {/* MoU */}
-                      <td className="py-4 px-5 max-w-[200px]">
+                      <td className="py-4 px-5 align-middle">
                         <span
                           className={`text-xs leading-relaxed line-clamp-2 ${
                             app.mouComfortable?.toLowerCase().includes('comfortable')
@@ -386,19 +341,19 @@ export default function Home() {
                       </td>
 
                       {/* Status Badge */}
-                      <td className="py-4 px-5">
+                      <td className="py-4 px-5 align-middle text-center whitespace-nowrap">
                         <StatusBadge status={app.status} />
                       </td>
 
                       {/* Quick Actions */}
-                      <td className="py-4 px-5 text-right">
+                      <td className="py-4 px-5 align-middle text-right whitespace-nowrap">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation()
                             setSelectedApp(app)
                           }}
-                          className="btn-dark-gradient px-3.5 py-1.5 rounded-full font-mono-data text-[11px] font-bold uppercase tracking-wider text-white transition-all inline-flex items-center gap-1.5 hover:border-mint"
+                          className="btn-dark-gradient px-4 py-1.5 rounded-full font-mono-data text-[11px] font-bold uppercase tracking-wider text-white transition-all inline-flex items-center gap-1.5 hover:border-mint"
                         >
                           <Eye size={12} className="text-mint stroke-[2.5]" />
                           <span>REVIEW</span>

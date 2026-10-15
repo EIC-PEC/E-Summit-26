@@ -46,11 +46,16 @@ export const addDeletedPassId = (id: string) => {
 }
 
 const PASS_TYPE_MAP: Record<string, string> = {
+  'Free Delegate Pass': 'STUDENT_GENERAL',
+  'All-Access Pass': 'STUDENT_GENERAL',
+  'Hackathon Pass': 'HACKATHON_BUILDER',
+  'Ultimate Combo Pass': 'HACKATHON_BUILDER',
   'Student Pass': 'STUDENT_GENERAL',
   'Student Delegate Pass': 'STUDENT_GENERAL',
   'Student Delegate': 'STUDENT_GENERAL',
+  'Student General Pass': 'STUDENT_GENERAL',
   'STUDENT_GENERAL': 'STUDENT_GENERAL',
-  'Hackathon Pass': 'HACKATHON_BUILDER',
+  'Hackathon Builder Pass': 'HACKATHON_BUILDER',
   '24-Hour Hackathon Pass': 'HACKATHON_BUILDER',
   '24-Hour Hackathon': 'HACKATHON_BUILDER',
   'HACKATHON_BUILDER': 'HACKATHON_BUILDER',
@@ -70,6 +75,12 @@ const PASS_TYPE_MAP: Record<string, string> = {
   'STARTUP_DIAMOND': 'STARTUP_DIAMOND',
 }
 
+const PASS_TIER_ID_MAP: Record<string, string> = {
+  'Free Delegate Pass': 'free-delegate',
+  'All-Access Pass': 'all-access',
+  'Hackathon Pass': 'hackathon',
+  'Ultimate Combo Pass': 'ultimate-combo',
+}
 
 export const getLocalRegistrations = (): RegistrationRecord[] => {
   if (typeof window === 'undefined') return []
@@ -116,6 +127,7 @@ export const createRegistrationRecord = async (
 
   // 1. Send to MongoDB Backend API
   try {
+    const tierId = PASS_TIER_ID_MAP[data.category]
     const rawPassType = PASS_TYPE_MAP[data.category] || 'STUDENT_GENERAL'
     // Gracefully map startup pass types to FOUNDER_PITCH for backend Prisma enum compatibility
     const passType = ['STARTUP_SILVER', 'STARTUP_GOLD', 'STARTUP_DIAMOND'].includes(rawPassType)
@@ -123,7 +135,7 @@ export const createRegistrationRecord = async (
       : rawPassType
     const tracks = ['STARTUP_SILVER', 'STARTUP_GOLD', 'STARTUP_DIAMOND'].includes(rawPassType)
       ? [...(data.tracks || []), `Package: ${data.category}`]
-      : data.tracks
+      : Array.from(new Set([data.category, ...(data.tracks || [])]))
 
     const res = await fetch(`${API_URL}/registrations/create`, {
       method: 'POST',
@@ -134,6 +146,7 @@ export const createRegistrationRecord = async (
         phone: data.phone !== 'Not provided' ? data.phone : undefined,
         college: data.college,
         passType,
+        tierId,
         tracks,
       }),
     })

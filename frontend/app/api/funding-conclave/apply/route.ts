@@ -80,6 +80,7 @@ export async function POST(req: NextRequest) {
       passTier,
       passTierName,
       passPrice,
+      userId: body.userId ? String(body.userId).trim() : '',
       email,
       founderName: String(body.founderName).trim(),
       phone,
@@ -114,7 +115,56 @@ export async function POST(req: NextRequest) {
       applicationId,
       insertedId: result.insertedId,
       passTierName,
+      application: applicationRecord,
       message: 'Application submitted successfully! We will contact you ASAP for further processing.',
+    })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown server error'
+    return NextResponse.json(
+      { success: false, error: message },
+      { status: 500 }
+    )
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const email = searchParams.get('email')?.trim().toLowerCase()
+    const userId = searchParams.get('userId')?.trim()
+
+    if (!email && !userId) {
+      return NextResponse.json(
+        { success: false, error: 'Email or userId query parameter is required' },
+        { status: 400 }
+      )
+    }
+
+    const db = await getDatabase()
+    const collection = db.collection('funding_conclave_applications')
+
+    const query: Record<string, unknown> = {}
+    if (email && userId) {
+      query.$or = [{ email }, { userId }]
+    } else if (email) {
+      query.email = email
+    } else if (userId) {
+      query.userId = userId
+    }
+
+    const applications = await collection
+      .find(query)
+      .sort({ createdAt: -1 })
+      .toArray()
+
+    const serialized = applications.map((doc) => ({
+      ...doc,
+      _id: doc._id.toString(),
+    }))
+
+    return NextResponse.json({
+      success: true,
+      applications: serialized,
     })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown server error'

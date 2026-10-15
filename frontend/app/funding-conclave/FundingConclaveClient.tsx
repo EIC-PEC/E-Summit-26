@@ -292,15 +292,13 @@ export default function FundingConclaveClient() {
           </Link>
 
           {hasRestoredDraft && !submittedData && (
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-[#00F5D4] flex items-center gap-1.5 bg-[#00F5D4]/10 border border-[#00F5D4]/20 px-2.5 py-1 rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00F5D4] animate-pulse" />
-                Draft restored
-              </span>
+            <div className="flex items-center gap-2 text-xs font-mono">
+              <span className="text-[#00F5D4]">Draft restored</span>
+              <span className="text-white/20">•</span>
               <button
                 type="button"
                 onClick={clearDraft}
-                className="text-xs text-[#64748B] hover:text-[#FF4D3D] transition-colors flex items-center gap-1"
+                className="text-[#64748B] hover:text-[#FF4D3D] transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 Reset
@@ -314,10 +312,6 @@ export default function FundingConclaveClient() {
           <div className="absolute top-0 right-0 w-48 h-48 bg-[#00F5D4]/10 blur-3xl pointer-events-none" />
 
           <div className="flex flex-wrap items-center gap-3 mb-4">
-            <span className="px-3 py-1 rounded-full text-xs font-mono tracking-wider uppercase bg-[#00F5D4]/10 text-[#00F5D4] border border-[#00F5D4]/30 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5" />
-              INVESTOR ARENA
-            </span>
             <span className="text-xs text-[#94A3B8] flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5 text-[#00F5D4]" />
               14–15 Nov 2026

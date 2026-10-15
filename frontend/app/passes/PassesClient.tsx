@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
-  Sparkles,
   CheckCircle2,
   Gem,
   Crown,
@@ -27,6 +26,7 @@ import {
   KeyRound,
   GraduationCap,
   Lock,
+  Users,
 } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import { useAuth } from '@/context/AuthContext'
@@ -38,6 +38,7 @@ import {
   PROFILE_UPDATED_EVENT,
 } from '@/lib/onboarding'
 import { STARTUP_PACKAGES, StartupPassPackage } from '@/components/Passes/passesData'
+import StudentPassesCards from '@/components/Passes/StudentPassesCards'
 
 interface FormData {
   email: string
@@ -123,6 +124,12 @@ export default function PassesClient() {
   }, [tierParam])
 
   const [selectedTier, setSelectedTier] = useState<string>(initialTier)
+  const [audienceTab, setAudienceTab] = useState<'student' | 'startup'>(() => {
+    if (tierParam && ['silver', 'gold', 'diamond'].includes(tierParam.toLowerCase())) {
+      return 'startup'
+    }
+    return 'student'
+  })
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA)
   const [formStep, setFormStep] = useState<number>(1)
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
@@ -388,6 +395,7 @@ export default function PassesClient() {
     try {
       const payload = {
         ...formData,
+        userId: user?.uid || '',
         passTier: selectedPackage.tier,
         passTierName: selectedPackage.name,
         passPrice: `${selectedPackage.price} ${selectedPackage.gstText}`,
@@ -402,6 +410,28 @@ export default function PassesClient() {
       const data = await res.json()
       if (!res.ok || !data.success) {
         throw new Error(data.error || 'Failed to submit application')
+      }
+
+      const newRecord = data.application || {
+        applicationId: data.applicationId,
+        passTier: selectedPackage.tier,
+        passTierName: selectedPackage.name,
+        passPrice: `${selectedPackage.price} ${selectedPackage.gstText}`,
+        startupName: formData.startupName,
+        founderName: formData.founderName,
+        email: formData.email,
+        phone: formData.phone,
+        status: 'PENDING_REVIEW',
+        createdAt: new Date().toISOString(),
+      }
+
+      try {
+        const stored = localStorage.getItem('pec_user_pass_applications')
+        const list = stored ? JSON.parse(stored) : []
+        const filtered = list.filter((item: { applicationId?: string }) => item.applicationId !== newRecord.applicationId)
+        localStorage.setItem('pec_user_pass_applications', JSON.stringify([newRecord, ...filtered]))
+      } catch {
+        // non-fatal local cache
       }
 
       setSubmittedData({
@@ -450,15 +480,13 @@ export default function PassesClient() {
           </Link>
 
           {hasRestoredDraft && !submittedData && (
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-[#00F5D4] flex items-center gap-1.5 bg-[#00F5D4]/10 border border-[#00F5D4]/20 px-2.5 py-1 rounded-full font-mono">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00F5D4] animate-pulse" />
-                Draft restored
-              </span>
+            <div className="flex items-center gap-2 text-xs font-mono">
+              <span className="text-[#00F5D4]">Draft restored</span>
+              <span className="text-white/20">•</span>
               <button
                 type="button"
                 onClick={clearDraft}
-                className="text-xs text-[#64748B] hover:text-[#FF4D3D] transition-colors flex items-center gap-1 font-mono"
+                className="text-[#64748B] hover:text-[#FF4D3D] transition-colors flex items-center gap-1 cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
                 Reset
@@ -467,20 +495,66 @@ export default function PassesClient() {
           )}
         </div>
 
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00F5D4]/10 border border-[#00F5D4]/30 text-[#00F5D4] font-mono text-xs font-bold uppercase tracking-wider mb-4">
-            <Sparkles className="w-3.5 h-3.5" />
-            STARTUP PASS PACKAGES
+        {/* Audience Switcher */}
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex p-1.5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+            <button
+              type="button"
+              onClick={() => setAudienceTab('student')}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                audienceTab === 'student'
+                  ? 'bg-[#00F5D4] text-[#060D0B] shadow-[0_0_15px_rgba(0,245,212,0.25)]'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <Users size={14} />
+              <span>Student Passes (4)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setAudienceTab('startup')}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                audienceTab === 'startup'
+                  ? 'bg-[#00F5D4] text-[#060D0B] shadow-[0_0_15px_rgba(0,245,212,0.25)]'
+                  : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <Building2 size={14} />
+              <span>Startup Packages (3)</span>
+            </button>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white mb-4">
-            Choose Your Startup Pass &amp; Apply
-          </h1>
-          <p className="text-sm sm:text-base text-[#94A3B8] leading-relaxed">
-            Passes are exclusively for startup founders and teams. Select your preferred tier below to begin your
-            application. Once screened, our team will issue an official MoU and provide direct payment details.
-          </p>
         </div>
+
+        {audienceTab === 'student' ? (
+          <div>
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <span className="font-mono text-xs sm:text-sm font-black uppercase tracking-[0.25em] text-[#00F5D4] block mb-2">
+                OFFICIAL SUMMIT ENTRY
+              </span>
+              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white mb-4">
+                Student Passes &amp; Access
+              </h1>
+              <p className="text-sm sm:text-base text-[#94A3B8] leading-relaxed">
+                Choose your official student pass for PEC E-Summit 2026. Register to unlock keynotes, workshops, the 24-hour hackathon, and campus recruitments.
+              </p>
+            </div>
+            <StudentPassesCards />
+          </div>
+        ) : (
+          <div>
+            {/* Header */}
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <span className="font-mono text-xs sm:text-sm font-black uppercase tracking-[0.25em] text-[#00F5D4] block mb-2">
+                FOUNDER &amp; STARTUP CONCLAVE
+              </span>
+              <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white mb-4">
+                Choose Your Startup Pass &amp; Apply
+              </h1>
+              <p className="text-sm sm:text-base text-[#94A3B8] leading-relaxed">
+                Passes are exclusively for startup founders and teams. Select your preferred tier below to begin your
+                application. Once screened, our team will issue an official MoU and provide direct payment details.
+              </p>
+            </div>
 
         {/* ── 1. PASSES OPTIONS GRID (ABOVE) ── */}
         <div className="mb-14">
@@ -508,14 +582,6 @@ export default function PassesClient() {
                       : 'bg-[#081310] border-white/10 hover:border-white/20 hover:-translate-y-1 opacity-80 hover:opacity-100'
                   }`}
                 >
-                  {/* Selected Pill Badge */}
-                  {isSelected && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#00F5D4] text-[#060D0B] font-mono text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full shadow-lg flex items-center gap-1">
-                      <Check className="w-3 h-3 stroke-[3]" />
-                      Selected Pass
-                    </div>
-                  )}
-
                   <div>
                     {/* Top Row */}
                     <div className="flex items-center justify-between gap-3 mb-4">
@@ -525,9 +591,7 @@ export default function PassesClient() {
                         <IconComp size={20} className={pkg.accentColor.iconColor} strokeWidth={2.4} />
                       </div>
 
-                      <span
-                        className={`font-mono text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full border ${pkg.accentColor.badgeBg}`}
-                      >
+                      <span className="font-mono text-[11px] font-semibold uppercase tracking-wider text-[#94A3B8]">
                         {pkg.badgeText}
                       </span>
                     </div>
@@ -578,27 +642,6 @@ export default function PassesClient() {
                 </div>
               )
             })}
-          </div>
-        </div>
-
-        {/* ── 2. PROCESS & DIRECT PAYMENT NOTICE ── */}
-        <div className="p-5 rounded-2xl bg-[#081310] border border-[#00F5D4]/20 mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#00F5D4]/10 text-[#00F5D4] flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-sm font-bold text-white uppercase tracking-wider font-mono">
-                Direct CMS Screening Flow — No Third-Party Payment Gateway
-              </h2>
-              <p className="text-xs text-[#94A3B8] mt-0.5 leading-relaxed">
-                Your application is saved directly to the PEC CMS. Once screened by the investor committee, shortlisted
-                founders receive an official MoU with verified bank details for direct transfer.
-              </p>
-            </div>
-          </div>
-          <div className="text-xs font-mono text-[#00F5D4] bg-[#00F5D4]/10 px-3 py-1.5 rounded-lg border border-[#00F5D4]/20 whitespace-nowrap">
-            Selected Tier: {selectedPackage.name} ({selectedPackage.price})
           </div>
         </div>
 
@@ -658,10 +701,16 @@ export default function PassesClient() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Link
+                  href="/profile"
+                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#00F5D4] text-[#060D0B] font-bold text-sm hover:bg-[#00DFBA] transition-all shadow-[0_0_20px_rgba(0,245,212,0.25)] flex items-center justify-center gap-2"
+                >
+                  <span>View Request in Profile</span>
+                </Link>
                 <Link
                   href="/"
-                  className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#00F5D4] text-[#060D0B] font-bold text-sm hover:bg-[#00DFBA] transition-colors"
+                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-white/5 text-white font-medium text-sm hover:bg-white/10 border border-white/10 transition-colors flex items-center justify-center"
                 >
                   Return to Home
                 </Link>
@@ -849,7 +898,7 @@ export default function PassesClient() {
                     {formStep === 2 && 'STARTUP PROFILE'}
                     {formStep === 3 && 'FINANCIALS & ASK'}
                     {formStep === 4 && 'PITCH DECK & MOU'}
-                    {formStep === 5 && 'REVIEW & CMS SUBMISSION'}
+                    {formStep === 5 && 'REVIEW & SUBMISSION'}
                   </span>
                   <span className="text-[#94A3B8]">{Math.round((formStep / 5) * 100)}% COMPLETE</span>
                 </div>
@@ -1327,10 +1376,10 @@ export default function PassesClient() {
                       <div>
                         <h3 className="text-xl font-bold text-white flex items-center gap-2">
                           <ShieldCheck className="w-5 h-5 text-[#00F5D4]" />
-                          5. Final Review &amp; CMS Submission
+                          5. Final Review &amp; Submit Application
                         </h3>
                         <p className="text-xs text-[#94A3B8] mt-1">
-                          Review all entered information before logging your startup into our CMS.
+                          Please review all entered information before submitting your application.
                         </p>
                       </div>
 
@@ -1449,12 +1498,12 @@ export default function PassesClient() {
                       {isSubmitting ? (
                         <>
                           <div className="w-4 h-4 border-2 border-[#060D0B] border-t-transparent rounded-full animate-spin" />
-                          Logging Application into CMS...
+                          Submitting Application...
                         </>
                       ) : (
                         <>
                           <CheckCircle2 className="w-4 h-4" />
-                          Submit Application to CMS
+                          Submit Application
                         </>
                       )}
                     </button>
@@ -1464,6 +1513,8 @@ export default function PassesClient() {
             </div>
           )}
         </div>
+      </div>
+    )}
       </div>
 
       {/* Attendee Profile Onboarding Modal */}

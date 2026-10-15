@@ -304,21 +304,172 @@ export const REGISTRATION_STEPS: RegistrationStep[] = [
   {
     number: '01',
     title: 'Select Pass Tier',
-    desc: 'Choose your preferred pass (Silver, Gold, or Diamond) based on your expo and pitching goals.',
+    desc: 'Choose your preferred pass tier based on your participation and competition goals.',
   },
   {
     number: '02',
     title: 'Fill Details',
-    desc: 'Enter founder credentials, startup profile, and relevant focus tracks in under two minutes.',
+    desc: 'Enter delegate credentials, college affiliation, and relevant focus tracks in under two minutes.',
   },
   {
     number: '03',
     title: 'Instant Booking',
-    desc: 'Confirm registration, complete checkout, and receive your digital credential badge immediately.',
+    desc: 'Confirm registration, complete checkout, and receive your digital QR pass immediately.',
   },
   {
     number: '04',
     title: 'Summit Access',
-    desc: 'Arrive at PEC Chandigarh on summit day to collect your kit, booth allocation, and stage credentials.',
+    desc: 'Arrive at PEC Chandigarh on summit day to scan your QR badge and collect your official credentials.',
+  },
+]
+
+export interface StudentPassItem {
+  id: string
+  title: string
+  price: string
+  priceNumber: number
+  priceSuffix?: string
+  tagline: string
+  whatsIncluded: string
+  badgeText?: string
+  popular?: boolean
+  features: string[]
+}
+
+export const STUDENT_PASSES: StudentPassItem[] = [
+  {
+    id: 'free-delegate',
+    title: 'Free Delegate Pass',
+    price: 'Free',
+    priceNumber: 0,
+    tagline: 'Expo & Speaker Sessions',
+    whatsIncluded: 'Startup expo, speaker sessions, panel discussions',
+    features: [
+      'Startup expo floor entry',
+      'Keynote speaker sessions',
+      'Panel discussions with industry leaders',
+      'Summit Delegate Kit & Certificate',
+    ],
+  },
+  {
+    id: 'all-access',
+    title: 'All-Access Pass',
+    price: '₹249',
+    priceNumber: 249,
+    tagline: 'Competitions & Workshops',
+    whatsIncluded: 'All other competitions, interns fair, exclusive workshops + delegate access',
+    popular: true,
+    badgeText: 'MOST POPULAR',
+    features: [
+      'All other summit competitions',
+      'Interns fair entry & recruitment rounds',
+      'Exclusive technical & venture workshops',
+      'Full delegate access (Expo, Sessions, Panels)',
+    ],
+  },
+  {
+    id: 'hackathon',
+    title: 'Hackathon Pass',
+    price: '₹350',
+    priceNumber: 350,
+    tagline: '24-Hour Hackathon Sprint',
+    whatsIncluded: 'Hackathon participation',
+    badgeText: '24-HOUR HACK',
+    features: [
+      '24-Hour Hackathon arena access',
+      'Midnight meals, energy drinks & developer swag',
+      '$500+ cloud developer credits & APIs',
+      'Mentorship from senior software architects',
+    ],
+  },
+  {
+    id: 'ultimate-combo',
+    title: 'Ultimate Combo Pass',
+    price: '₹499',
+    priceNumber: 499,
+    tagline: 'All-Inclusive Summit Experience',
+    whatsIncluded: 'Hackathon + all competitions + interns fair + workshops + delegate access',
+    badgeText: 'BEST VALUE',
+    features: [
+      '24-Hour Hackathon participation',
+      'All other summit competitions',
+      'Interns fair priority access',
+      'Exclusive hands-on workshops',
+      'Full delegate access (Expo, Sessions, Panels)',
+    ],
+  },
+]
+
+export interface StudentComparisonFeature {
+  name: string
+  free: boolean
+  allAccess: boolean
+  hackathon: boolean
+  combo: boolean
+}
+
+export const STUDENT_COMPARISON_FEATURES: StudentComparisonFeature[] = [
+  {
+    name: 'Startup Expo Floor Access',
+    free: true,
+    allAccess: true,
+    hackathon: false,
+    combo: true,
+  },
+  {
+    name: 'Keynote Speaker Sessions',
+    free: true,
+    allAccess: true,
+    hackathon: false,
+    combo: true,
+  },
+  {
+    name: 'Founder & Investor Panel Discussions',
+    free: true,
+    allAccess: true,
+    hackathon: false,
+    combo: true,
+  },
+  {
+    name: 'All Other Summit Competitions',
+    free: false,
+    allAccess: true,
+    hackathon: false,
+    combo: true,
+  },
+  {
+    name: 'Interns Fair & Recruitment Rounds',
+    free: false,
+    allAccess: true,
+    hackathon: false,
+    combo: true,
+  },
+  {
+    name: 'Exclusive Hands-on Workshops',
+    free: false,
+    allAccess: true,
+    hackathon: false,
+    combo: true,
+  },
+  {
+    name: '24-Hour Hackathon Participation',
+    free: false,
+    allAccess: false,
+    hackathon: true,
+    combo: true,
+  },
+  {
+    name: 'Midnight Meals, Energy Drinks & Hacker Swag',
+    free: false,
+    allAccess: false,
+    hackathon: true,
+    combo: true,
+  },
+  {
+    name: 'Official Summit ID & Kit',
+    free: true,
+    allAccess: true,
+    hackathon: true,
+    combo: true,
   },
 ]
